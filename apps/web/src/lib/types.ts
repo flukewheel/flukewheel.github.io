@@ -1,5 +1,3 @@
-export type DeliveryMode = 'inline' | 'external'
-
 export interface Category {
   id: string
   name: string
@@ -14,7 +12,6 @@ export interface WebsiteSummary {
   originalUrl: string
   displayDomain: string
   categories: string[]
-  deliveryMode: DeliveryMode
   image: string
   addedLabel: string
 }

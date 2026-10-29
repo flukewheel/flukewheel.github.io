@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangle, ExternalLink, Home } from 'lucide-react'
+import { Home } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
@@ -42,38 +42,11 @@ export default function WebsiteViewer() {
     )
   }
 
-  if (website.data.deliveryMode === 'external') {
-    return (
-      <main className="viewer-fallback">
-        <div className="viewer-fallback__art" style={{ background: website.data.image }}>
-          <span>{website.data.title.slice(0, 1)}</span>
-        </div>
-        <div>
-          <p className="eyebrow">Open in a new tab</p>
-          <h1>{website.data.title}</h1>
-          <p>{website.data.description}</p>
-          <p className="viewer-note">
-            <AlertTriangle aria-hidden="true" /> This site is not marked as safe
-            for inline viewing, so flukewheel won't try to force it into a frame.
-          </p>
-          <a
-            className="primary-link"
-            href={website.data.originalUrl}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Open original website <ExternalLink aria-hidden="true" />
-          </a>
-        </div>
-      </main>
-    )
-  }
-
   return (
     <main className="viewer-shell">
       <iframe
         referrerPolicy="strict-origin-when-cross-origin"
-        sandbox="allow-forms allow-scripts"
+        sandbox="allow-forms allow-scripts allow-same-origin"
         src={website.data.originalUrl}
         title={`${website.data.title} website`}
       />

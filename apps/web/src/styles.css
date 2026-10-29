@@ -320,8 +320,7 @@ main:not(.viewer-shell) {
   text-transform: uppercase;
 }
 
-.route-state h1,
-.viewer-fallback h1 {
+.route-state h1 {
   max-width: 850px;
   margin: 0;
   font-size: clamp(2.8rem, 7vw, 6.35rem);
@@ -609,8 +608,7 @@ main:not(.viewer-shell) {
   line-height: 1.7;
 }
 
-.route-state,
-.viewer-fallback {
+.route-state {
   display: flex;
   min-height: calc(100vh - 78px);
   flex-direction: column;
@@ -619,52 +617,14 @@ main:not(.viewer-shell) {
   padding: 4rem 1rem;
 }
 
-.route-state h1,
-.viewer-fallback h1 {
+.route-state h1 {
   font-size: clamp(2.3rem, 5vw, 4.8rem);
 }
 
-.route-state > p:not(.eyebrow),
-.viewer-fallback p {
+.route-state > p:not(.eyebrow) {
   max-width: 660px;
   color: var(--muted);
   line-height: 1.7;
-}
-
-.viewer-fallback {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1fr);
-  gap: clamp(2rem, 7vw, 7rem);
-}
-
-.viewer-fallback__art {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 2rem;
-  color: white;
-  box-shadow: var(--shadow);
-}
-
-.viewer-fallback__art span {
-  font-size: clamp(5rem, 10vw, 9rem);
-  font-weight: 300;
-}
-
-.viewer-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin: 1.5rem 0;
-  border-top: 1px solid var(--line);
-  padding-top: 1.25rem;
-}
-
-.viewer-note svg {
-  flex: 0 0 auto;
-  width: 1.05rem;
-  margin-top: 0.25rem;
 }
 
 .viewer-shell {
@@ -799,13 +759,6 @@ main:not(.viewer-shell) {
     flex-direction: column;
   }
 
-  .viewer-fallback {
-    grid-template-columns: 1fr;
-  }
-
-  .viewer-fallback__art {
-    max-width: 280px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

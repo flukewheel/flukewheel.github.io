@@ -63,7 +63,6 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
               onClick={() => setSubmissionOpen(true)}
             />
             <ReactionControls
-              activeUrl={activeWebsite?.originalUrl}
               disabled={!isViewer || !activeWebsite}
             />
           </div>

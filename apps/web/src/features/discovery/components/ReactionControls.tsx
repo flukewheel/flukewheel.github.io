@@ -3,14 +3,12 @@ import { IconButton } from '../../../components/IconButton'
 import { DislikeDropdown } from './DislikeDropdown'
 
 interface ReactionControlsProps {
-  activeUrl?: string
   disabled: boolean
 }
 
-export function ReactionControls({ activeUrl, disabled }: ReactionControlsProps) {
+export function ReactionControls({ disabled }: ReactionControlsProps) {
   async function copyLink() {
-    if (!activeUrl) return
-    await navigator.clipboard.writeText(activeUrl)
+    await navigator.clipboard.writeText(window.location.href)
   }
 
   return (
@@ -23,7 +21,7 @@ export function ReactionControls({ activeUrl, disabled }: ReactionControlsProps)
       <IconButton
         disabled={disabled}
         icon={<Copy aria-hidden="true" />}
-        label="Copy original website link"
+        label="Copy discovery link"
         onClick={() => void copyLink()}
       />
       <IconButton

@@ -24,7 +24,7 @@ insert into public.websites (
     'https://hypertext.tv/',
     'Hypertext TV',
     'An independent corner of the web from Hypertext TV.',
-    'approved', true, 'unknown', now()
+    'approved', true, 'allowed', now()
   ),
   (
     '20000000-0000-4000-8000-000000000002',
@@ -48,7 +48,7 @@ insert into public.websites (
     'http://www.dobi.nu/yourscenesucks/',
     'Your Scene Sucks',
     'Illustrated music and style subcultures by Rob Dobi.',
-    'approved', true, 'blocked', now() - interval '3 minutes'
+    'approved', true, 'allowed', now() - interval '3 minutes'
   ),
   (
     '20000000-0000-4000-8000-000000000005',
@@ -56,7 +56,7 @@ insert into public.websites (
     'https://maptap.gg/',
     'MapTap',
     'A daily geography puzzle.',
-    'approved', true, 'unknown', now() - interval '4 minutes'
+    'approved', true, 'allowed', now() - interval '4 minutes'
   ),
   (
     '20000000-0000-4000-8000-000000000006',
@@ -64,7 +64,7 @@ insert into public.websites (
     'https://radio.garden/',
     'Radio Garden',
     'Listen to live radio from cities around the world.',
-    'approved', true, 'unknown', now() - interval '1 day'
+    'approved', true, 'allowed', now() - interval '1 day'
   ),
   (
     '20000000-0000-4000-8000-000000000007',
@@ -72,7 +72,7 @@ insert into public.websites (
     'https://www.mapcrunch.com/',
     'MapCrunch',
     'Explore a random street-level view.',
-    'approved', true, 'unknown', now() - interval '7 days'
+    'approved', true, 'allowed', now() - interval '7 days'
   ),
   (
     '20000000-0000-4000-8000-000000000008',
