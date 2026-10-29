@@ -118,12 +118,22 @@ on conflict do nothing;
 
 -- Additional user-curated sites. Original URLs are kept for the inline viewer;
 -- fragments are excluded from the unique database URL key.
+-- FMHY and Wolfram|Alpha are retained as inactive records because they block framing.
 insert into public.websites (
   id, original_url, normalised_url, title, description,
   approval_status, active, embedding_status, approved_at
 )
 select id, url, split_part(url, '#', 1), title, description,
-  'approved', true, 'allowed', now() - ordinal * interval '1 minute'
+  'approved',
+  id not in (
+    '20000000-0000-4000-8000-000000000043'::uuid,
+    '20000000-0000-4000-8000-000000000044'::uuid
+  ),
+  case when id in (
+    '20000000-0000-4000-8000-000000000043'::uuid,
+    '20000000-0000-4000-8000-000000000044'::uuid
+  ) then 'blocked' else 'allowed' end,
+  now() - ordinal * interval '1 minute'
 from (values
   ('20000000-0000-4000-8000-000000000009'::uuid, 'https://screen.toys/roadtrip/', 'Road Trip', 'An interactive road trip from Screen Toys.', 0),
   ('20000000-0000-4000-8000-000000000010'::uuid, 'https://apprundown.com/baitball', 'Bait Ball', 'An interactive 3D bait ball experience.', 1),
@@ -151,7 +161,7 @@ from (values
   ('20000000-0000-4000-8000-000000000032'::uuid, 'https://www.faceguesser.com/', 'Face Guesser', 'Try a daily face-guessing game.', 23),
   ('20000000-0000-4000-8000-000000000033'::uuid, 'https://bigpause.app/', 'Big Pause', 'Take a short mindful break.', 24),
   ('20000000-0000-4000-8000-000000000034'::uuid, 'https://driveandlisten.app/', 'Drive & Listen', 'Pair city drives with local radio.', 25),
-  ('20000000-0000-4000-8000-000000000035'::uuid, 'https://www.knac.com/', 'KNAC.COM', 'Listen to rock radio online.', 26),
+  ('20000000-0000-4000-8000-000000000035'::uuid, 'https://players.rcast.net/sombras/71987', 'KNAC Radio', 'Listen to KNAC rock radio through its linked player.', 26),
   ('20000000-0000-4000-8000-000000000036'::uuid, 'https://app.radiooooo.com/#_=_', 'Radiooooo', 'Explore music across places and decades.', 27),
   ('20000000-0000-4000-8000-000000000037'::uuid, 'https://mrdoob.com/lab/javascript/spinpainter/', 'Spin Painter', 'Create spinning digital drawings.', 28),
   ('20000000-0000-4000-8000-000000000038'::uuid, 'https://erppy.co/', 'Erppy', 'Explore a music-driven visual experience.', 29),
