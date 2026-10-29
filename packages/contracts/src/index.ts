@@ -88,6 +88,13 @@ export const validateWebsiteRequestSchema = z.strictObject({
   request_id: requestIdSchema,
 })
 
+export const validateWebsiteResponseSchema = z.strictObject({
+  request_id: requestIdSchema,
+  submission_id: z.string().uuid(),
+  validation_job_id: z.string().uuid(),
+  status: z.enum(['pending', 'complete', 'failed']),
+})
+
 export const moderateSubmissionRequestSchema = z.discriminatedUnion('decision', [
   z.strictObject({
     decision: z.literal('approve'),
@@ -112,9 +119,21 @@ export const moderateSubmissionRequestSchema = z.discriminatedUnion('decision', 
   }),
 ])
 
+export const moderateSubmissionResponseSchema = z.strictObject({
+  request_id: requestIdSchema,
+  submission_id: z.string().uuid(),
+  status: z.enum(['approved', 'rejected', 'duplicate']),
+  resolved_website_id: catalogueIdSchema.nullable(),
+})
+
 export const deleteAccountRequestSchema = z.strictObject({
   confirmation: z.literal('DELETE'),
   request_id: requestIdSchema,
+})
+
+export const deleteAccountResponseSchema = z.strictObject({
+  request_id: requestIdSchema,
+  deleted: z.literal(true),
 })
 
 export const apiErrorCodeSchema = z.enum([
@@ -143,7 +162,10 @@ export type ReactionRequest = z.infer<typeof reactionRequestSchema>
 export type SubmissionRequest = z.infer<typeof submissionRequestSchema>
 export type SubmissionReceipt = z.infer<typeof submissionReceiptSchema>
 export type ValidateWebsiteRequest = z.infer<typeof validateWebsiteRequestSchema>
+export type ValidateWebsiteResponse = z.infer<typeof validateWebsiteResponseSchema>
 export type ModerateSubmissionRequest = z.infer<typeof moderateSubmissionRequestSchema>
+export type ModerateSubmissionResponse = z.infer<typeof moderateSubmissionResponseSchema>
 export type DeleteAccountRequest = z.infer<typeof deleteAccountRequestSchema>
+export type DeleteAccountResponse = z.infer<typeof deleteAccountResponseSchema>
 export type ApiErrorCode = z.infer<typeof apiErrorCodeSchema>
 export type ApiError = z.infer<typeof apiErrorSchema>

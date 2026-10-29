@@ -17,8 +17,8 @@ function headersFor(request: Request): HeadersInit {
     : {}
 }
 
-function reply(request: Request, status: number, code: string, extra: Record<string, unknown> = {}) {
-  return Response.json({ code, ...extra }, { status, headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+function reply(request: Request, status: number, code: string, message: string, extra: Record<string, unknown> = {}) {
+  return Response.json({ code, message, request_id: crypto.randomUUID(), ...extra }, { status, headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
 }
 
 function detectedFormat(bytes: Uint8Array): 'jpeg' | 'png' | 'webp' | null {
@@ -63,35 +63,35 @@ async function boundedBody(request: Request, maximum: number): Promise<Uint8Arra
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: headersFor(request) })
-  if (request.method !== 'POST') return reply(request, 405, 'METHOD_NOT_ALLOWED')
-  if (request.headers.get('origin') && !allowedOrigins.has(request.headers.get('origin')!)) return reply(request, 403, 'FORBIDDEN_ORIGIN')
+  if (request.method !== 'POST') return reply(request, 405, 'INVALID_INPUT', 'Use POST to upload an avatar.')
+  if (request.headers.get('origin') && !allowedOrigins.has(request.headers.get('origin')!)) return reply(request, 403, 'FORBIDDEN', 'This origin is not allowed.')
   const token = request.headers.get('authorization')?.match(/^Bearer (.+)$/i)?.[1]
-  if (!token) return reply(request, 401, 'AUTH_REQUIRED')
+  if (!token) return reply(request, 401, 'AUTH_REQUIRED', 'Sign in to upload an avatar.')
   const url = Deno.env.get('SUPABASE_URL')
   const anonKey = defaultKey('SUPABASE_PUBLISHABLE_KEYS', 'SUPABASE_ANON_KEY')
   const serviceKey = defaultKey('SUPABASE_SECRET_KEYS', 'SUPABASE_SERVICE_ROLE_KEY')
-  if (!url || !anonKey || !serviceKey) return reply(request, 503, 'NOT_CONFIGURED')
+  if (!url || !anonKey || !serviceKey) return reply(request, 503, 'INTERNAL_ERROR', 'Avatar processing is unavailable.')
 
   const authClient = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } })
   const { data: { user }, error: authError } = await authClient.auth.getUser(token)
-  if (authError || !user || user.is_anonymous) return reply(request, 401, 'AUTH_REQUIRED')
+  if (authError || !user || user.is_anonymous) return reply(request, 401, 'AUTH_REQUIRED', 'Sign in to upload an avatar.')
 
   const length = Number(request.headers.get('content-length') ?? '0')
-  if (length > MAX_INPUT + 16_384) return reply(request, 413, 'IMAGE_TOO_LARGE')
-  if (!request.headers.get('content-type')?.startsWith('multipart/form-data;')) return reply(request, 400, 'INVALID_INPUT')
+  if (length > MAX_INPUT + 16_384) return reply(request, 413, 'INVALID_INPUT', 'Image is too large.')
+  if (!request.headers.get('content-type')?.startsWith('multipart/form-data;')) return reply(request, 400, 'INVALID_INPUT', 'Expected a multipart form.')
 
   const body = await boundedBody(request, MAX_INPUT + 16_384)
-  if (!body) return reply(request, 413, 'IMAGE_TOO_LARGE')
+  if (!body) return reply(request, 413, 'INVALID_INPUT', 'Image is too large.')
   let file: FormDataEntryValue | null
   try {
     const formRequest = new Request(request.url, { method: 'POST', headers: { 'content-type': request.headers.get('content-type')! }, body })
     file = (await formRequest.formData()).get('file')
   }
-  catch { return reply(request, 400, 'INVALID_INPUT') }
-  if (!(file instanceof File) || file.size === 0 || file.size > MAX_INPUT) return reply(request, 400, 'INVALID_IMAGE')
+  catch { return reply(request, 400, 'INVALID_INPUT', 'Invalid multipart form.') }
+  if (!(file instanceof File) || file.size === 0 || file.size > MAX_INPUT) return reply(request, 400, 'INVALID_INPUT', 'Invalid image file.')
   const bytes = new Uint8Array(await file.arrayBuffer())
   const format = detectedFormat(bytes)
-  if (!format || file.type !== `image/${format}`) return reply(request, 400, 'INVALID_IMAGE')
+  if (!format || file.type !== `image/${format}`) return reply(request, 400, 'INVALID_INPUT', 'Use a valid JPEG, PNG or WebP image.')
 
   let output: Uint8Array
   try {
@@ -106,23 +106,23 @@ Deno.serve(async (request) => {
     })
   } catch (error) {
     console.error('Avatar conversion failed:', error instanceof Error ? error.message : 'unknown error')
-    return reply(request, 400, 'INVALID_IMAGE')
+    return reply(request, 400, 'INVALID_INPUT', 'Image could not be decoded or is outside size limits.')
   }
-  if (output.length === 0 || output.length > MAX_INPUT) return reply(request, 400, 'INVALID_IMAGE')
+  if (output.length === 0 || output.length > MAX_INPUT) return reply(request, 400, 'INVALID_INPUT', 'Processed image is too large.')
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
   const { data: oldProfile, error: readError } = await admin.from('profiles').select('avatar_path').eq('id', user.id).maybeSingle()
-  if (readError) return reply(request, 500, 'STORAGE_ERROR')
+  if (readError) return reply(request, 500, 'INTERNAL_ERROR', 'Avatar could not be saved.')
   const path = `${user.id}/${crypto.randomUUID()}.webp`
   const { error: uploadError } = await admin.storage.from('avatars').upload(path, output, { contentType: 'image/webp', upsert: false, cacheControl: '3600' })
-  if (uploadError) return reply(request, 500, 'STORAGE_ERROR')
+  if (uploadError) return reply(request, 500, 'INTERNAL_ERROR', 'Avatar could not be saved.')
   const { error: profileError } = await admin.from('profiles').upsert({ id: user.id, avatar_path: path }, { onConflict: 'id' })
   if (profileError) {
     await admin.storage.from('avatars').remove([path])
-    return reply(request, 500, 'STORAGE_ERROR')
+    return reply(request, 500, 'INTERNAL_ERROR', 'Avatar could not be saved.')
   }
   if (oldProfile?.avatar_path?.startsWith(`${user.id}/`) && oldProfile.avatar_path !== path) {
     await admin.storage.from('avatars').remove([oldProfile.avatar_path])
   }
-  return reply(request, 200, 'OK', { path })
+  return reply(request, 200, 'OK', 'Avatar saved.', { path })
 })

@@ -4,6 +4,8 @@ The migration creates the public catalogue, profile and user activity tables plu
 
 `npx supabase db reset --local` completed successfully on 24 October 2026. The local seed has four categories, eight approved sites, and sixteen site/category links. Generated public database types compile with the web app. Both Supabase local security and performance advisors returned no issues. The SQL security test passed guest visibility, owner isolation, ownership reassignment denial, role escalation denial, pending/rejected content denial, and private admin access checks.
 
+On 29 October 2026, direct HTTP checks found that `https://www.hypertext.tv` did not resolve but `https://hypertext.tv/` returned 200. The seed now uses the apex host. Normal Bob Smith's HTTPS certificate did not match its host and KBS's certificate was expired, so those two approved records remain inactive pending review. The current local seed has eight approved records, six publicly visible active sites and twelve publicly visible category links. A clean reset and the SQL security suite passed after this change. These HTTP checks establish reachability at the time of testing, not iframe compatibility.
+
 Representative `EXPLAIN (ANALYZE, BUFFERS)` results on the small seed:
 
 | Query | Observed plan | Execution |

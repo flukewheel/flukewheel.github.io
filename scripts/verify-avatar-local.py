@@ -40,15 +40,15 @@ try:
         return call(base + "/functions/v1/process-avatar", "POST", {"apikey": anon, "Authorization": f"Bearer {token}", "Content-Type": f"multipart/form-data; boundary={boundary}"}, body)
 
     code, response = upload(png, "image/png")
-    assert code == 200 and response.get("code") == "OK", (code, response)
+    assert code == 200 and response.get("code") == "OK" and uuid.UUID(response["request_id"]), (code, response)
     path = response["path"]
     assert path.startswith(user_id + "/") and path.endswith(".webp")
     code, profile = call(base + f"/rest/v1/profiles?id=eq.{user_id}&select=avatar_path", "GET", {"apikey": service, "Authorization": f"Bearer {service}"})
     assert code == 200 and profile == [{"avatar_path": path}], (code, profile)
     code, bad = upload(b"<svg></svg>", "image/png")
-    assert code == 400 and bad.get("code") == "INVALID_IMAGE", (code, bad)
+    assert code == 400 and bad.get("code") == "INVALID_INPUT" and uuid.UUID(bad["request_id"]), (code, bad)
     code, oversized = upload(png + b"0" * 1_048_576, "image/png")
-    assert code == 413 and oversized.get("code") == "IMAGE_TOO_LARGE", (code, oversized)
+    assert code == 413 and oversized.get("code") == "INVALID_INPUT" and uuid.UUID(oversized["request_id"]), (code, oversized)
     print("Authenticated PNG upload, profile update, invalid-image and size-limit checks passed.")
 finally:
     if path:

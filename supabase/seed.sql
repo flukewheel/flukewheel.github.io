@@ -1,4 +1,6 @@
--- Local development catalogue only. Hosted projects receive curated entries
+-- Local development catalogue only. Normal Bob Smith and KBS remain inactive
+-- pending URL/certificate review; Hypertext TV uses its reachable apex host.
+-- Hosted projects receive curated entries
 -- through the moderation workflow; `db push` does not run this seed file.
 insert into public.categories (id, slug, display_name, description, display_order)
 values
@@ -18,8 +20,8 @@ insert into public.websites (
 ) values
   (
     '20000000-0000-4000-8000-000000000001',
-    'https://www.hypertext.tv',
-    'https://www.hypertext.tv/',
+    'https://hypertext.tv/',
+    'https://hypertext.tv/',
     'Hypertext TV',
     'An independent corner of the web from Hypertext TV.',
     'approved', true, 'unknown', now()
@@ -30,7 +32,7 @@ insert into public.websites (
     'https://normalbobsmith.com/',
     'Normal Bob Smith',
     'An independent website by Normal Bob Smith.',
-    'approved', true, 'unknown', now() - interval '1 minute'
+    'approved', false, 'needs_review', now() - interval '1 minute'
   ),
   (
     '20000000-0000-4000-8000-000000000003',
@@ -38,7 +40,7 @@ insert into public.websites (
     'https://www.kbs.im/',
     'KBS',
     'A small independent web project.',
-    'approved', true, 'unknown', now() - interval '2 minutes'
+    'approved', false, 'needs_review', now() - interval '2 minutes'
   ),
   (
     '20000000-0000-4000-8000-000000000004',

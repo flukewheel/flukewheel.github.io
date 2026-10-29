@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   bumpRequestSchema,
+  moderateSubmissionResponseSchema,
   reactionRequestSchema,
   submissionRequestSchema,
 } from './index'
@@ -62,5 +63,21 @@ describe('request contracts', () => {
         request_id: requestId,
       }),
     ).toThrow('URLs with embedded credentials are not supported')
+  })
+
+  it('keeps moderation receipts bounded and rejects internal fields', () => {
+    expect(moderateSubmissionResponseSchema.parse({
+      request_id: requestId,
+      submission_id: id,
+      status: 'approved',
+      resolved_website_id: id,
+    }).status).toBe('approved')
+    expect(() => moderateSubmissionResponseSchema.parse({
+      request_id: requestId,
+      submission_id: id,
+      status: 'approved',
+      resolved_website_id: id,
+      moderation_notes: 'private',
+    })).toThrow()
   })
 })
