@@ -80,7 +80,7 @@ insert into public.websites (
     'https://weavesilk.com/',
     'Silk',
     'Make luminous generative drawings in your browser.',
-    'approved', true, 'unknown', now() - interval '30 days'
+    'approved', true, 'allowed', now() - interval '30 days'
   )
 on conflict (id) do update set
   original_url = excluded.original_url,
