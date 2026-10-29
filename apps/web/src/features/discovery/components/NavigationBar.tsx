@@ -74,10 +74,10 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
 
         <div className="topbar__centre">
           <BumpButton busy={bumping} onBump={() => void bump()} />
+          <InterestSelector />
         </div>
 
         <div className="topbar__side topbar__side--right">
-          <InterestSelector />
           <ProfileMenu onOpenAuth={onOpenAuth} />
         </div>
       </header>

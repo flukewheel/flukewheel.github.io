@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
 import { paths } from '../../app/paths'
+import { LoadingWheel } from '../../components/LoadingWheel'
 import { catalogueAdapter } from '../../lib/adapters'
 
 export default function WebsiteViewer() {
@@ -21,12 +22,7 @@ export default function WebsiteViewer() {
   }, [dispatch, website.data])
 
   if (website.isPending) {
-    return (
-      <main className="route-state" aria-live="polite">
-        <p className="eyebrow">Opening a discovery</p>
-        <h1>Dusting off a curious corner...</h1>
-      </main>
-    )
+    return <LoadingWheel />
   }
 
   if (website.isError || !website.data) {

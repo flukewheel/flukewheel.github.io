@@ -104,6 +104,8 @@ button:disabled {
 
 .app-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar {
@@ -147,7 +149,9 @@ button:disabled {
 
 .topbar__centre {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.7rem;
   padding-inline: 1.2rem;
 }
 
@@ -359,6 +363,39 @@ main:not(.viewer-shell) {
   gap: 1.2rem;
 }
 
+.section-heading__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.carousel-button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.carousel-button:hover { background: var(--surface-soft); }
+
+.card-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2.4rem) / 3);
+  gap: 1.2rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.card-carousel > * { scroll-snap-align: start; }
+
 .website-card {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -385,6 +422,49 @@ main:not(.viewer-shell) {
   font-weight: 300;
   transform: rotate(-7deg);
 }
+
+.website-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: auto;
+  padding: 2rem 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.site-footer svg { width: 0.92rem; height: 0.92rem; color: var(--brand); }
+
+.loading-wheel {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: calc(100vh - 78px);
+}
+
+.loading-wheel__ring,
+.button-spinner {
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 3px solid rgb(255 255 255 / 0.18);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: wheel-spin 700ms linear infinite;
+}
+
+.button-spinner { width: 1rem; height: 1rem; border-width: 2px; border-top-color: currentColor; }
+
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
 
 .website-card__body {
   padding: 1.25rem;
@@ -677,7 +757,7 @@ main:not(.viewer-shell) {
   .topbar {
     grid-template-areas:
       "brand centre profile"
-      "actions actions interests";
+      "actions actions actions";
     grid-template-columns: 1fr auto 1fr;
     gap: 0.65rem;
   }
@@ -690,12 +770,14 @@ main:not(.viewer-shell) {
   .topbar__centre { grid-area: centre; padding: 0; }
   .toolbar-actions { grid-area: actions; }
   .topbar__side--right { grid-area: profile; }
-  .interest-selector { position: absolute; right: 1rem; top: 4.35rem; }
+  .interest-selector { position: static; }
   .profile-button { justify-self: end; }
 
   .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .card-carousel { grid-auto-columns: calc((100% - 1.2rem) / 2); }
 
   .card-grid .website-card:last-child {
     display: none;
@@ -713,6 +795,8 @@ main:not(.viewer-shell) {
 
 @media (max-width: 620px) {
   .topbar {
+    grid-template-areas: "brand profile" "centre centre" "actions actions";
+    grid-template-columns: 1fr auto;
     min-height: 132px;
     padding: 0.65rem 0.75rem;
   }
@@ -733,10 +817,7 @@ main:not(.viewer-shell) {
     justify-content: flex-start;
   }
 
-  .interest-selector {
-    top: 4.25rem;
-    right: 0.75rem;
-  }
+  .interest-selector { position: static; }
 
   .viewer-shell {
     height: calc(100vh - 132px);
@@ -746,6 +827,10 @@ main:not(.viewer-shell) {
   .category-grid {
     grid-template-columns: 1fr;
   }
+
+  .card-carousel { grid-auto-columns: minmax(260px, 85%); }
+
+  .loading-wheel { min-height: calc(100vh - 132px); }
 
   .card-grid .website-card:last-child {
     display: block;

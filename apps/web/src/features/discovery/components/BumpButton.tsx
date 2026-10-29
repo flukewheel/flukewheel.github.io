@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react'
+import { Shuffle } from 'lucide-react'
 
 interface BumpButtonProps {
   busy: boolean
@@ -14,8 +14,8 @@ export function BumpButton({ busy, onBump }: BumpButtonProps) {
       onClick={onBump}
       type="button"
     >
-      <Sparkles aria-hidden="true" />
-      {busy ? 'Finding…' : 'Bump!'}
+      {busy ? <span aria-hidden="true" className="button-spinner" /> : <Shuffle aria-hidden="true" />}
+      Bump!
     </button>
   )
 }

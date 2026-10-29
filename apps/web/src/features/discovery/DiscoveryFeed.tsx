@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Compass, LogIn } from 'lucide-react'
-import type { CSSProperties } from 'react'
+import { ArrowRight, ChevronLeft, ChevronRight, Compass, LogIn } from 'lucide-react'
+import { useRef, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
 import { paths } from '../../app/paths'
@@ -16,6 +16,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
   const { categoryId } = useParams()
   const navigate = useNavigate()
   const { dispatch } = useAppState()
+  const recentRef = useRef<HTMLDivElement>(null)
   const catalogue = useQuery({
     queryKey: ['catalogue', 'recent'],
     queryFn: catalogueAdapter.listRecent,
@@ -33,22 +34,32 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
         website.categories.includes(activeCategory.name),
       )
     : catalogue.data
+  const recentWebsites = visibleWebsites?.slice(0, 10)
+
+  function scrollRecent(direction: -1 | 1) {
+    const carousel = recentRef.current
+    if (!carousel) return
+    carousel.scrollBy({ left: direction * carousel.clientWidth * 0.85, behavior: 'smooth' })
+  }
 
   return (
     <main id="main-content">
       <section aria-labelledby="recent-heading" className="feed-section feed-section--first">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Fresh finds</p>
             <h2 id="recent-heading">
               {activeCategory ? activeCategory.name : 'Recently added'}
             </h2>
           </div>
+          <div className="section-heading__actions">
           {activeCategory && (
             <Link className="text-link" to={paths.home}>
               Clear category
             </Link>
           )}
+          <button aria-label="Previous recent websites" className="carousel-button" onClick={() => scrollRecent(-1)} type="button"><ChevronLeft aria-hidden="true" /></button>
+          <button aria-label="Next recent websites" className="carousel-button" onClick={() => scrollRecent(1)} type="button"><ChevronRight aria-hidden="true" /></button>
+          </div>
         </div>
 
         {catalogue.isPending && (
@@ -83,8 +94,8 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
           </div>
         )}
         {visibleWebsites && visibleWebsites.length > 0 && (
-          <div className="card-grid">
-            {visibleWebsites.map((website) => (
+          <div aria-label="Recently added websites" className="card-carousel" ref={recentRef}>
+            {recentWebsites?.map((website) => (
               <WebsiteCard key={website.id} website={website} />
             ))}
           </div>
@@ -102,7 +113,6 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
       <section aria-labelledby="for-you-heading" className="feed-section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Your curious side</p>
             <h2 id="for-you-heading">For you</h2>
           </div>
         </div>
@@ -131,7 +141,6 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
       <section aria-labelledby="categories-heading" className="feed-section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Pick a direction</p>
             <h2 id="categories-heading">Explore categories</h2>
           </div>
         </div>
