@@ -13,3 +13,5 @@ The confirmed Auth user `shaunschwegler@gmail.com` is the sole administrator in 
 The Supabase connector deployed and verified the hosted resources. The local Supabase CLI is linked to this project. `npx supabase migration list --linked` confirmed that both local and remote versions match: `20261029162651` and `20261029162659`. `npx supabase db diff --linked --schema public,private,storage` found no schema changes. Recheck migration differences before any future `db push`. Do not commit a personal access token.
 
 Set `AVATAR_ALLOWED_ORIGINS` to exact frontend origins before adding a browser avatar upload UI. The hosted Edge runtime supplies current publishable and secret keys to `process-avatar`; the local runtime can use its legacy keys. Do not enable direct client avatar writes.
+
+The approved Phase 2 media requirement grants owners read access to their avatar paths and reserves writes for the trusted processor. Section 2.5 of `plan.docx` was clarified to match this boundary.
