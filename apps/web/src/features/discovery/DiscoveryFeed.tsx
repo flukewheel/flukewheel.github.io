@@ -84,7 +84,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
         )}
         {visibleWebsites && visibleWebsites.length > 0 && (
           <div className="card-grid">
-            {visibleWebsites.slice(0, 3).map((website) => (
+            {visibleWebsites.map((website) => (
               <WebsiteCard key={website.id} website={website} />
             ))}
           </div>

@@ -108,7 +108,7 @@ export const catalogueAdapter = {
       .select(websiteColumns)
       .order('approved_at', { ascending: false })
       .order('id', { ascending: false })
-      .limit(24)
+      .limit(100)
     if (error) throw error
 
     const names = await categoryNamesFor((data ?? []).map((row) => row.id))

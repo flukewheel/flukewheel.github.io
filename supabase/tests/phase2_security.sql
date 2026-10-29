@@ -46,10 +46,10 @@ begin
   if (select count(*) from public.categories) <> 4 then
     raise exception 'guest category access failed';
   end if;
-  if (select count(*) from public.websites) <> 6 then
+  if (select count(*) from public.websites) <> 50 then
     raise exception 'pending or rejected website leaked to guest';
   end if;
-  if (select count(*) from public.website_categories) <> 12 then
+  if (select count(*) from public.website_categories) <> 95 then
     raise exception 'guest category links mismatch';
   end if;
   begin
@@ -92,7 +92,7 @@ begin
   if (select count(*) from public.website_submissions) <> 1 then
     raise exception 'submission owner isolation failed';
   end if;
-  if (select count(*) from public.websites) <> 6 then
+  if (select count(*) from public.websites) <> 50 then
     raise exception 'pending or rejected website leaked to member';
   end if;
   begin
@@ -198,7 +198,7 @@ begin
   if (select count(*) from private.user_roles where role = 'admin') <> 1 then
     raise exception 'trusted admin authority missing';
   end if;
-  if (select count(*) from public.websites) <> 10 then
+  if (select count(*) from public.websites) <> 52 then
     raise exception 'service role cannot inspect moderation rows';
   end if;
 end;
