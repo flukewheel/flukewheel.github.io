@@ -8,6 +8,6 @@ The hosted database has the same two migrations as `supabase/migrations`, using 
 
 The hosted project intentionally has no local seed data. `supabase/seed.sql` is for local development only; hosted catalogue entries should arrive through the moderation workflow. The hosted email provider is enabled. Google OAuth is not yet enabled, so a real Google login check awaits the Phase 3 OAuth client and a hosted frontend callback origin. Its Google redirect URI will be `https://llzbpurpmcuiqcmserrd.supabase.co/auth/v1/callback`.
 
-The Supabase connector deployed and verified the hosted resources. The local Supabase CLI has no personal access token in this environment, so it cannot run `supabase link` yet. After a developer signs into the CLI, link only this project with `npx supabase link --project-ref llzbpurpmcuiqcmserrd` and check `npx supabase migration list` before any future `db push`. Do not commit a personal access token.
+The Supabase connector deployed and verified the hosted resources. The local Supabase CLI is linked to this project. `npx supabase migration list --linked` confirmed that both local and remote versions match: `20261029162651` and `20261029162659`. Confirm the link and review migration differences before any future `db push`. Do not commit a personal access token.
 
 Set `AVATAR_ALLOWED_ORIGINS` to exact frontend origins before adding a browser avatar upload UI. The hosted Edge runtime supplies current publishable and secret keys to `process-avatar`; the local runtime can use its legacy keys. Do not enable direct client avatar writes.
