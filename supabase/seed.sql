@@ -116,6 +116,137 @@ join public.websites w on w.id = assignment.website_id
 join public.categories c on c.slug = assignment.slug
 on conflict do nothing;
 
+-- User-curated additions. Happy Wheels forbids framing, while Encyclopedia
+-- Dramatica and TV Tropes failed the inline browser check; these records stay
+-- inactive for review without showing broken cards.
+insert into public.websites (
+  id, original_url, normalised_url, title, description,
+  approval_status, active, embedding_status, approved_at
+)
+select id, url, split_part(url, '#', 1), title, description,
+  'approved', enabled, case when enabled then 'allowed' else 'blocked' end,
+  now() - ordinal * interval '1 minute'
+from (values
+  ('20000000-0000-4000-8000-000000000051'::uuid, 'https://www.worldguessr.com/', 'WorldGuessr', 'Guess places from street-view clues.', true, 0),
+  ('20000000-0000-4000-8000-000000000052'::uuid, 'https://totaljerkface.com/happy_wheels.tjf', 'Happy Wheels', 'Play the physics-based Happy Wheels game.', false, 1),
+  ('20000000-0000-4000-8000-000000000053'::uuid, 'https://www.decisionproblem.com/paperclips/index2.html', 'Universal Paperclips', 'A browser game about making paperclips.', true, 2),
+  ('20000000-0000-4000-8000-000000000054'::uuid, 'https://powdertoy.co.uk/Wasm.html', 'The Powder Toy', 'Experiment with falling-sand physics in a browser.', true, 3),
+  ('20000000-0000-4000-8000-000000000055'::uuid, 'https://edramatica.com/Greta_Thunberg', 'Encyclopedia Dramatica: Greta Thunberg', 'A satirical wiki article.', false, 4),
+  ('20000000-0000-4000-8000-000000000056'::uuid, 'https://friday13thmetal.co.uk/Page%202%20-%20History%20&%20News/history_page.htm', 'Friday 13th Metal History', 'Browse a metal music history page.', true, 5),
+  ('20000000-0000-4000-8000-000000000057'::uuid, 'https://www.webelements.com/', 'WebElements', 'Explore an interactive periodic table.', true, 6),
+  ('20000000-0000-4000-8000-000000000058'::uuid, 'https://gwern.net/nootropic/magnesium', 'Magnesium Self-Experiments', 'Read a detailed article on magnesium experiments.', true, 7),
+  ('20000000-0000-4000-8000-000000000059'::uuid, 'https://geocities.restorativland.org/Hollywood/Location/1330/', 'World of Scream', 'Explore an archived Geocities fan site.', true, 8),
+  ('20000000-0000-4000-8000-000000000060'::uuid, 'https://tvtropes.org/pmwiki/browse.php', 'TV Tropes Browse', 'Browse storytelling tropes and media examples.', false, 9),
+  ('20000000-0000-4000-8000-000000000061'::uuid, 'https://www.banner-depot-2000.net/', 'Banner Depot 2000', 'Explore a gallery of classic web banners.', true, 10),
+  ('20000000-0000-4000-8000-000000000062'::uuid, 'https://baselashraf.com/roadwright/#f=octagon', 'Roadwright', 'Draw a wheel and see the road it rolls on.', true, 11),
+  ('20000000-0000-4000-8000-000000000063'::uuid, 'https://bartoszmilewski.com/2021/02/16/functorio/', 'Functorio', 'Read an article about functional programming.', true, 12),
+  ('20000000-0000-4000-8000-000000000064'::uuid, 'https://www.howequipmentworks.com/apollo_13/', 'Apollo 13 CO2 Absorber', 'Learn how the Apollo 13 carbon dioxide absorber worked.', true, 13),
+  ('20000000-0000-4000-8000-000000000065'::uuid, 'https://iss-sim.spacex.com/', 'ISS Docking Simulator', 'Try docking a spacecraft with the ISS.', true, 14),
+  ('20000000-0000-4000-8000-000000000066'::uuid, 'https://stewthius.com/', 'Stewthius', 'Follow the perpetual stew chronicle.', true, 15),
+  ('20000000-0000-4000-8000-000000000067'::uuid, 'https://lightyear.fm/', 'Lightyear FM', 'Explore an interactive music experience.', true, 16),
+  ('20000000-0000-4000-8000-000000000068'::uuid, 'https://www.showrunnerstudio.com/', 'Showrunner', 'Explore an interactive storytelling studio.', true, 17),
+  ('20000000-0000-4000-8000-000000000069'::uuid, 'https://www.tipsontables.com/', 'Tips on Tables', 'Explore tips presented in tables.', true, 18),
+  ('20000000-0000-4000-8000-000000000070'::uuid, 'https://cyber.dabamos.de/88x31/index.html', '88x31 Buttons', 'Browse a collection of classic web buttons.', true, 19),
+  ('20000000-0000-4000-8000-000000000071'::uuid, 'https://spam.budwin.net/', 'Spam Guide', 'Explore a guide to Spam-like products.', true, 20),
+  ('20000000-0000-4000-8000-000000000072'::uuid, 'https://en.wikipedia.org/wiki/List_of_lists_of_lists', 'List of Lists of Lists', 'Browse Wikipedia''s nested list collection.', true, 21),
+  ('20000000-0000-4000-8000-000000000073'::uuid, 'https://swimlanes.io/', 'Swimlanes', 'Create sequence diagrams in a browser.', true, 22),
+  ('20000000-0000-4000-8000-000000000074'::uuid, 'https://readitandweep.live/', 'Read It and Weep', 'Explore a reader-driven web project.', true, 23),
+  ('20000000-0000-4000-8000-000000000075'::uuid, 'https://captcha-game-changer-fac3f2abc3d1.herokuapp.com/', 'CAPTCHA Game', 'Play an interactive CAPTCHA game.', true, 24),
+  ('20000000-0000-4000-8000-000000000076'::uuid, 'https://koalastothemax.com/', 'Koalas to the Max', 'Reveal an image through an interactive canvas.', true, 25),
+  ('20000000-0000-4000-8000-000000000077'::uuid, 'https://recyclebin.zip/posts/2026-05-25-secret-scanning-fleet-bagel/', 'Secret Scanning Fleet Bagel', 'Read about detecting secrets on development workstations.', true, 26),
+  ('20000000-0000-4000-8000-000000000078'::uuid, 'https://art.teleportacia.org/', 'Olia Lialina''s Art', 'Explore early net art and web projects.', true, 27),
+  ('20000000-0000-4000-8000-000000000079'::uuid, 'https://www.adamauton.com/warp/', 'Warp', 'Explore an interactive special relativity simulator.', true, 28),
+  ('20000000-0000-4000-8000-000000000080'::uuid, 'https://www.htmhell.dev/', 'HTMHell', 'Learn about HTML mistakes and better patterns.', true, 29),
+  ('20000000-0000-4000-8000-000000000081'::uuid, 'https://www.zainrizvi.io/blog/the-impostors-advantage/', 'The Impostor''s Advantage', 'Read an essay about learning and self-doubt.', true, 30),
+  ('20000000-0000-4000-8000-000000000082'::uuid, 'https://radiopaper.com/explore', 'Radiopaper', 'Explore conversations and audio stories.', true, 31),
+  ('20000000-0000-4000-8000-000000000083'::uuid, 'https://map.alltheviews.world/', 'All The Views', 'Explore a map of places and views.', true, 32),
+  ('20000000-0000-4000-8000-000000000084'::uuid, 'https://sael.net/periodic-table/', 'Periodic Table in 3D', 'Explore chemical elements in three dimensions.', true, 33),
+  ('20000000-0000-4000-8000-000000000085'::uuid, 'https://flyingcarsimulator.io/', 'Flying Car Simulator', 'Drive and fly an interactive roadster.', true, 34),
+  ('20000000-0000-4000-8000-000000000086'::uuid, 'https://sael.net/parking/', 'Learn to Park', 'Practice parking in a browser simulation.', true, 35),
+  ('20000000-0000-4000-8000-000000000087'::uuid, 'https://newkrok.com/gamer-zone/hitch-park', 'Hitch Park', 'Play a browser parking game.', true, 36)
+) as curated(id, url, title, description, enabled, ordinal)
+on conflict (id) do update set
+  original_url = excluded.original_url,
+  normalised_url = excluded.normalised_url,
+  title = excluded.title,
+  description = excluded.description,
+  approval_status = excluded.approval_status,
+  active = excluded.active,
+  embedding_status = excluded.embedding_status,
+  approved_at = excluded.approved_at;
+
+insert into public.website_categories (website_id, category_id)
+select assignment.website_id, c.id
+from (values
+  ('20000000-0000-4000-8000-000000000051'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000051'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000052'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000053'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000053'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000054'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000054'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000055'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000056'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000056'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000057'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000057'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000058'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000059'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000059'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000060'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000060'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000061'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000061'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000062'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000062'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000063'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000063'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000064'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000065'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000065'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000066'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000067'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000067'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000068'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000068'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000069'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000069'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000070'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000070'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000071'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000071'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000072'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000072'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000073'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000073'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000074'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000074'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000075'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000076'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000076'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000077'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000077'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000078'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000078'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000079'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000079'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000080'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000080'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000081'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000082'::uuid, 'art'),
+  ('20000000-0000-4000-8000-000000000082'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000083'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000083'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000084'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000084'::uuid, 'free'),
+  ('20000000-0000-4000-8000-000000000085'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000086'::uuid, 'educational'),
+  ('20000000-0000-4000-8000-000000000086'::uuid, 'funny'),
+  ('20000000-0000-4000-8000-000000000087'::uuid, 'funny')
+) as assignment(website_id, slug)
+join public.categories c on c.slug = assignment.slug
+on conflict do nothing;
+
 -- Additional user-curated sites. Original URLs are kept for the inline viewer;
 -- fragments are excluded from the unique database URL key.
 -- FMHY and Wolfram|Alpha are retained as inactive records because they block framing.

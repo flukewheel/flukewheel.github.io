@@ -1,6 +1,7 @@
 import { categories as testCategories, websites as testWebsites } from '../features/discovery/data/fixtures'
 import type { Database } from './database.types'
 import { getSupabaseClient } from './supabase'
+import { selectNextDiscovery } from './discoverySelection'
 import type { Category, WebsiteSummary } from './types'
 
 type WebsiteRow = Database['public']['Tables']['websites']['Row']
@@ -52,13 +53,17 @@ async function categoryNamesFor(websiteIds: string[]) {
   const client = clientOrThrow()
   if (websiteIds.length === 0) return new Map<string, string[]>()
 
-  const { data: links, error: linksError } = await client
-    .from('website_categories')
-    .select('website_id, category_id')
-    .in('website_id', websiteIds)
-  if (linksError) throw linksError
+  const links = []
+  for (let offset = 0; offset < websiteIds.length; offset += 100) {
+    const { data, error } = await client
+      .from('website_categories')
+      .select('website_id, category_id')
+      .in('website_id', websiteIds.slice(offset, offset + 100))
+    if (error) throw error
+    links.push(...(data ?? []))
+  }
 
-  const categoryIds = [...new Set((links ?? []).map((link) => link.category_id))]
+  const categoryIds = [...new Set(links.map((link) => link.category_id))]
   if (categoryIds.length === 0) return new Map<string, string[]>()
 
   const { data: categoryRows, error: categoryError } = await client
@@ -69,7 +74,7 @@ async function categoryNamesFor(websiteIds: string[]) {
 
   const nameById = new Map((categoryRows ?? []).map((row) => [row.id, row.display_name]))
   const namesByWebsite = new Map<string, string[]>()
-  for (const link of links ?? []) {
+  for (const link of links) {
     const name = nameById.get(link.category_id)
     if (!name) continue
     namesByWebsite.set(link.website_id, [...(namesByWebsite.get(link.website_id) ?? []), name])
@@ -103,16 +108,21 @@ export const catalogueAdapter = {
     if (shouldUseTestFixtures()) return testWebsites
 
     const client = clientOrThrow()
-    const { data, error } = await client
-      .from('websites')
-      .select(websiteColumns)
-      .order('approved_at', { ascending: false })
-      .order('id', { ascending: false })
-      .limit(100)
-    if (error) throw error
+    const rows: PublicWebsiteRow[] = []
+    for (let offset = 0; ; offset += 100) {
+      const { data, error } = await client
+        .from('websites')
+        .select(websiteColumns)
+        .order('approved_at', { ascending: false })
+        .order('id', { ascending: false })
+        .range(offset, offset + 99)
+      if (error) throw error
+      rows.push(...(data ?? []))
+      if (!data || data.length < 100) break
+    }
 
-    const names = await categoryNamesFor((data ?? []).map((row) => row.id))
-    return (data ?? []).map((row) => toWebsiteSummary(row, names.get(row.id) ?? []))
+    const names = await categoryNamesFor(rows.map((row) => row.id))
+    return rows.map((row) => toWebsiteSummary(row, names.get(row.id) ?? []))
   },
 
   listCategories: async (): Promise<Category[]> => {
@@ -158,19 +168,13 @@ export const discoveryAdapter = {
   // the bounded server selection contract and recorded member history.
   bump: async (
     interestId: string,
-    recentIds: string[],
-  ): Promise<WebsiteSummary | null> => {
+    seenIds: string[],
+  ) => {
     const [websites, categories] = await Promise.all([
       catalogueAdapter.listRecent(),
       catalogueAdapter.listCategories(),
     ])
-    const selected = categories.find((category) => category.id === interestId)
-    const matching = websites.filter(
-      (website) => !selected || website.categories.includes(selected.name),
-    )
-    const unseen = matching.filter((website) => !recentIds.includes(website.id))
-    const pool = unseen.length > 0 ? unseen : matching
-    return pool[Math.floor(Math.random() * pool.length)] ?? null
+    return selectNextDiscovery(websites, categories, interestId, seenIds)
   },
 }
 

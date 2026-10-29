@@ -6,7 +6,7 @@ The hosted database has the same two migrations as `supabase/migrations`, using 
 
 `apps/web/.env.hosted.local` is an ignored local reference containing only the hosted API URL and publishable key. Keep `apps/web/.env.local` pointed at the local stack for ordinary development. Never put a secret key in a `VITE_` variable.
 
-The hosted project intentionally has no local seed data. `supabase/seed.sql` is for local development only; hosted catalogue entries should arrive through the moderation workflow. The hosted email provider is enabled. Google OAuth is not yet enabled, so a real Google login check awaits the Phase 3 OAuth client and a hosted frontend callback origin. Its Google redirect URI will be `https://llzbpurpmcuiqcmserrd.supabase.co/auth/v1/callback`.
+The hosted project now contains the same explicitly imported user-curated catalogue as local development: 87 approved records, of which 82 are active. `db push` does not apply `supabase/seed.sql` automatically. The hosted email provider is enabled. Google OAuth is not yet enabled, so a real Google login check awaits the Phase 3 OAuth client and a hosted frontend callback origin. Its Google redirect URI will be `https://llzbpurpmcuiqcmserrd.supabase.co/auth/v1/callback`.
 
 The Supabase connector deployed and verified the hosted resources. The local Supabase CLI is linked to this project. `npx supabase migration list --linked` confirmed that both local and remote versions match: `20261029162651` and `20261029162659`. `npx supabase db diff --linked --schema public,private,storage` found no schema changes. Recheck migration differences before any future `db push`. Do not commit a personal access token.
 

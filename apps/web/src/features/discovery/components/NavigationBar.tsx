@@ -37,11 +37,15 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
     try {
       const next = await discoveryAdapter.bump(
         state.selectedInterest,
-        state.recentWebsiteIds,
+        state.seenWebsiteIds,
       )
       if (!next) return
-      dispatch({ type: 'website-visited', websiteId: next.id })
-      navigate(paths.viewer(next.id))
+      dispatch({
+        type: 'website-visited',
+        websiteId: next.website.id,
+        resetCycle: next.resetCycle,
+      })
+      navigate(paths.viewer(next.website.id))
     } catch {
       setBumpError(true)
     } finally {

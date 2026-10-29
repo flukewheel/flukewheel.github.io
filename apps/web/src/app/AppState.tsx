@@ -9,20 +9,18 @@ import {
 } from 'react'
 
 const storageKey = 'flukewheel:discovery-session'
-const recentLimit = 20
-
 interface AppState {
   selectedInterest: string
-  recentWebsiteIds: string[]
+  seenWebsiteIds: string[]
 }
 
 type Action =
   | { type: 'interest-selected'; interestId: string }
-  | { type: 'website-visited'; websiteId: string }
+  | { type: 'website-visited'; websiteId: string; resetCycle?: boolean }
 
 const initialState: AppState = {
   selectedInterest: 'all',
-  recentWebsiteIds: [],
+  seenWebsiteIds: [],
 }
 
 function readInitialState(): AppState {
@@ -35,9 +33,14 @@ function readInitialState(): AppState {
         typeof value.selectedInterest === 'string'
           ? value.selectedInterest
           : 'all',
-      recentWebsiteIds: Array.isArray(value.recentWebsiteIds)
-        ? value.recentWebsiteIds.filter((id): id is string => typeof id === 'string').slice(0, recentLimit)
-        : [],
+      seenWebsiteIds: [...new Set(
+        (Array.isArray(value.seenWebsiteIds)
+          ? value.seenWebsiteIds
+          : Array.isArray((value as { recentWebsiteIds?: unknown }).recentWebsiteIds)
+            ? (value as { recentWebsiteIds: unknown[] }).recentWebsiteIds
+            : []
+        ).filter((id): id is string => typeof id === 'string'),
+      )],
     }
   } catch {
     return initialState
@@ -49,12 +52,12 @@ function reducer(state: AppState, action: Action): AppState {
     case 'interest-selected':
       return { ...state, selectedInterest: action.interestId }
     case 'website-visited':
+      if (!action.resetCycle && state.seenWebsiteIds.includes(action.websiteId)) return state
       return {
         ...state,
-        recentWebsiteIds: [
-          action.websiteId,
-          ...state.recentWebsiteIds.filter((id) => id !== action.websiteId),
-        ].slice(0, recentLimit),
+        seenWebsiteIds: action.resetCycle
+          ? [action.websiteId]
+          : [...state.seenWebsiteIds, action.websiteId],
       }
   }
 }
