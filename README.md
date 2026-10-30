@@ -20,6 +20,10 @@ npm run dev
 
 The web application lives in `apps/web`. It uses hash-based routes so navigation remains compatible with static GitHub Pages hosting.
 
+## Published site
+
+The site is built from this monorepo by `.github/workflows/pages.yml` and published at https://flukewheel.github.io/. GitHub Pages must use **GitHub Actions** as its build source. The workflow reads the hosted Supabase URL and publishable key from the repository's `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` Actions variables. Local development still uses `apps/web/.env.local`.
+
 ## Environment
 
 Copy `apps/web/.env.example` to `apps/web/.env.local`. Use the API URL and publishable key printed by `npx supabase status` for the local stack. The default local API port is 54421 because another project uses Supabase's standard ports on this machine. Never place a secret or service-role key in a `VITE_` variable.

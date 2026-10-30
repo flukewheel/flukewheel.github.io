@@ -11,10 +11,12 @@ The web app now provides email registration and sign-in, password recovery, Goog
 
 ## Hosted development setup still required
 
+- The production-shaped frontend is published at `https://flukewheel.github.io/`. Add that exact URL to the Supabase Auth redirect allowlist. Keep `http://127.0.0.1:5175/` for hosted-backend checks from localhost.
 - Create a Google OAuth Web client in Google Cloud. Set its authorized redirect URI to `https://llzbpurpmcuiqcmserrd.supabase.co/auth/v1/callback`.
+- Set `https://flukewheel.github.io` as a Google authorized JavaScript origin. During development, `http://127.0.0.1:5175` can remain as a second origin.
 - In the `flukewheel-dev` Supabase project, enable the Google provider and enter the client ID and secret in the provider settings. Do not put the secret in a `VITE_` variable or the repository.
 - Keep `http://127.0.0.1:5175/` in the Auth redirect allowlist and run the hosted-mode frontend on that origin. Use the app entry URL for OAuth and email callbacks, since a physical `/auth/callback` path is not available on static hosting.
-- Set the hosted `AVATAR_ALLOWED_ORIGINS` function secret to `http://127.0.0.1:5175` before testing browser uploads there. The local CLI currently lacks an access token for hosted secret updates.
+- Set the hosted `AVATAR_ALLOWED_ORIGINS` function secret to `https://flukewheel.github.io,http://127.0.0.1:5175` before testing browser uploads from both origins. The local Supabase CLI currently lacks an access token for hosted secret updates.
 - Test a real hosted Google login, email confirmation, password recovery, refresh, logout, profile upload and return to a viewer route. OAuth PKCE links must return to the same browser context that started the flow; a missing verifier produces a retry message.
 
 ## Checks
