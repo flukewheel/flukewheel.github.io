@@ -25,8 +25,12 @@ if (!response.ok) throw new Error(`Catalogue request failed: ${response.status}`
 const websites = await response.json()
 await mkdir(outputDir, { recursive: true })
 const existingIds = new Set((await readdir(outputDir)).filter((name) => name.endsWith('.jpg')).map((name) => name.slice(0, -4)))
-const requestedIds = new Set(process.argv.slice(2))
-const pendingWebsites = websites.filter((website) => !existingIds.has(website.id) && (requestedIds.size === 0 || requestedIds.has(website.id)))
+const force = process.argv.includes('--force')
+const waitOption = process.argv.find((argument) => argument.startsWith('--wait='))
+const waitMs = waitOption ? Number(waitOption.slice('--wait='.length)) : 1600
+if (!Number.isInteger(waitMs) || waitMs < 0 || waitMs > 15_000) throw new Error('Invalid capture wait')
+const requestedIds = new Set(process.argv.slice(2).filter((argument) => !argument.startsWith('--')))
+const pendingWebsites = websites.filter((website) => (force || !existingIds.has(website.id)) && (requestedIds.size === 0 || requestedIds.has(website.id)))
 
 const browser = await chromium.launch({ headless: true })
 let next = 0
@@ -49,7 +53,7 @@ async function capture() {
       if (!visit || visit.status() >= 400) {
         throw new Error(`HTTP ${visit?.status() ?? 'navigation failed'}`)
       }
-      await page.waitForTimeout(1600)
+      await page.waitForTimeout(waitMs)
       const thumbnail = path.join(outputDir, `${website.id}.jpg`)
       try {
         await page.screenshot({ path: thumbnail, type: 'jpeg', quality: 62, timeout: 20_000, animations: 'disabled' })

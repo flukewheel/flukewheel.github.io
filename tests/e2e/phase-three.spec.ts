@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test'
 
 test('local account keeps a guest bookmark on the original website after sign-in', async ({ page }) => {
+  await page.route('**/*', async (route) => {
+    const request = route.request()
+    if (request.isNavigationRequest() && request.frame().parentFrame()) await route.abort()
+    else await route.continue()
+  })
   const email = `phase3-${Date.now()}-${Math.random().toString(36).slice(2)}@example.test`
   const password = 'FlukewheelTestPassword42!'
   const websiteId = '20000000-0000-4000-8000-000000000115'
@@ -23,7 +28,10 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(page.getByText('Profile picture updated.')).toBeVisible()
   await expect(page.getByRole('img', { name: 'Your profile' })).toBeVisible()
   await expect.poll(() => page.getByRole('img', { name: 'Your profile' }).evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
-  await page.getByRole('checkbox', { name: 'Art' }).check()
+  await Promise.all([
+    page.waitForResponse((response) => response.url().includes('/rest/v1/user_interests') && response.request().method() === 'POST' && response.ok()),
+    page.getByRole('checkbox', { name: 'Art' }).check(),
+  ])
   await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
   await page.reload({ waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()

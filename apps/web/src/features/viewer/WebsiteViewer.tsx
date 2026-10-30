@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Home } from 'lucide-react'
+import { ArrowUpRight, Home } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
@@ -34,6 +34,19 @@ export default function WebsiteViewer() {
         <Link className="primary-link" to={paths.home}>
           <Home aria-hidden="true" /> Return home
         </Link>
+      </main>
+    )
+  }
+
+  if (website.data.embeddingStatus === 'blocked') {
+    return (
+      <main className="route-state viewer-fallback">
+        <p className="eyebrow">A discovery to open</p>
+        <h1>{website.data.title}</h1>
+        <p>{website.data.description} This site opens in its own tab.</p>
+        <a className="primary-link" href={website.data.originalUrl} rel="noopener noreferrer" target="_blank">
+          Open original website <ArrowUpRight aria-hidden="true" />
+        </a>
       </main>
     )
   }

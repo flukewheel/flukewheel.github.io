@@ -1,0 +1,56 @@
+Ryan Sael|Interactive explainers, models and browser worlds by Ryan Sael.|educational,art|allowed
+The Anarchist Cookbook (Food Not Bombs)|A free book about anarchism, food and community action (PDF).|educational,free|blocked
+Gravitation Lab|Essays and documents exploring unconventional ideas about gravity.|educational|allowed
+Parallel Lives|An interactive visualization exploring parallel lives.|art,educational|allowed
+MakeCode Arcade|Create and play retro-style games in your browser.|free,educational|allowed
+Better SAM|Make a computer voice speak with a browser-based synthesizer.|funny,free|allowed
+Gas Pump Golf|A tiny game about pumping exactly the right amount of gas.|funny,free|allowed
+PostSecret Voicemail|Listen to anonymous secrets shared by voicemail.|art|allowed
+Particle Love|An interactive particle experiment for the browser.|art|allowed
+Bitsy|Make and play small pixel stories and games.|art,free|allowed
+Raspberry|A playful interactive web experiment by Luruke.|art|allowed
+Snooker Simulator|Play a simulated game of snooker online.|funny,free|allowed
+The Fuzzy Slug|An independent webcomic hub on Neocities.|art,funny|allowed
+GlobalComix|Browse digital comics and graphic novels.|art,free|blocked
+Chicken Wire Mother|A web artwork by Mark Napier.|art|allowed
+PTZtv|Explore a collection of live panoramic webcams.|educational|allowed
+Pink Trombone|Experiment with a model of the human vocal tract.|educational,funny|allowed
+Compulsive Computer|An eccentric interactive website about a party machine.|art,funny|allowed
+Combat Baby|A playful personal corner of Neocities.|art,funny|allowed
+Streetplay|Stories and resources about classic street games.|educational,funny|blocked
+Frutiger Aero Archive Wallpapers|Explore wallpapers inspired by Frutiger Aero design.|art,free|allowed
+Melonking|Explore a colorful independent personal website.|art,funny|allowed
+Dyad Studios|A creative studio website with playful visual design.|art|allowed
+So, You Want to Deploy on the Edge?|An article about edge databases and deployment tradeoffs.|educational|allowed
+Kosmi|Create an online room to watch and play together.|free,funny|allowed
+Title Drops|An analysis of the moments when works say their own titles.|educational,funny|allowed
+The Number Wall|An interactive exploration of number ownership.|educational,art|allowed
+Times Newer Roman|A free typeface that makes documents a little longer.|funny,free|allowed
+Dave Holloway|A designer and developer's personal portfolio.|art|allowed
+The Nuclear Weapon Archive|Historical and technical reference material on nuclear weapons.|educational,free|allowed
+CSS Timeline|Explore the history of CSS on an interactive timeline.|educational|allowed
+Rocket Engine Cycles|An illustrated guide to different rocket engine cycles.|educational|allowed
+OldMapsOnline Historical Regions|Explore historical regions and maps through time.|educational,art|blocked
+SDL Sopwith|Play the classic Sopwith game in your browser.|funny,free|allowed
+Yuumei|Explore digital art and illustrations by Yuumei.|art|allowed
+Jimmy's Pokemon Deal Finder|Search recent Pokemon listings and deals.|free|allowed
+The 80s Movies Rewind|A nostalgic archive of films from the 1980s.|educational,funny|allowed
+555 Timer Circuits|Browse practical circuits built around the 555 timer.|educational,free|allowed
+Focus with Dot|A simple focus and productivity space.|free|allowed
+Astronomical Drawings of the 1800s|A New York Public Library article about historic astronomical art.|art,educational|blocked
+Being a Kid Making Games|Jay Tholen remembers making games in the early 2000s.|educational,funny|allowed
+Surname Map|Explore the geography of European surnames.|educational|allowed
+Pokemon or Big Data?|Guess whether a name belongs to Pokemon or big data.|funny,educational|allowed
+Applite|Browse and install open-source Mac applications.|free|allowed
+ExJW|Information and support for former Jehovah's Witnesses.|educational,free|allowed
+Togore Time|An independent comic from a Neocities creator.|art,funny|allowed
+Free Programming Books by Subject|Find free programming books organized by topic.|educational,free|allowed
+Mystical|A small interactive project on the old web.|art,funny|allowed
+ASCII Quake|Play Quake rendered as ASCII characters in your browser.|funny,free|allowed
+Early Retirement Calculator|Explore how savings and spending affect a retirement timeline.|educational,free|allowed
+Neonflames|Paint glowing nebula-like forms in your browser.|art,free|allowed
+Yaskee Pants|An independent creative website.|art|allowed
+Disposable Memory Project|Follow a project releasing photographs into the world.|art,educational|allowed
+Keys|Play an interactive experience built around a keyboard.|art,funny|allowed
+The Strange Melancholy of Slaying Monsters|An MIT Press Reader essay about monsters and games.|educational|blocked
+The SWLing Post|Explore shortwave radio listening and equipment.|educational,free|allowed
