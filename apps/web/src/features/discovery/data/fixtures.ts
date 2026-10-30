@@ -17,7 +17,7 @@ export const categories: Category[] = [
     id: 'art',
     name: 'Art',
     description: 'Independent illustration, design, archives and experiments.',
-    accent: '#b69ad9',
+    accent: '#ff9800',
   },
   {
     id: 'free',
@@ -55,7 +55,7 @@ export const websites: WebsiteSummary[] = [
     originalUrl: 'https://www.kbs.im',
     displayDomain: 'www.kbs.im',
     categories: ['Art', 'Educational'],
-    image: 'linear-gradient(135deg, #3d2d59, #ae87d4)',
+    image: 'linear-gradient(135deg, #67441b, #ffb048)',
     addedLabel: 'Added today',
   },
   {

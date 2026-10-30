@@ -1,5 +1,5 @@
 -- Curated catalogue for local resets and explicit hosted imports. These destinations are all
--- available through the inline-only viewer; remote sites control whether their
+-- available through the inline viewer; remote sites control whether their
 -- own content can actually render in a frame.
 -- `db push` does not run this file automatically.
 insert into public.categories (id, slug, display_name, description, display_order)
@@ -404,3 +404,13 @@ from (values
 ) as assignment(website_id, slug)
 join public.categories c on c.slug = assignment.slug
 on conflict do nothing;
+
+-- Retain records for references, but exclude reported broken viewers from discovery.
+update public.websites
+set active = false, embedding_status = 'blocked'
+where id in (
+  '20000000-0000-4000-8000-000000000006',
+  '20000000-0000-4000-8000-000000000045',
+  '20000000-0000-4000-8000-000000000084',
+  '20000000-0000-4000-8000-000000000086'
+);

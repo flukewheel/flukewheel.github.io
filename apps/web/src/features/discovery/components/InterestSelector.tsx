@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { ChevronDown } from 'lucide-react'
 import { useAppState } from '../../../app/AppState'
 import { catalogueAdapter } from '../../../lib/adapters'
 
@@ -29,6 +30,7 @@ export function InterestSelector() {
           </option>
         ))}
       </select>
+      <ChevronDown aria-hidden="true" className="interest-selector__chevron" />
     </label>
   )
 }

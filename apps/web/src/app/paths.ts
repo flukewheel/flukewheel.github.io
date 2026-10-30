@@ -4,6 +4,7 @@ export const routePatterns = {
   viewer: 'viewer/:websiteId',
   bookmarks: 'bookmarks',
   history: 'history',
+  settings: 'settings',
   admin: 'admin',
 } as const
 
@@ -13,6 +14,7 @@ export const paths = {
   viewer: (websiteId: string) => `/viewer/${encodeURIComponent(websiteId)}`,
   bookmarks: '/bookmarks',
   history: '/history',
+  settings: '/settings',
   admin: '/admin',
 } as const
 

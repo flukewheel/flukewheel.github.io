@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import { IconButton } from '../../../components/IconButton'
 
 const reasons = [
-  'Not interested',
-  'Low-quality website',
-  'Already seen this',
-  'Broken website',
-  'Inappropriate content',
+  { code: 'not_interested', label: 'Not interested' },
+  { code: 'low_quality', label: 'Low-quality website' },
+  { code: 'seen_before', label: 'Already seen this' },
+  { code: 'broken', label: 'Broken website' },
+  { code: 'inappropriate', label: 'Inappropriate content' },
 ]
 
 interface DislikeDropdownProps {
@@ -46,15 +46,15 @@ export function DislikeDropdown({
         <div className="dropdown-menu" role="menu">
           {reasons.map((reason) => (
             <button
-              key={reason}
+              key={reason.code}
               onClick={() => {
-                onReasonSelected?.(reason)
+                onReasonSelected?.(reason.code)
                 setOpen(false)
               }}
               role="menuitem"
               type="button"
             >
-              {reason}
+              {reason.label}
             </button>
           ))}
         </div>

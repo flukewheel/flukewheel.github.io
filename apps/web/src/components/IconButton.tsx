@@ -17,6 +17,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-label={label}
         aria-pressed={active || undefined}
         className={clsx('icon-button', className)}
+        data-tooltip={label}
         ref={ref}
         title={label}
         type="button"

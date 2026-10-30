@@ -1,4 +1,5 @@
 import { Shuffle } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 interface BumpButtonProps {
   busy: boolean
@@ -6,15 +7,27 @@ interface BumpButtonProps {
 }
 
 export function BumpButton({ busy, onBump }: BumpButtonProps) {
+  const [shuffling, setShuffling] = useState(false)
+  const timer = useRef<number | undefined>(undefined)
+
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  function handleBump() {
+    setShuffling(true)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setShuffling(false), 850)
+    onBump()
+  }
+
   return (
     <button
       aria-busy={busy}
-      className="bump-button"
+      className={`bump-button${busy || shuffling ? ' bump-button--shuffling' : ''}`}
       disabled={busy}
-      onClick={onBump}
+      onClick={handleBump}
       type="button"
     >
-      {busy ? <span aria-hidden="true" className="button-spinner" /> : <Shuffle aria-hidden="true" />}
+      <Shuffle aria-hidden="true" />
       Bump!
     </button>
   )

@@ -3,6 +3,7 @@ import { Navigate, useOutletContext, useRouteError } from 'react-router-dom'
 import { RouteState, UnauthorisedState } from '../components/RouteState'
 import { useAuth } from '../features/auth/AuthProvider'
 import { DiscoveryFeed } from '../features/discovery/DiscoveryFeed'
+import { ProfileSettings } from '../features/auth/ProfileSettings'
 import { AppShell } from './AppShell'
 import { paths, routePatterns } from './paths'
 
@@ -18,8 +19,9 @@ function FeedRoute() {
 }
 
 function ProtectedPlaceholder({ title, privateTitle }: { title: string; privateTitle: string }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
+  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
   if (!user) return <UnauthorisedState title={privateTitle} />
 
   return (
@@ -27,6 +29,13 @@ function ProtectedPlaceholder({ title, privateTitle }: { title: string; privateT
       <p>The route boundary is ready for its secure data-backed workflow.</p>
     </RouteState>
   )
+}
+
+function SettingsRoute() {
+  const { user, loading } = useAuth()
+  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
+  if (!user) return <UnauthorisedState title="Profile settings are private." />
+  return <ProfileSettings />
 }
 
 export function RouteError() {
@@ -55,6 +64,7 @@ export const routes = [
       { index: true, element: <FeedRoute /> },
       { path: routePatterns.category, element: <FeedRoute /> },
       { path: routePatterns.viewer, element: <WebsiteViewer /> },
+      { path: routePatterns.settings, element: <SettingsRoute /> },
       {
         path: routePatterns.bookmarks,
         element: <ProtectedPlaceholder title="Bookmarks" privateTitle="Bookmarks are private." />,

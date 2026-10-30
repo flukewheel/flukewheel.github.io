@@ -5,7 +5,7 @@ import { selectNextDiscovery } from './discoverySelection'
 const categories: Category[] = [
   { id: 'art', name: 'Art', description: '', accent: '' },
 ]
-const websites = Array.from({ length: 30 }, (_, index): WebsiteSummary => ({
+const websites = Array.from({ length: 109 }, (_, index): WebsiteSummary => ({
   id: `site-${index}`,
   title: `Site ${index}`,
   description: '',

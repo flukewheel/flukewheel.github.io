@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppState } from '../../../app/AppState'
 import { paths } from '../../../app/paths'
@@ -20,7 +20,10 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
   const [submissionOpen, setSubmissionOpen] = useState(false)
   const [bumping, setBumping] = useState(false)
   const [bumpError, setBumpError] = useState(false)
+  const bumpInFlight = useRef(false)
   const { state, dispatch } = useAppState()
+  const seenIdsRef = useRef(state.seenWebsiteIds)
+  useEffect(() => { seenIdsRef.current = state.seenWebsiteIds }, [state.seenWebsiteIds])
   const navigate = useNavigate()
   const location = useLocation()
   const isViewer = location.pathname.startsWith('/viewer/')
@@ -32,14 +35,19 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
   }).data
 
   async function bump() {
+    if (bumpInFlight.current) return
+    bumpInFlight.current = true
     setBumping(true)
     setBumpError(false)
     try {
       const next = await discoveryAdapter.bump(
         state.selectedInterest,
-        state.seenWebsiteIds,
+        seenIdsRef.current,
       )
       if (!next) return
+      seenIdsRef.current = next.resetCycle
+        ? [next.website.id]
+        : [...seenIdsRef.current, next.website.id]
       dispatch({
         type: 'website-visited',
         websiteId: next.website.id,
@@ -49,6 +57,7 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
     } catch {
       setBumpError(true)
     } finally {
+      bumpInFlight.current = false
       setBumping(false)
     }
   }
@@ -58,7 +67,7 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
       <header className="topbar">
         <div className="topbar__side topbar__side--left">
           <Link aria-label="flukewheel home" className="wordmark" to={paths.home}>
-            flukewheel
+            <img alt="flukewheel" src={`${import.meta.env.BASE_URL}logo1.png`} />
           </Link>
           <div className="toolbar-actions">
             <IconButton
@@ -68,6 +77,9 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
             />
             <ReactionControls
               disabled={!isViewer || !activeWebsite}
+              onOpenAuth={onOpenAuth}
+              websiteId={activeWebsite?.id}
+              websiteUrl={isViewer ? activeWebsite?.originalUrl : undefined}
             />
           </div>
         </div>

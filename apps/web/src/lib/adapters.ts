@@ -20,13 +20,13 @@ const websiteColumns =
 const accents: Record<string, string> = {
   educational: '#f5c66f',
   funny: '#f0a6b8',
-  art: '#b69ad9',
+  art: '#ff9800',
   free: '#8fc7b5',
 }
 const placeholderGradients = [
   'linear-gradient(135deg, #263a58, #7ab8d1)',
   'linear-gradient(135deg, #563333, #d68c75)',
-  'linear-gradient(135deg, #3d2d59, #ae87d4)',
+  'linear-gradient(135deg, #67441b, #ffb048)',
   'linear-gradient(135deg, #1d4b46, #73c6a6)',
 ]
 
@@ -139,7 +139,7 @@ export const catalogueAdapter = {
       id: row.id,
       name: row.display_name,
       description: row.description,
-      accent: accents[row.slug] ?? '#b69ad9',
+      accent: accents[row.slug] ?? '#ff9800',
     }))
   },
 

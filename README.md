@@ -27,6 +27,7 @@ Copy `apps/web/.env.example` to `apps/web/.env.local`. Use the API URL and publi
 The local database is built from `supabase/migrations` and `supabase/seed.sql`. Run `npx supabase db reset --local` to verify a clean rebuild. See [Supabase workspace](supabase/README.md) for database checks and hosted setup.
 
 The separate hosted development backend and its current Auth setup are recorded in [Phase 2 hosted development](docs/phase-2-hosted-development.md).
+Phase 3 authentication, profile setup and remaining hosted provider steps are recorded in [Phase 3 authentication](docs/phase-3-auth.md).
 
 ## Quality checks
 
