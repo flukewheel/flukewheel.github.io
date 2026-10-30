@@ -54,10 +54,10 @@ export default function WebsiteViewer() {
   return (
     <main className="viewer-shell">
       <iframe
+        aria-label={`${website.data.title} website`}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-forms allow-scripts allow-same-origin"
         src={website.data.originalUrl}
-        title={`${website.data.title} website`}
       />
     </main>
   )
