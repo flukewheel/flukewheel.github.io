@@ -420,3 +420,26 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+[remotes.hosted]
+project_id = "llzbpurpmcuiqcmserrd"
+
+[remotes.hosted.auth]
+additional_redirect_urls = ["http://127.0.0.1:5175/"]
+site_url = "https://flukewheel.github.io/"
+
+[remotes.hosted.auth.email]
+enable_confirmations = true
+max_frequency = "1m0s"
+otp_length = 8
+
+[remotes.hosted.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.hosted.storage.vector]
+enabled = false
+
+[remotes.hosted.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

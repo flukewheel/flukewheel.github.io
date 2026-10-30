@@ -9,14 +9,14 @@ The web app now provides email registration and sign-in, password recovery, Goog
 3. Run `npx supabase functions serve process-avatar --env-file supabase/functions/.env.local` in another terminal. Avatar uploads go through this function. Direct browser writes to avatar storage remain disabled.
 4. Local email messages appear in Mailpit at `http://127.0.0.1:54424/`. The local config currently signs up users without email confirmation; confirmation must be checked separately on the hosted development project.
 
-## Hosted development setup still required
+## Hosted development setup
 
-- The production-shaped frontend is published at `https://flukewheel.github.io/`. Add that exact URL to the Supabase Auth redirect allowlist. Keep `http://127.0.0.1:5175/` for hosted-backend checks from localhost.
+- The frontend is published at `https://flukewheel.github.io/`. The hosted Supabase Auth Site URL is set to that exact address, with `http://127.0.0.1:5175/` as an additional redirect for localhost checks. These values are tracked in `[remotes.hosted.auth]` in `supabase/config.toml`.
 - Create a Google OAuth Web client in Google Cloud. Set its authorized redirect URI to `https://llzbpurpmcuiqcmserrd.supabase.co/auth/v1/callback`.
 - Set `https://flukewheel.github.io` as a Google authorized JavaScript origin. During development, `http://127.0.0.1:5175` can remain as a second origin.
 - In the `flukewheel-dev` Supabase project, enable the Google provider and enter the client ID and secret in the provider settings. Do not put the secret in a `VITE_` variable or the repository.
-- Keep `http://127.0.0.1:5175/` in the Auth redirect allowlist and run the hosted-mode frontend on that origin. Use the app entry URL for OAuth and email callbacks, since a physical `/auth/callback` path is not available on static hosting.
-- Set the hosted `AVATAR_ALLOWED_ORIGINS` function secret to `https://flukewheel.github.io,http://127.0.0.1:5175` before testing browser uploads from both origins. The local Supabase CLI currently lacks an access token for hosted secret updates.
+- Use the app entry URL for OAuth and email callbacks, since a physical `/auth/callback` path is not available on static hosting.
+- The hosted `AVATAR_ALLOWED_ORIGINS` function secret is set to `https://flukewheel.github.io,http://127.0.0.1:5175`. Browser upload checks from both origins remain.
 - Test a real hosted Google login, email confirmation, password recovery, refresh, logout, profile upload and return to a viewer route. OAuth PKCE links must return to the same browser context that started the flow; a missing verifier produces a retry message.
 
 ## Checks
