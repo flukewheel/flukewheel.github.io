@@ -1,4 +1,4 @@
-import { appEntryUrl, rememberAuthReturn } from '../../features/auth/callback'
+import { appEntryUrl, clearAuthReturn, rememberAuthReturn } from '../../features/auth/callback'
 import { getSupabaseClient } from '../supabase'
 
 function clientOrThrow() {
@@ -15,12 +15,14 @@ export const authAdapter = {
     if (error) throw error
   },
   async signUp(email: string, password: string) {
+    rememberAuthReturn()
     const { data, error } = await clientOrThrow().auth.signUp({
       email,
       password,
       options: { emailRedirectTo: appEntryUrl() },
     })
-    if (error) throw error
+    if (error) { clearAuthReturn(); throw error }
+    if (data.session) clearAuthReturn()
     return data.session !== null
   },
   async signInWithGoogle() {
@@ -29,13 +31,14 @@ export const authAdapter = {
       provider: 'google',
       options: { redirectTo: appEntryUrl() },
     })
-    if (error) throw error
+    if (error) { clearAuthReturn(); throw error }
   },
   async sendPasswordReset(email: string) {
+    rememberAuthReturn()
     const { error } = await clientOrThrow().auth.resetPasswordForEmail(email, {
       redirectTo: appEntryUrl(),
     })
-    if (error) throw error
+    if (error) { clearAuthReturn(); throw error }
   },
   async updatePassword(password: string) {
     const { error } = await clientOrThrow().auth.updateUser({ password })

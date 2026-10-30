@@ -7,6 +7,7 @@ import { LoadingWheel } from '../components/LoadingWheel'
 import { NavigationBar } from '../features/discovery/components/NavigationBar'
 import { clearCallbackFlags, takeCallbackError, takeRecoveryMode } from '../features/auth/callback'
 import { useAuth } from '../features/auth/AuthProvider'
+import { CompleteProfile } from '../features/auth/CompleteProfile'
 import { clearPendingAction, takePendingAction } from '../features/auth/pendingAction'
 import { interactionAdapter } from '../lib/adapters/interactions'
 
@@ -15,7 +16,8 @@ export function AppShell() {
   const [recoveryMode] = useState(takeRecoveryMode)
   const [authOpen, setAuthOpen] = useState(Boolean(callbackError || recoveryMode))
   const [pendingError, setPendingError] = useState<string | null>(null)
-  const { user } = useAuth()
+  const [dismissedCompletion, setDismissedCompletion] = useState(() => sessionStorage.getItem('flukewheel:profile-completion-dismissed'))
+  const { user, profile } = useAuth()
   const userId = user?.id
   const queryClient = useQueryClient()
   const isViewer = useLocation().pathname.startsWith('/viewer/')
@@ -52,6 +54,12 @@ export function AppShell() {
         </footer>
       )}
       {authOpen && <AuthModal initialError={callbackError} initialMode={recoveryMode ? 'new-password' : 'login'} onAuthenticated={() => setAuthOpen(false)} onClose={cancelAuth} open />}
+      {!authOpen && userId && profile?.id === userId && !profile.username && dismissedCompletion !== userId && (
+        <CompleteProfile
+          onComplete={() => { sessionStorage.removeItem('flukewheel:profile-completion-dismissed'); setDismissedCompletion(null) }}
+          onDismiss={() => { sessionStorage.setItem('flukewheel:profile-completion-dismissed', userId); setDismissedCompletion(userId) }}
+        />
+      )}
     </div>
   )
 }

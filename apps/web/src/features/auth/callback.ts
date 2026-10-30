@@ -9,6 +9,8 @@ export function rememberAuthReturn() {
   sessionStorage.setItem(returnKey, route)
 }
 
+export function clearAuthReturn() { sessionStorage.removeItem(returnKey) }
+
 function safeReturnRoute(value: string | null): string {
   if (!value || !/^#\/(?:[A-Za-z0-9_/-]*)$/.test(value) || value.includes('//')) return '#/'
   return value
