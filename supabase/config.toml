@@ -433,6 +433,12 @@ enable_confirmations = true
 max_frequency = "1m0s"
 otp_length = 8
 
+[remotes.hosted.auth.external.google]
+enabled = true
+client_id = "463467859710-qafhs622h6ve882utmm2m4of81ih0nfg.apps.googleusercontent.com"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = false
+
 [remotes.hosted.db.pooler]
 default_pool_size = 15
 max_client_conn = 200
