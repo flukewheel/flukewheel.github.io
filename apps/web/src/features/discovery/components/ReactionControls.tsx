@@ -52,7 +52,7 @@ export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionCo
   }
 
   return (
-    <div aria-label="Website actions" className="reaction-controls" role="group">
+    <div aria-busy={busy} aria-label="Website actions" className="reaction-controls" role="group">
       <IconButton active={state.data?.reaction === 'love'} disabled={disabled || busy} icon={<Heart aria-hidden="true" />} label="Love this website" onClick={() => void act('love')} />
       <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy discovery link" onClick={() => void copyLink()} />
       <IconButton active={state.data?.bookmarked} disabled={disabled || busy} icon={<Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />

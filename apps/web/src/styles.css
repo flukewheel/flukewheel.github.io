@@ -186,6 +186,10 @@ button:disabled {
   color: var(--brand-deep);
 }
 
+.icon-button[aria-pressed="true"] { background: var(--brand-pale); color: var(--brand-deep); }
+.reaction-controls .icon-button:disabled { cursor: default; }
+.reaction-controls[aria-busy="true"] .icon-button:disabled { cursor: progress; }
+
 .icon-button svg {
   width: 1.15rem;
   height: 1.15rem;
