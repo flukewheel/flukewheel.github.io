@@ -189,6 +189,31 @@ button:disabled {
 .reaction-controls .icon-button:disabled { cursor: default; }
 .reaction-controls .icon-button[aria-disabled="true"] { cursor: pointer; }
 
+.reaction-controls { position: relative; }
+.reaction-icon--saved { color: #25834c; }
+.reaction-icon--loved { color: #d93952; fill: currentColor; }
+.reaction-icon--disliked { fill: currentColor; }
+.reaction-icon--loading { animation: reaction-spin 700ms linear infinite; }
+
+@keyframes reaction-spin { to { transform: rotate(360deg); } }
+
+.reaction-error {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  width: max-content;
+  max-width: min(24rem, 80vw);
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #b94747;
+  border-radius: 0.5rem;
+  background: var(--surface-soft);
+  color: #a52c38;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  box-shadow: var(--shadow);
+}
+
 .icon-button svg {
   width: 1.15rem;
   height: 1.15rem;

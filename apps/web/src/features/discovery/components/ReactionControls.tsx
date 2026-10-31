@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bookmark, Copy, Heart, ThumbsDown } from 'lucide-react'
+import { Bookmark, Check, Copy, Heart, LoaderCircle, ThumbsDown } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { IconButton } from '../../../components/IconButton'
 import { rememberPendingAction } from '../../auth/pendingAction'
@@ -13,56 +13,78 @@ interface ReactionControlsProps {
   websiteId?: string
 }
 
+type ActionKind = 'love' | 'dislike' | 'bookmark'
+type InteractionState = Awaited<ReturnType<typeof interactionAdapter.getState>>
+
 export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionControlsProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const [busy, setBusy] = useState(false)
-  const busyRef = useRef(false)
-  const [error, setError] = useState<string | null>(null)
+  const [busyAction, setBusyAction] = useState<{ websiteId: string; kind: ActionKind } | null>(null)
+  const inFlight = useRef(new Set<string>())
+  const [error, setError] = useState<{ websiteId: string; message: string } | null>(null)
   const state = useQuery({
     queryKey: ['interaction', user?.id, websiteId],
     enabled: Boolean(user && websiteId),
     queryFn: () => interactionAdapter.getState(websiteId!),
   })
+  const currentBusy = busyAction && busyAction.websiteId === websiteId ? busyAction.kind : null
+  const bookmarked = state.data?.bookmarked === true
+  const loved = state.data?.reaction === 'love'
+  const disliked = state.data?.reaction === 'dislike'
 
   async function copyLink() {
     try { await navigator.clipboard.writeText(window.location.href) }
-    catch { setError('The discovery link could not be copied.') }
+    catch { setError({ websiteId: websiteId ?? '', message: 'The discovery link could not be copied.' }) }
   }
 
-  async function act(kind: 'love' | 'dislike' | 'bookmark', reason?: string) {
-    if (!websiteId || busyRef.current) return
+  async function act(kind: ActionKind, reason?: string) {
+    if (!websiteId || inFlight.current.has(websiteId)) return
     const targetId = websiteId
     if (!user) {
       rememberPendingAction({ kind, websiteId: targetId, reason })
       onOpenAuth()
       return
     }
-    busyRef.current = true
-    setBusy(true); setError(null)
+    if ((kind === 'bookmark' && bookmarked) || (kind === 'love' && loved) || (kind === 'dislike' && disliked && !reason)) return
+    inFlight.current.add(targetId)
+    setBusyAction({ websiteId: targetId, kind }); setError(null)
     try {
+      const cacheKey = ['interaction', user.id, targetId] as const
       if (kind === 'bookmark') {
-        if (state.data?.bookmarked) await interactionAdapter.removeBookmark(targetId)
-        else await interactionAdapter.saveBookmark(targetId)
-      } else if (!reason && state.data?.reaction === kind) await interactionAdapter.removeReaction(targetId)
-      else await interactionAdapter.setReaction(targetId, kind, reason ?? null)
-      await queryClient.invalidateQueries({ queryKey: ['interaction', user.id, targetId] })
+        await interactionAdapter.saveBookmark(targetId)
+        queryClient.setQueryData<InteractionState>(cacheKey, (current) => ({
+          reaction: current?.reaction ?? state.data?.reaction ?? null,
+          reason: current?.reason ?? state.data?.reason ?? null,
+          bookmarked: true,
+        }))
+      } else {
+        await interactionAdapter.setReaction(targetId, kind, reason ?? null)
+        queryClient.setQueryData<InteractionState>(cacheKey, (current) => ({
+          reaction: kind,
+          reason: reason ?? null,
+          bookmarked: current?.bookmarked ?? state.data?.bookmarked ?? false,
+        }))
+      }
+      await queryClient.invalidateQueries({ queryKey: cacheKey })
       if (kind === 'bookmark') await queryClient.invalidateQueries({ queryKey: ['bookmarks', user.id] })
       await queryClient.invalidateQueries({ queryKey: ['recommendations', user.id] })
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'The action could not be saved.') }
-    finally { busyRef.current = false; setBusy(false) }
+    } catch (cause) { setError({ websiteId: targetId, message: cause instanceof Error ? cause.message : 'The action could not be saved.' }) }
+    finally {
+      inFlight.current.delete(targetId)
+      setBusyAction((current) => current?.websiteId === targetId ? null : current)
+    }
   }
 
   return (
-    <div aria-busy={busy} aria-label="Website actions" className="reaction-controls" role="group">
-      <IconButton active={state.data?.reaction === 'love'} aria-disabled={busy || undefined} disabled={disabled} icon={<Heart aria-hidden="true" />} label="Love this website" onClick={() => void act('love')} />
+    <div aria-busy={Boolean(currentBusy)} aria-label="Website actions" className="reaction-controls" role="group">
+      <IconButton active={loved} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'love' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <Heart aria-hidden="true" className={loved ? 'reaction-icon--loved' : undefined} />} label="Love this website" onClick={() => void act('love')} />
       <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy discovery link" onClick={() => void copyLink()} />
-      <IconButton active={state.data?.bookmarked} aria-disabled={busy || undefined} disabled={disabled} icon={<Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
+      <IconButton active={bookmarked} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'bookmark' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : bookmarked ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
       <div className="split-control">
-        <IconButton active={state.data?.reaction === 'dislike'} aria-disabled={busy || undefined} disabled={disabled} icon={<ThumbsDown aria-hidden="true" />} label="Dislike this website" onClick={() => void act('dislike')} />
-        <DislikeDropdown busy={busy} disabled={disabled} onReasonSelected={(reason) => void act('dislike', reason)} />
+        <IconButton active={disliked} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'dislike' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <ThumbsDown aria-hidden="true" className={disliked ? 'reaction-icon--disliked' : undefined} />} label="Dislike this website" onClick={() => void act('dislike')} />
+        <DislikeDropdown busy={Boolean(currentBusy)} disabled={disabled} onReasonSelected={(reason) => void act('dislike', reason)} />
       </div>
-      {error && <span className="sr-only" role="alert">{error}</span>}
+      {error && error.websiteId === websiteId && <span className="reaction-error" role="alert">{error.message}</span>}
     </div>
   )
 }
