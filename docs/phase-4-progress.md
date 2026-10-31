@@ -13,6 +13,7 @@ Phase 4 is implemented locally and deployed to the hosted development project an
 - Only a verified signed-in account in private `user_roles` can call the admin function. Browser roles cannot invoke the server-only SQL functions directly.
 - The admin page lists pending suggestions with original URL, visitor note, category suggestions, validation status and exact duplicate evidence. Approval requires a title, description, active category, and a manual verification note. Approval, rejection, duplicate resolution, category links and audit events run in a transaction.
 - Admin screens edit catalogue metadata, category assignments, active status, embedding status and taxonomy. Deactivation preserves bookmark and history references. The public viewer continues to show websites directly in its iframe without an external-opening control.
+- Catalogue has a bounded, scrollable website list and an Add a website action. Administrator additions use the same private suggestion queue and approval checks as visitor suggestions.
 - Broken, inappropriate and low quality dislikes are grouped for review. A personal dislike does not automatically remove a site. Admins record review notes; users can submit at most one report signal per website per hour, enforced in the database.
 - Supabase Cron queues up to 25 stale active catalogue entries each day at 03:00 UTC for manual recheck. Failed checks retry after seven days, up to three attempts. Recheck outcomes and notes are audited. Ordinary metadata edits do not renew the last-validated timestamp.
 

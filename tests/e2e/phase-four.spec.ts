@@ -27,6 +27,10 @@ test('administrator can work through review, catalogue and maintenance screens',
   let reportsPending = true
   let rechecksPending = true
   const actions: string[] = []
+  await page.route('**/functions/v1/submit-website', async (route) => {
+    pending = true
+    await route.fulfill({ status: 202, contentType: 'application/json', body: JSON.stringify({ status: 'pending', receipt_id: crypto.randomUUID() }) })
+  })
   await page.route('**/functions/v1/admin-catalogue', async (route) => {
     const body = route.request().postDataJSON() as { action: string }
     actions.push(body.action)
@@ -34,7 +38,7 @@ test('administrator can work through review, catalogue and maintenance screens',
       status: { administrator: true },
       queue: { submissions: pending ? [{ id: '40000000-0000-4000-8000-000000000001', raw_url: 'https://example.org/admin-review', normalised_url: 'https://example.org/admin-review', suggested_categories: ['art'], description: 'An unusual page.', submitted_at: new Date().toISOString(), validation_status: 'pending', verification_notes: null, duplicate_website_id: null }] : [] },
       review: { status: 'approved', website_id: websiteId },
-      catalogue: { websites: [{ id: websiteId, title: 'Sample Site', description: 'A sample website.', original_url: 'https://example.org/sample', thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] }] },
+      catalogue: { websites: Array.from({ length: 50 }, (_, index) => ({ id: index === 0 ? websiteId : `20000000-0000-4000-8000-${String(index).padStart(12, '0')}`, title: `Sample Site ${index + 1}`, description: 'A sample website.', original_url: `https://example.org/sample-${index + 1}`, thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] })) },
       categories: { categories: [{ id: categoryId, slug: 'art', name: 'Art', description: 'Art sites.', active: true, display_order: 1 }] },
       edit_website: { website_id: websiteId },
       save_category: { category_id: categoryId },
@@ -71,9 +75,20 @@ test('administrator can work through review, catalogue and maintenance screens',
 
   await page.getByRole('button', { name: 'Catalogue', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Edit website' })).toBeVisible()
+  const catalogueList = page.getByRole('navigation', { name: 'Catalogue websites' })
+  expect(await catalogueList.evaluate((element) => element.scrollHeight > element.clientHeight && getComputedStyle(element).overflowY === 'auto')).toBe(true)
   await page.getByRole('textbox', { name: 'Private change note' }).fill('Reviewing catalogue metadata.')
   await page.getByRole('button', { name: 'Save website' }).click()
   await expect(page.getByText('Website updated.')).toBeVisible()
+  await page.getByRole('main').getByRole('button', { name: 'Add a website' }).click()
+  const suggestion = page.getByRole('dialog', { name: 'Suggest a website' })
+  await suggestion.getByRole('textbox', { name: 'Website URL' }).fill('https://example.org/admin-added')
+  await suggestion.getByRole('button', { name: 'Send suggestion' }).click()
+  await expect(suggestion.getByText('Thanks. Your suggestion is in the review queue.')).toBeVisible()
+  await suggestion.getByRole('button', { name: 'Done' }).click()
+  await expect(page.getByText('Suggestion received. Open Suggestions to review and publish it.')).toBeVisible()
+  await page.getByRole('button', { name: 'Suggestions', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Review suggestion' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Categories', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Edit category' })).toBeVisible()

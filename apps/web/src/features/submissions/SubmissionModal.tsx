@@ -8,9 +8,10 @@ import { getSupabaseClient } from '../../lib/supabase'
 interface SubmissionModalProps {
   open: boolean
   onClose: () => void
+  onSubmitted?: () => void
 }
 
-export function SubmissionModal({ open, onClose }: SubmissionModalProps) {
+export function SubmissionModal({ open, onClose, onSubmitted }: SubmissionModalProps) {
   const titleId = useId()
   const dialogRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -72,6 +73,7 @@ export function SubmissionModal({ open, onClose }: SubmissionModalProps) {
       }
       setReceipt(true)
       requestIdRef.current = null
+      onSubmitted?.()
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'The suggestion could not be sent. Please try again.') }
     finally { setBusy(false) }
   }

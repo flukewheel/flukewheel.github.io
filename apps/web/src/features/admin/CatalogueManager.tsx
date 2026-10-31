@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
+import { SubmissionModal } from '../submissions/SubmissionModal'
 import { adminApi, type ManagedWebsite } from './adminApi'
 
 function WebsiteEditor({ website, onSaved }: { website: ManagedWebsite; onSaved: () => Promise<void> }) {
@@ -66,6 +67,7 @@ export function CatalogueManager() {
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [submissionOpen, setSubmissionOpen] = useState(false)
   const catalogue = useQuery({ queryKey: ['admin-catalogue', user?.id, search], queryFn: () => adminApi.catalogue(search) })
   const selected = catalogue.data?.find((website) => website.id === selectedId) ?? catalogue.data?.[0]
 
@@ -78,6 +80,15 @@ export function CatalogueManager() {
 
   return (
     <section>
+      <button className="primary-button admin-add-website" onClick={() => setSubmissionOpen(true)} type="button">Add a website</button>
+      <SubmissionModal
+        onClose={() => setSubmissionOpen(false)}
+        onSubmitted={() => {
+          setMessage('Suggestion received. Open Suggestions to review and publish it.')
+          void queryClient.invalidateQueries({ queryKey: ['admin-queue', user?.id] })
+        }}
+        open={submissionOpen}
+      />
       <form className="admin-search" onSubmit={(event) => { event.preventDefault(); setSearch(searchInput.trim()); setSelectedId(null) }}>
         <label>Search catalogue by name or URL<input maxLength={100} onChange={(event) => setSearchInput(event.target.value)} value={searchInput} /></label>
         <button className="secondary-button" type="submit">Search</button>
@@ -89,7 +100,7 @@ export function CatalogueManager() {
       {catalogue.data?.length === 0 && <p>No websites match.</p>}
       {catalogue.data && catalogue.data.length > 0 && (
         <div className="admin-page__layout">
-          <nav aria-label="Catalogue websites" className="admin-queue">
+          <nav aria-label="Catalogue websites" className="admin-queue admin-queue--catalogue">
             <h2>Websites</h2>
             {catalogue.data.map((website) => (
               <button aria-current={selected?.id === website.id ? 'true' : undefined} key={website.id} onClick={() => { setSelectedId(website.id); setMessage(null) }} type="button">
