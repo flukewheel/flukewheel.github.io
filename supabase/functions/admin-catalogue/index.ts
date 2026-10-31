@@ -37,6 +37,11 @@ const requestSchema = z.discriminatedUnion('action', [
     note: z.string().trim().min(1).max(1000),
   }),
   z.strictObject({
+    action: z.literal('delete_website'),
+    website_id: z.string().uuid(),
+    confirm_title: z.string().min(1).max(160),
+  }),
+  z.strictObject({
     action: z.literal('save_category'),
     category_id: z.string().uuid().nullable(),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(64),
@@ -155,6 +160,19 @@ Deno.serve(async (request) => {
     })
     if (error) return reply(request, error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : 500, 'INVALID_INPUT', 'The catalogue change could not be saved.')
     return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
+  if (parsed.action === 'delete_website') {
+    const { data, error } = await admin.rpc('delete_website_permanently', {
+      p_actor_id: user.id,
+      p_website_id: parsed.website_id,
+      p_confirm_title: parsed.confirm_title,
+    })
+    if (error) {
+      const status = error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : 500
+      return reply(request, status, status === 404 ? 'NOT_FOUND' : status === 400 ? 'INVALID_INPUT' : 'INTERNAL_ERROR',
+        status === 400 ? 'The confirmation title no longer matches this website.' : status === 404 ? 'This website is no longer in the catalogue.' : 'The website could not be deleted.')
+    }
+    return Response.json(data, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'save_category') {
     const { data, error } = await admin.rpc('manage_category', {

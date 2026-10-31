@@ -25,6 +25,8 @@ const directRole = await client.rpc('catalogue_admin', { p_actor_id: signup.user
 if (!directRole.error) throw new Error('Browser role could call the server-only administrator check')
 const directCatalogue = await client.rpc('admin_catalogue_page', { p_actor_id: signup.user.id, p_search: '' })
 if (!directCatalogue.error) throw new Error('Browser role could call the server-only catalogue page')
+const directDelete = await client.rpc('delete_website_permanently', { p_actor_id: signup.user.id, p_website_id: crypto.randomUUID(), p_confirm_title: 'No website' })
+if (!directDelete.error) throw new Error('Browser role could call the server-only website delete')
 
 const roleFile = '.phase4-local-role.sql'
 try {
@@ -122,5 +124,40 @@ const deferred = await adminCall({
   note: 'Could not verify this local recheck.',
 })
 if (deferred.status !== 200) throw new Error(`Recheck failure recording failed: ${JSON.stringify(deferred.body)}`)
+
+const service = createClient(api, status.SERVICE_ROLE_KEY)
+const other = createClient(api, publishable)
+const { data: otherSignup, error: otherSignupError } = await other.auth.signUp({
+  email: `phase4-delete-${crypto.randomUUID()}@example.test`, password: 'FlukewheelPhaseFour42!',
+})
+if (otherSignupError || !otherSignup.user) throw new Error('Second local signup failed')
+const websiteId = approved.body.website_id
+const { error: bookmarksError } = await service.from('bookmarks').insert([
+  { user_id: signup.user.id, website_id: websiteId },
+  { user_id: otherSignup.user.id, website_id: websiteId },
+])
+if (bookmarksError) throw new Error(`Delete test bookmark setup failed: ${bookmarksError.message}`)
+const { error: historyError } = await service.from('bump_history').insert([
+  { user_id: signup.user.id, website_id: websiteId, source: 'bump', request_id: crypto.randomUUID() },
+  { user_id: signup.user.id, website_id: websiteId, source: 'card', request_id: crypto.randomUUID() },
+  { user_id: otherSignup.user.id, website_id: websiteId, source: 'bump', request_id: crypto.randomUUID() },
+])
+if (historyError) throw new Error(`Delete test history setup failed: ${historyError.message}`)
+const { error: secondReactionError } = await service.from('website_reactions').insert({
+  user_id: otherSignup.user.id, website_id: websiteId, reaction: 'love',
+})
+if (secondReactionError) throw new Error(`Delete test reaction setup failed: ${secondReactionError.message}`)
+const wrongConfirmation = await adminCall({ action: 'delete_website', website_id: websiteId, confirm_title: 'Wrong title' })
+if (wrongConfirmation.status !== 400) throw new Error('Incorrect title did not block deletion')
+const deleted = await adminCall({ action: 'delete_website', website_id: websiteId, confirm_title: 'Phase Four Local Test' })
+if (deleted.status !== 200 || deleted.body.bookmarks_deleted !== 2 || deleted.body.history_deleted !== 3 || deleted.body.reactions_deleted !== 2 || deleted.body.submissions_deleted !== 1) {
+  throw new Error(`Deletion did not remove all related records: ${JSON.stringify(deleted)}`)
+}
+for (const table of ['websites', 'bookmarks', 'bump_history', 'website_reactions']) {
+  const { data, error } = await service.from(table).select(table === 'websites' ? 'id' : 'website_id').eq(table === 'websites' ? 'id' : 'website_id', websiteId)
+  if (error || data?.length) throw new Error(`Deleted website remained in ${table}`)
+}
+const { data: oldSuggestions, error: oldSuggestionsError } = await service.from('website_submissions').select('id').eq('normalised_url', originalUrl)
+if (oldSuggestionsError || oldSuggestions?.length) throw new Error('Deleted website remained in submissions')
 
 console.log('Phase 4 local intake and moderation checks passed')

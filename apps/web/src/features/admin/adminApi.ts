@@ -128,6 +128,11 @@ export const adminApi = {
   async editWebsite(input: Omit<ManagedWebsite, 'id' | 'original_url' | 'last_validated_at'> & { website_id: string; note: string }) {
     return invoke<{ website_id: string }>({ action: 'edit_website', ...input })
   },
+  async deleteWebsite(websiteId: string, confirmTitle: string) {
+    return invoke<{ website_id: string; bookmarks_deleted: number; history_deleted: number; reactions_deleted: number; submissions_deleted: number }>({
+      action: 'delete_website', website_id: websiteId, confirm_title: confirmTitle,
+    })
+  },
   async saveCategory(input: Omit<ManagedCategory, 'id'> & { category_id: string | null }) {
     return invoke<{ category_id: string }>({ action: 'save_category', ...input })
   },

@@ -865,6 +865,14 @@ main:not(.viewer-shell) {
 .admin-review__fields input:not([type="checkbox"]), .admin-review__fields textarea, .admin-review__fields select { width: 100%; border: 1px solid var(--line); border-radius: 0.5rem; background: #171410; color: var(--ink); padding: 0.75rem; }
 .admin-review__check { display: flex; align-items: start; gap: 0.5rem; }
 .admin-review__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+.admin-delete { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.25rem; }
+.admin-delete h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.admin-delete p { color: var(--muted); }
+.admin-delete label { display: grid; gap: 0.4rem; }
+.admin-delete input { width: 100%; border: 1px solid var(--line); border-radius: 0.5rem; background: #171410; color: var(--ink); padding: 0.75rem; }
+.admin-delete__open, .admin-delete__confirm { border: 1px solid #c77269; border-radius: 0.5rem; background: transparent; color: #ffb5ad; padding: 0.7rem 1rem; cursor: pointer; }
+.admin-delete__confirm { background: #672b27; color: white; }
+.admin-delete__open:disabled, .admin-delete__confirm:disabled { cursor: not-allowed; opacity: 0.5; }
 
 @media (max-width: 760px) { .admin-page__layout { grid-template-columns: 1fr; } }
 

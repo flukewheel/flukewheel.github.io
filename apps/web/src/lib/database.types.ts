@@ -203,6 +203,9 @@ isOneToOne: false
 "complete_recheck":
 { Args: { "p_actor_id": string,"p_checked_url": string,"p_note": string,"p_outcome": string,"p_website_id": string }; Returns: string
                            },
+"delete_website_permanently":
+{ Args: { "p_actor_id": string,"p_confirm_title": string,"p_website_id": string }; Returns: Json
+                           },
 "manage_category":
 { Args: { "p_active": boolean,"p_actor_id": string,"p_category_id": string,"p_description": string,"p_display_order": number,"p_name": string,"p_slug": string }; Returns: string
                            },

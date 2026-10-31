@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { SubmissionModal } from '../submissions/SubmissionModal'
 import { adminApi, type ManagedWebsite } from './adminApi'
 
-function WebsiteEditor({ website, onSaved }: { website: ManagedWebsite; onSaved: () => Promise<void> }) {
+function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsite; onSaved: () => Promise<void>; onDeleted: (result: Awaited<ReturnType<typeof adminApi.deleteWebsite>>) => void }) {
   const { user } = useAuth()
   const categories = useQuery({ queryKey: ['admin-categories', user?.id], queryFn: adminApi.categories })
   const [title, setTitle] = useState(website.title)
@@ -15,6 +15,8 @@ function WebsiteEditor({ website, onSaved }: { website: ManagedWebsite; onSaved:
   const [embeddingStatus, setEmbeddingStatus] = useState(website.embedding_status)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [confirmationTitle, setConfirmationTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   async function save() {
@@ -29,6 +31,16 @@ function WebsiteEditor({ website, onSaved }: { website: ManagedWebsite; onSaved:
       setNote('')
       await onSaved()
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'The catalogue change could not be saved.') }
+    finally { setBusy(false) }
+  }
+
+  async function remove() {
+    if (confirmationTitle !== website.title) return
+    setBusy(true); setError(null)
+    try {
+      const result = await adminApi.deleteWebsite(website.id, confirmationTitle)
+      onDeleted(result)
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'The website could not be deleted.') }
     finally { setBusy(false) }
   }
 
@@ -56,6 +68,23 @@ function WebsiteEditor({ website, onSaved }: { website: ManagedWebsite; onSaved:
       </div>
       {error && <p className="auth-feedback auth-feedback--error" role="alert">{error}</p>}
       <button className="primary-button" disabled={busy || !note.trim()} onClick={() => void save()} type="button">{busy ? 'Saving…' : 'Save website'}</button>
+      <div className="admin-delete">
+        {confirmingDelete ? (
+          <>
+            <h3>Permanently delete this website</h3>
+            <p>This removes it from discovery and from everyone’s bookmarks, history and reactions. This cannot be undone.</p>
+            <label>Type “{website.title}” to confirm
+              <input autoComplete="off" onChange={(event) => setConfirmationTitle(event.target.value)} value={confirmationTitle} />
+            </label>
+            <div className="admin-review__actions">
+              <button className="admin-delete__confirm" disabled={busy || confirmationTitle !== website.title} onClick={() => void remove()} type="button">{busy ? 'Deleting…' : 'Permanently delete website'}</button>
+              <button className="secondary-button" disabled={busy} onClick={() => { setConfirmingDelete(false); setConfirmationTitle(''); setError(null) }} type="button">Cancel</button>
+            </div>
+          </>
+        ) : (
+          <button className="admin-delete__open" disabled={busy} onClick={() => setConfirmingDelete(true)} type="button">Delete website</button>
+        )}
+      </div>
     </section>
   )
 }
@@ -76,6 +105,12 @@ export function CatalogueManager() {
     await catalogue.refetch()
     await queryClient.invalidateQueries({ queryKey: ['catalogue'] })
     await queryClient.invalidateQueries({ queryKey: ['recommendations'] })
+  }
+
+  function deleted(result: Awaited<ReturnType<typeof adminApi.deleteWebsite>>) {
+    setSelectedId(null)
+    setMessage(`Website deleted. Removed ${result.bookmarks_deleted} bookmarks, ${result.history_deleted} history entries and ${result.reactions_deleted} reactions.`)
+    void queryClient.invalidateQueries()
   }
 
   return (
@@ -108,7 +143,7 @@ export function CatalogueManager() {
               </button>
             ))}
           </nav>
-          {selected && <WebsiteEditor key={selected.id} onSaved={saved} website={selected} />}
+          {selected && <WebsiteEditor key={selected.id} onDeleted={deleted} onSaved={saved} website={selected} />}
         </div>
       )}
     </section>

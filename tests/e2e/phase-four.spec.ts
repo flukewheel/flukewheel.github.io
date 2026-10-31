@@ -26,6 +26,7 @@ test('administrator can work through review, catalogue and maintenance screens',
   let pending = true
   let reportsPending = true
   let rechecksPending = true
+  let deleted = false
   const actions: string[] = []
   await page.route('**/functions/v1/submit-website', async (route) => {
     pending = true
@@ -38,9 +39,10 @@ test('administrator can work through review, catalogue and maintenance screens',
       status: { administrator: true },
       queue: { submissions: pending ? [{ id: '40000000-0000-4000-8000-000000000001', raw_url: 'https://example.org/admin-review', normalised_url: 'https://example.org/admin-review', suggested_categories: ['art'], description: 'An unusual page.', submitted_at: new Date().toISOString(), validation_status: 'pending', verification_notes: null, duplicate_website_id: null }] : [] },
       review: { status: 'approved', website_id: websiteId },
-      catalogue: { websites: Array.from({ length: 52 }, (_, index) => ({ id: index === 0 ? websiteId : `20000000-0000-4000-8000-${String(index).padStart(12, '0')}`, title: `Sample Site ${index + 1}`, description: 'A sample website.', original_url: `https://example.org/sample-${index + 1}`, thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] })).slice(body.after_id ? 50 : 0, body.after_id ? 52 : 50) },
+      catalogue: { websites: Array.from({ length: 52 }, (_, index) => ({ id: index === 0 ? websiteId : `20000000-0000-4000-8000-${String(index).padStart(12, '0')}`, title: `Sample Site ${index + 1}`, description: 'A sample website.', original_url: `https://example.org/sample-${index + 1}`, thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] })).filter((website) => !deleted || website.id !== websiteId).slice(body.after_id ? 50 : 0, body.after_id ? 52 : 50) },
       categories: { categories: [{ id: categoryId, slug: 'art', name: 'Art', description: 'Art sites.', active: true, display_order: 1 }] },
       edit_website: { website_id: websiteId },
+      delete_website: { website_id: websiteId, bookmarks_deleted: 2, history_deleted: 3, reactions_deleted: 2, submissions_deleted: 1 },
       save_category: { category_id: categoryId },
       reports: { reports: reportsPending ? [{ website_id: websiteId, title: 'Sample Site', original_url: 'https://example.org/sample', active: true, broken: 1, inappropriate: 0, low_quality: 0, last_reported_at: new Date().toISOString() }] : [] },
       review_reports: { website_id: websiteId },
@@ -50,6 +52,7 @@ test('administrator can work through review, catalogue and maintenance screens',
     if (body.action === 'review') pending = false
     if (body.action === 'review_reports') reportsPending = false
     if (body.action === 'complete_recheck') rechecksPending = false
+    if (body.action === 'delete_website') deleted = true
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(result[body.action]) })
   })
 
@@ -91,6 +94,17 @@ test('administrator can work through review, catalogue and maintenance screens',
   await page.getByRole('button', { name: 'Suggestions', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Review suggestion' })).toBeVisible()
 
+  await page.getByRole('button', { name: 'Catalogue', exact: true }).click()
+  await page.getByRole('button', { name: 'Delete website' }).click()
+  const confirmDelete = page.getByRole('button', { name: 'Permanently delete website' })
+  await expect(confirmDelete).toBeDisabled()
+  await page.getByRole('textbox', { name: /Type .* to confirm/ }).fill('Wrong title')
+  await expect(confirmDelete).toBeDisabled()
+  await page.getByRole('textbox', { name: /Type .* to confirm/ }).fill('Sample Site 1')
+  await confirmDelete.click()
+  await expect(page.getByText('Showing all 51 matching websites.')).toBeVisible()
+  await expect(page.getByText('Website deleted. Removed 2 bookmarks, 3 history entries and 2 reactions.')).toBeVisible()
+
   await page.getByRole('button', { name: 'Categories', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Edit category' })).toBeVisible()
   await page.getByRole('button', { name: 'Save category' }).click()
@@ -105,5 +119,5 @@ test('administrator can work through review, catalogue and maintenance screens',
   await page.getByRole('textbox', { name: 'Private verification note' }).fill('Checked again in the viewer.')
   await page.getByRole('button', { name: 'Save recheck' }).click()
   await expect(page.getByText('No websites are waiting for a recheck.')).toBeVisible()
-  expect(actions).toEqual(expect.arrayContaining(['status', 'queue', 'review', 'catalogue', 'edit_website', 'categories', 'save_category', 'reports', 'review_reports', 'rechecks', 'complete_recheck']))
+  expect(actions).toEqual(expect.arrayContaining(['status', 'queue', 'review', 'catalogue', 'edit_website', 'delete_website', 'categories', 'save_category', 'reports', 'review_reports', 'rechecks', 'complete_recheck']))
 })
