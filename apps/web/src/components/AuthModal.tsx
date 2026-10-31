@@ -65,7 +65,7 @@ export function AuthModal({ open, onClose, onAuthenticated, initialError, initia
         setMessage('If this address has an account, a password reset link is on its way.')
       } else {
         await authAdapter.updatePassword(password)
-        setMessage('Your password has been updated.')
+        onAuthenticated()
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Authentication could not be completed. Please try again.')

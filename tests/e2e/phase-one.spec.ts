@@ -43,6 +43,7 @@ test('a site that blocks embedding is still attempted in the viewer', async ({ p
 
 test('the primary toolbar follows a useful keyboard order', async ({ page }) => {
   await page.goto('/#/')
+  await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeVisible()
 
   await page.keyboard.press('Tab')
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused()

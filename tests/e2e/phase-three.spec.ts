@@ -66,7 +66,7 @@ test('local password recovery returns to the static app entry', async ({ page, r
   const nextPassword = 'FlukewheelChangedPassword43!'
 
   const viewerRoute = '/#/viewer/20000000-0000-4000-8000-000000000115'
-  await page.goto(`http://127.0.0.1:5173${viewerRoute}`)
+  await page.goto(viewerRoute)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -82,6 +82,8 @@ test('local password recovery returns to the static app entry', async ({ page, r
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
   await page.getByRole('button', { name: 'Send reset link' }).click()
   await expect(page.getByText('If this address has an account, a password reset link is on its way.')).toBeVisible()
+  await expect(page).toHaveURL(new RegExp(`${viewerRoute.slice(3)}$`))
+  expect(await page.evaluate(() => sessionStorage.getItem('flukewheel:auth-return'))).toBe(viewerRoute.slice(1))
 
   let messageId = ''
   await expect.poll(async () => {
@@ -99,7 +101,40 @@ test('local password recovery returns to the static app entry', async ({ page, r
   await expect(page).toHaveURL(new RegExp(`${viewerRoute.slice(3)}$`))
   await page.getByLabel('New password', { exact: true }).fill(nextPassword)
   await page.getByRole('button', { name: 'Save new password' }).click()
-  await expect(page.getByText('Your password has been updated.')).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Bookmark this website' }).click()
+  await expect(page.getByRole('button', { name: 'Bookmark this website' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('heading', { name: 'Choose a new password' })).toHaveCount(0)
+})
+
+test('email token callback restores the viewer across tabs and completes the profile', async ({ page, context }) => {
+  const email = `confirmation-${Date.now()}-${Math.random().toString(36).slice(2)}@example.test`
+  const websiteId = '20000000-0000-4000-8000-000000000115'
+  await page.goto(`/#/viewer/${websiteId}`)
+  await page.getByRole('button', { name: 'Log in', exact: true }).click()
+  await page.getByRole('button', { name: 'Create an account' }).click()
+  await page.getByRole('textbox', { name: 'Email address' }).fill(email)
+  await page.getByLabel('Password', { exact: true }).fill('FlukewheelTestPassword42!')
+  const signupResponse = page.waitForResponse((response) => response.url().includes('/auth/v1/signup') && response.ok())
+  await page.getByRole('button', { name: 'Sign up', exact: true }).click()
+  const { access_token, refresh_token } = await (await signupResponse).json() as { access_token: string; refresh_token: string }
+  await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
+  await page.evaluate((route) => {
+    localStorage.clear()
+    localStorage.setItem('flukewheel:auth-return', JSON.stringify({ route, savedAt: Date.now() }))
+  }, `#/viewer/${websiteId}`)
+
+  const confirmationTab = await context.newPage()
+  await confirmationTab.goto('/')
+  expect(await confirmationTab.evaluate(() => localStorage.getItem('flukewheel:auth-return'))).toContain(websiteId)
+  await confirmationTab.goto('about:blank')
+  await confirmationTab.goto(`/#access_token=${encodeURIComponent(access_token)}&refresh_token=${encodeURIComponent(refresh_token)}&type=signup`, { waitUntil: 'domcontentloaded' })
+  await expect.poll(() => confirmationTab.evaluate(() => window.location.hash)).toBe(`#/viewer/${websiteId}`)
+  await expect(confirmationTab.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
+  const username = `confirmed_${Date.now()}`
+  await confirmationTab.getByRole('textbox', { name: 'Username' }).fill(username)
+  await confirmationTab.getByRole('button', { name: 'Save username' }).click()
+  await expect(confirmationTab.getByRole('button', { name: `Account menu for ${username}` })).toBeVisible()
 })
 
 test('new accounts complete a unique username without losing their discovery', async ({ page }) => {

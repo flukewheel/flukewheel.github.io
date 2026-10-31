@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { App } from './app/App'
 import { processAuthCallback } from './features/auth/callback'
 import './styles.css'
 
-void processAuthCallback().finally(() => {
+void processAuthCallback().finally(async () => {
+  const { App } = await import('./app/App')
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <App />

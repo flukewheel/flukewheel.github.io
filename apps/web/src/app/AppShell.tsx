@@ -13,7 +13,7 @@ import { interactionAdapter } from '../lib/adapters/interactions'
 
 export function AppShell() {
   const [callbackError] = useState(takeCallbackError)
-  const [recoveryMode] = useState(takeRecoveryMode)
+  const [recoveryMode, setRecoveryMode] = useState(takeRecoveryMode)
   const [authOpen, setAuthOpen] = useState(Boolean(callbackError || recoveryMode))
   const [pendingError, setPendingError] = useState<string | null>(null)
   const [dismissedCompletion, setDismissedCompletion] = useState(() => sessionStorage.getItem('flukewheel:profile-completion-dismissed'))
@@ -36,7 +36,7 @@ export function AppShell() {
     void run().catch(() => setPendingError('Your saved action could not be completed. Please try again.'))
   }, [userId, queryClient])
 
-  function cancelAuth() { clearPendingAction(); setAuthOpen(false) }
+  function cancelAuth() { clearPendingAction(); setAuthOpen(false); setRecoveryMode(false) }
 
   return (
     <div className="app-shell">
@@ -53,7 +53,7 @@ export function AppShell() {
           made with <Heart aria-label="love" fill="currentColor" /> by Shaun Schwegler
         </footer>
       )}
-      {authOpen && <AuthModal initialError={callbackError} initialMode={recoveryMode ? 'new-password' : 'login'} onAuthenticated={() => setAuthOpen(false)} onClose={cancelAuth} open />}
+      {authOpen && <AuthModal initialError={callbackError} initialMode={recoveryMode ? 'new-password' : 'login'} onAuthenticated={() => { setAuthOpen(false); setRecoveryMode(false) }} onClose={cancelAuth} open />}
       {!authOpen && userId && profile?.id === userId && !profile.username && dismissedCompletion !== userId && (
         <CompleteProfile
           onComplete={() => { sessionStorage.removeItem('flukewheel:profile-completion-dismissed'); setDismissedCompletion(null) }}
