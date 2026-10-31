@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { paths } from '../../app/paths'
 import { catalogueAdapter } from '../../lib/adapters'
+import { authAdapter } from '../../lib/adapters/auth'
 import { getSupabaseClient } from '../../lib/supabase'
 import { useAuth } from './AuthProvider'
 
@@ -72,6 +73,16 @@ export function ProfileSettings() {
     finally { setBusy(false) }
   }
 
+  async function sendPasswordReset() {
+    if (!user?.email) return
+    setBusy(true); setError(null); setMessage(null)
+    try {
+      await authAdapter.sendPasswordReset(user.email)
+      setMessage('If this address has an account, a password reset link is on its way.')
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'The reset email could not be sent.') }
+    finally { setBusy(false) }
+  }
+
   return (
     <main id="main-content" className="settings-page">
       <div className="settings-heading">
@@ -108,6 +119,13 @@ export function ProfileSettings() {
           </label>
         ))}
       </section>
+      {user.email && (
+        <section className="settings-card" aria-labelledby="security-heading">
+          <h2 id="security-heading">Account security</h2>
+          <p>Reset your password using a link sent to {user.email}.</p>
+          <button className="secondary-button" disabled={busy} onClick={() => void sendPasswordReset()} type="button">Send password reset email</button>
+        </section>
+      )}
     </main>
   )
 }

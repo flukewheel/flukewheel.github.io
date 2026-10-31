@@ -2,6 +2,8 @@
 
 The web app provides email registration and sign-in, password recovery, Google sign-in, persistent sessions, profile and interest editing, and trusted avatar uploads. New accounts with no username see a short completion step; a duplicate username produces a correction prompt. Guests can still browse and Bump. A guest Love, Dislike or Bookmark is tied to the original website ID and resumes once after sign-in; closing authentication cancels it.
 
+Signed-in users with an email address can request a password-reset link from **Profile and interests → Account security**. Guests can use **Log in → Forgot password?**. The email link returns to the route where the request began and opens the new-password form.
+
 ## Run locally
 
 1. Start Docker Desktop, then run `npx supabase start` and `npm run dev` from the repository root. The app uses `http://127.0.0.1:5173/` and the local API uses port 54421.

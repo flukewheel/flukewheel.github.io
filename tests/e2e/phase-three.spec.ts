@@ -37,6 +37,11 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
   await page.reload({ waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
+  await Promise.all([
+    page.waitForResponse((response) => response.url().includes('/auth/v1/recover') && response.ok()),
+    page.getByRole('button', { name: 'Send password reset email' }).click(),
+  ])
+  await expect(page.getByText('If this address has an account, a password reset link is on its way.')).toBeVisible()
 
   await page.getByRole('button', { name: /Account menu for member_/ }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
