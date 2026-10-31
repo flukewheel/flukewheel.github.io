@@ -26,10 +26,7 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await page.getByRole('textbox', { name: 'Username' }).fill(`member_${Date.now()}`)
   await page.getByRole('button', { name: 'Save profile' }).click()
   await expect(page.getByText('Profile saved.')).toBeVisible()
-  await page.getByLabel('Change profile picture').setInputFiles('../../icon.png')
-  await expect(page.getByText('Profile picture updated.')).toBeVisible({ timeout: 30_000 })
-  await expect(page.getByRole('img', { name: 'Your profile' })).toBeVisible()
-  await expect.poll(() => page.getByRole('img', { name: 'Your profile' }).evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  await expect(page.getByLabel('Change profile picture')).toHaveCount(0)
   await Promise.all([
     page.waitForResponse((response) => response.url().includes('/rest/v1/user_interests') && response.request().method() === 'POST' && response.ok()),
     page.getByRole('checkbox', { name: 'Art' }).check(),

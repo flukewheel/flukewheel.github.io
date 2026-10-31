@@ -9,7 +9,6 @@ type Profile = Database['public']['Tables']['profiles']['Row']
 interface AuthContextValue {
   user: User | null
   profile: Profile | null
-  avatarUrl: string | null
   loading: boolean
   refreshProfile: () => Promise<void>
   signOut: () => Promise<void>
@@ -20,7 +19,6 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const queryClient = useQueryClient()
   const client = authAdapter.getClient()
@@ -44,7 +42,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!userId || !client) {
-      queueMicrotask(() => { setProfile(null); setAvatarUrl(null) })
+      queueMicrotask(() => setProfile(null))
       return
     }
     let alive = true
@@ -60,10 +58,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
       if (!alive || error) return
       setProfile(data)
-      if (data?.avatar_path) {
-        const signed = await client.storage.from('avatars').createSignedUrl(data.avatar_path, 3600)
-        if (alive) setAvatarUrl(signed.data?.signedUrl ?? null)
-      } else setAvatarUrl(null)
     }
     void load()
     return () => { alive = false }
@@ -74,21 +68,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const { data, error } = await client.from('profiles').select('*').eq('id', user.id).single()
     if (error) throw error
     setProfile(data)
-    if (data.avatar_path) {
-      const signed = await client.storage.from('avatars').createSignedUrl(data.avatar_path, 3600)
-      setAvatarUrl(signed.data?.signedUrl ?? null)
-    } else setAvatarUrl(null)
   }
 
   async function signOut() {
     await authAdapter.signOut()
     queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== 'catalogue' && query.queryKey[0] !== 'categories' })
     setProfile(null)
-    setAvatarUrl(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, avatarUrl, loading, refreshProfile, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   )

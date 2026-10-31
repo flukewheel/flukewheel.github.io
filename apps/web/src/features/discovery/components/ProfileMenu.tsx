@@ -9,7 +9,7 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
-  const { user, profile, avatarUrl, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -36,9 +36,7 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
   return (
     <div className="profile-menu" ref={rootRef}>
       <button aria-expanded={open} aria-haspopup="menu" aria-label={`Account menu for ${displayName}`} className="profile-button" onClick={() => setOpen((value) => !value)} type="button">
-        <span className="profile-avatar" aria-hidden="true">
-          {avatarUrl ? <img alt="" src={avatarUrl} /> : <UserRound />}
-        </span>
+        <span className="profile-avatar" aria-hidden="true"><UserRound /></span>
         <span>{displayName}</span>
       </button>
       {open && (

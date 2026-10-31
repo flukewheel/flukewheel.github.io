@@ -8,7 +8,7 @@ import { getSupabaseClient } from '../../lib/supabase'
 import { useAuth } from './AuthProvider'
 
 export function ProfileSettings() {
-  const { user, profile, avatarUrl, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const [username, setUsername] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [localInterests, setLocalInterests] = useState<string[] | null>(null)
@@ -57,22 +57,6 @@ export function ProfileSettings() {
     else { await interests.refetch(); setLocalInterests(null) }
   }
 
-  async function uploadAvatar(file: File | undefined) {
-    if (!file || !client) return
-    setBusy(true); setError(null); setMessage(null)
-    try {
-      if (file.size > 1_048_576) throw new Error('Choose an image smaller than 1 MB.')
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Choose a JPEG, PNG or WebP image.')
-      const body = new FormData()
-      body.append('file', file)
-      const { error: uploadError } = await client.functions.invoke('process-avatar', { body })
-      if (uploadError) throw uploadError
-      await refreshProfile()
-      setMessage('Profile picture updated.')
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Picture could not be uploaded.') }
-    finally { setBusy(false) }
-  }
-
   async function sendPasswordReset() {
     if (!user?.email) return
     setBusy(true); setError(null); setMessage(null)
@@ -88,19 +72,13 @@ export function ProfileSettings() {
       <div className="settings-heading">
         <Link className="text-link" to={paths.home}>← Back to discovery</Link>
         <h1>Profile and interests</h1>
-        <p>Choose how you appear and which corners of the web you enjoy.</p>
+        <p>Choose your username and which corners of the web you enjoy.</p>
       </div>
       {error && <p className="auth-feedback auth-feedback--error" role="alert">{error}</p>}
       {message && <p className="auth-feedback" role="status">{message}</p>}
       <section className="settings-card" aria-labelledby="profile-heading">
         <h2 id="profile-heading">Your profile</h2>
         <p>{user.email}</p>
-        <div className="settings-avatar">
-          {avatarUrl ? <img alt="Your profile" src={avatarUrl} /> : <span aria-hidden="true">{(profile?.username ?? user.email ?? '?').slice(0, 1).toUpperCase()}</span>}
-          <label>Change profile picture
-            <input accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={(event) => void uploadAvatar(event.target.files?.[0])} type="file" />
-          </label>
-        </div>
         <form className="auth-form" onSubmit={(event) => void saveUsername(event)}>
           <label>Username
             <input autoComplete="username" maxLength={32} minLength={3} onChange={(event) => setUsername(event.target.value)} pattern="[A-Za-z0-9_]*" type="text" value={username ?? profile?.username ?? ''} />
