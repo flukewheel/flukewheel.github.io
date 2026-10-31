@@ -185,17 +185,29 @@ isOneToOne: false
 "admin_category_list":
 { Args: { "p_actor_id": string }; Returns: Json
                            },
+"admin_recheck_queue":
+{ Args: { "p_actor_id": string }; Returns: Json
+                           },
+"admin_report_queue":
+{ Args: { "p_actor_id": string }; Returns: Json
+                           },
 "admin_submission_queue":
 { Args: { "p_actor_id": string }; Returns: Json
                            },
 "catalogue_admin":
 { Args: { "p_actor_id": string }; Returns: boolean
                            },
+"complete_recheck":
+{ Args: { "p_actor_id": string,"p_checked_url": string,"p_note": string,"p_outcome": string,"p_website_id": string }; Returns: string
+                           },
 "manage_category":
 { Args: { "p_active": boolean,"p_actor_id": string,"p_category_id": string,"p_description": string,"p_display_order": number,"p_name": string,"p_slug": string }; Returns: string
                            },
 "manage_website":
 { Args: { "p_active": boolean,"p_actor_id": string,"p_category_ids": (string)[],"p_description": string,"p_embedding_status": string,"p_note": string,"p_thumbnail_path": string,"p_title": string,"p_website_id": string }; Returns: string
+                           },
+"review_reports":
+{ Args: { "p_actor_id": string,"p_note": string,"p_website_id": string }; Returns: string
                            },
 "review_submission":
 { Args: { "p_actor_id": string,"p_category_ids": (string)[],"p_decision": string,"p_description": string,"p_note": string,"p_submission_id": string,"p_title": string }; Returns: {

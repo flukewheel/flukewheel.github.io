@@ -1,27 +1,34 @@
-# Phase 4 submission and moderation checkpoint
+# Phase 4 submission and moderation status
 
-The Phase 4 workflow is implemented and tested locally but has not been deployed to the hosted Supabase project or GitHub Pages. The live site still shows the prior submission placeholder until a reviewed deployment.
+Phase 4 is implemented locally and its database and Edge Functions are deployed to the hosted development project. The frontend is published separately through GitHub Pages. A final signed-in administrator walkthrough and manual compatibility review remain before the phase can be marked complete.
 
-## Implemented
+## Visitor suggestions
 
-- The plus button opens a guest-friendly suggestion form with a URL, optional categories and description, a pending receipt, and useful errors.
-- `submit-website` validates and normalises public HTTP/HTTPS URLs, rejects local/IP/custom-port/credential URLs, removes known tracking parameters and fragments, and calls a server-only transactional intake function. Intake handles request retries, pending/catalogue duplicates, member and global guest quotas, and creates a private validation job. Suggestions do not publish themselves.
-- The admin route checks the authenticated user against private `user_roles` in the backend. It lists pending suggestions, previews them in an iframe for manual review, and approves or rejects them through a transaction with category links and an audit event. Only a manually verified page can be approved from the UI. Existing URL races resolve to the existing catalogue row.
-- Admin catalogue and category screens can edit titles, descriptions, thumbnail paths, assignments, active state, embedding status, category names/slugs and display order. They retain audit events. Deactivation keeps existing bookmark and history references.
-- The public viewer still loads sites directly in its iframe and offers no external-opening action.
+- The plus button accepts a URL, optional category suggestions and a description from guests or members. It returns a receipt for a pending submission; submission never publishes directly.
+- The server accepts only public HTTP/HTTPS domain URLs without credentials or custom ports. It removes fragments and recognised tracking parameters for duplicate detection while preserving the submitted original URL. Local and IP destinations are rejected. No untrusted URL is fetched by the server.
+- A transaction handles repeated request IDs, duplicate pending/catalogue URLs and a private validation job. Intake is capped at 100 suggestions per day overall, 40 guest suggestions per day overall, and five per member per day. The global guest cap protects the review queue but can be exhausted by one visitor; per-visitor abuse challenges remain future work if traffic warrants them.
 
-## Validation approach
+## Administration
 
-No automatic request is made to an untrusted submitted URL. The current Edge runtime has not been shown to support binding each request to an approved resolved destination across redirects. Until that control is demonstrated, validation and compatibility checks are manual in the admin preview. This avoids adding an unrestricted server-side fetcher. The submitted site remains private and pending until review.
+- Only a verified signed-in account in private `user_roles` can call the admin function. Browser roles cannot invoke the server-only SQL functions directly.
+- The admin page lists pending suggestions with original URL, visitor note, category suggestions, validation status and exact duplicate evidence. Approval requires a title, description, active category, and a manual verification note. Approval, rejection, duplicate resolution, category links and audit events run in a transaction.
+- Admin screens edit catalogue metadata, category assignments, active status, embedding status and taxonomy. Deactivation preserves bookmark and history references. The public viewer continues to show websites directly in its iframe without an external-opening control.
+- Broken, inappropriate and low quality dislikes are grouped for review. A personal dislike does not automatically remove a site. Admins record review notes; users can submit at most one report signal per website per hour, enforced in the database.
+- Supabase Cron queues up to 25 stale active catalogue entries each day at 03:00 UTC for manual recheck. Failed checks retry after seven days, up to three attempts. Recheck outcomes and notes are audited. Ordinary metadata edits do not renew the last-validated timestamp.
 
-## Local verification
+## Validation policy
 
-- Three migrations applied locally. Generated public database types compile.
-- Local smoke checks covered guest intake, duplicate and private-address rejection, denied ordinary-user administration, denied direct browser calls to the server-only role function, administrator approval and retry, public visibility, deactivation, and category creation.
-- Security advisors reported no warning-or-higher issues. Lint, typecheck, unit tests, build and all 32 desktop/mobile browser tests passed.
+The Edge runtime has not been shown to pin outbound requests to approved resolved destinations across redirects. Automated fetching of untrusted submissions is therefore disabled. Administrators inspect candidate pages in the hosted Flukewheel preview and record the result manually. iframe load alone is not treated as proof of usable content.
 
-## Remaining Phase 4 work
+## Verification so far
 
-- Deploy reviewed migrations before the Edge Functions and frontend, then test the hosted origin with a controlled administrator session. The local smoke script deliberately creates test records; do not run it against hosted data.
-- Add the longer-term validation/recheck process and report review workflow, with safe network controls or continued manual handling. Curate and manually recheck launch content on the actual hosted origin.
-- Verify the full admin screens and public-catalogue updates end to end on hosted development before calling Phase 4 complete.
+- Five additive migrations applied locally and on hosted development. The hosted Cron job is active. Both Edge Functions are deployed with the intended JWT settings and exact Pages-origin CORS response.
+- Local smoke checks cover pending intake, duplicates, private-address rejection, guest privacy, admin authority, approval retry, deactivation, categories, report review, report throttling and failed recheck recording.
+- Hosted HTTP checks rejected an unsafe URL and an existing catalogue URL. One temporary hosted suggestion remained pending and returned the same receipt on retry; its validation job was present, then the test row was removed. An unauthenticated admin request was denied.
+- Lint, typecheck, unit tests, production build and 34 desktop/mobile browser tests passed locally, including an admin-screen journey with mocked function responses. Local security advisors reported no warning-or-higher issues.
+
+## Remaining checks
+
+- Sign in on the live site with the configured administrator account and run one real suggestion through review. Confirm the new catalogue entry appears in home/Bump, then deactivate the test entry. Check category editing, reports and rechecks in the live admin page.
+- Manually review the curated launch catalogue on the final hosted origin over time. Existing entries were imported earlier; stored `allowed` status is not proof that every page still renders usefully today. The four categories already exceed the plan's 15–25 entry content target by count.
+- A challenge or stronger per-visitor guest throttling can be added if the global guest quota is repeatedly exhausted. No unverified automatic fetcher should be enabled to accelerate review.

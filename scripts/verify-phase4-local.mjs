@@ -41,6 +41,8 @@ const submitted = await fetch(`${api}/functions/v1/submit-website`, {
 })
 const receipt = await submitted.json()
 if (submitted.status !== 202) throw new Error(`Intake returned ${submitted.status}: ${JSON.stringify(receipt)}`)
+const guestSubmissionRead = await createClient(api, publishable).from('website_submissions').select('id').eq('id', receipt.submission_id)
+if (!guestSubmissionRead.error && guestSubmissionRead.data?.length) throw new Error('Pending suggestion was visible to a guest')
 
 const queue = await adminCall({ action: 'queue' })
 if (queue.status !== 200 || !queue.body.submissions.some((item) => item.id === receipt.submission_id)) throw new Error('Pending suggestion absent from admin queue')
@@ -76,5 +78,28 @@ const newCategory = await adminCall({
   name: 'Local Test', description: 'A local category management test.', active: false, display_order: 50,
 })
 if (newCategory.status !== 200 || !newCategory.body.category_id) throw new Error(`Category creation failed: ${JSON.stringify(newCategory.body)}`)
+
+const reaction = await client.from('website_reactions').insert({
+  user_id: signup.user.id, website_id: approved.body.website_id, reaction: 'dislike', reason: 'broken',
+})
+if (reaction.error) throw new Error(`Report setup failed: ${reaction.error.message}`)
+const repeatedReport = await client.from('website_reactions').update({ reason: 'broken' }).eq('user_id', signup.user.id).eq('website_id', approved.body.website_id)
+if (!repeatedReport.error) throw new Error('Repeated direct report bypassed the rate limit')
+const reports = await adminCall({ action: 'reports' })
+if (reports.status !== 200 || !reports.body.reports.some((item) => item.website_id === approved.body.website_id && item.broken === 1)) throw new Error('Broken-site report missing from review queue')
+const reviewedReports = await adminCall({ action: 'review_reports', website_id: approved.body.website_id, note: 'Checked local report.' })
+if (reviewedReports.status !== 200) throw new Error('Report review failed')
+const clearedReports = await adminCall({ action: 'reports' })
+if (clearedReports.body.reports.some((item) => item.website_id === approved.body.website_id)) throw new Error('Reviewed report remained in queue')
+
+const rechecks = await adminCall({ action: 'rechecks' })
+if (rechecks.status !== 200 || rechecks.body.rechecks.length === 0) throw new Error('Stale website recheck queue is empty')
+const firstRecheck = rechecks.body.rechecks[0]
+const deferred = await adminCall({
+  action: 'complete_recheck', website_id: firstRecheck.website_id,
+  outcome: 'failed', checked_url: firstRecheck.original_url,
+  note: 'Could not verify this local recheck.',
+})
+if (deferred.status !== 200) throw new Error(`Recheck failure recording failed: ${JSON.stringify(deferred.body)}`)
 
 console.log('Phase 4 local intake and moderation checks passed')

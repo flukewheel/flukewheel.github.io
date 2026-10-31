@@ -42,6 +42,27 @@ export interface ManagedCategory {
   display_order: number
 }
 
+export interface ReportSignal {
+  website_id: string
+  title: string
+  original_url: string
+  active: boolean
+  broken: number
+  inappropriate: number
+  low_quality: number
+  last_reported_at: string
+}
+
+export interface RecheckJob {
+  website_id: string
+  title: string
+  original_url: string
+  status: 'pending' | 'failed'
+  attempts: number
+  last_validated_at: string | null
+  note: string | null
+}
+
 async function invoke<T>(body: object): Promise<T> {
   const client = getSupabaseClient()
   if (!client) throw new Error('Administration is unavailable.')
@@ -75,6 +96,20 @@ export const adminApi = {
   async categories() {
     const result = await invoke<{ categories: ManagedCategory[] }>({ action: 'categories' })
     return result.categories
+  },
+  async reports() {
+    const result = await invoke<{ reports: ReportSignal[] }>({ action: 'reports' })
+    return result.reports
+  },
+  async rechecks() {
+    const result = await invoke<{ rechecks: RecheckJob[] }>({ action: 'rechecks' })
+    return result.rechecks
+  },
+  async reviewReports(websiteId: string, note: string) {
+    return invoke<{ website_id: string }>({ action: 'review_reports', website_id: websiteId, note })
+  },
+  async completeRecheck(input: { website_id: string; outcome: 'allowed' | 'blocked' | 'needs_review' | 'failed'; checked_url: string | null; note: string }) {
+    return invoke<{ website_id: string }>({ action: 'complete_recheck', ...input })
   },
   async review(input: ReviewInput) {
     return invoke<{ status: string; website_id: string | null }>({ action: 'review', ...input })

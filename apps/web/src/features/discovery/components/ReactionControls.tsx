@@ -45,7 +45,8 @@ export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionCo
       onOpenAuth()
       return
     }
-    if ((kind === 'bookmark' && bookmarked) || (kind === 'love' && loved) || (kind === 'dislike' && disliked && !reason)) return
+    if ((kind === 'bookmark' && bookmarked) || (kind === 'love' && loved)
+      || (kind === 'dislike' && disliked && (!reason || state.data?.reason === reason))) return
     inFlight.current.add(targetId)
     setBusyAction({ websiteId: targetId, kind }); setError(null)
     try {

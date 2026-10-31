@@ -8,6 +8,8 @@ import { useAuth } from '../auth/AuthProvider'
 import { adminApi, type PendingSubmission } from './adminApi'
 import { CatalogueManager } from './CatalogueManager'
 import { CategoryManager } from './CategoryManager'
+import { ReportsManager } from './ReportsManager'
+import { RechecksManager } from './RechecksManager'
 
 function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission; onReviewed: (message: string) => Promise<void> }) {
   const queryClient = useQueryClient()
@@ -85,7 +87,7 @@ export function AdminPage() {
   const { user } = useAuth()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-  const [section, setSection] = useState<'suggestions' | 'catalogue' | 'categories'>('suggestions')
+  const [section, setSection] = useState<'suggestions' | 'catalogue' | 'categories' | 'reports' | 'rechecks'>('suggestions')
   const status = useQuery({ queryKey: ['admin-status', user?.id], queryFn: adminApi.isAdmin, enabled: Boolean(user) })
   const queue = useQuery({ queryKey: ['admin-queue', user?.id], queryFn: adminApi.queue, enabled: status.data === true })
   const selected = queue.data?.find((item) => item.id === selectedId) ?? queue.data?.[0]
@@ -109,9 +111,13 @@ export function AdminPage() {
         <button aria-current={section === 'suggestions' ? 'page' : undefined} onClick={() => setSection('suggestions')} type="button">Suggestions</button>
         <button aria-current={section === 'catalogue' ? 'page' : undefined} onClick={() => setSection('catalogue')} type="button">Catalogue</button>
         <button aria-current={section === 'categories' ? 'page' : undefined} onClick={() => setSection('categories')} type="button">Categories</button>
+        <button aria-current={section === 'reports' ? 'page' : undefined} onClick={() => setSection('reports')} type="button">Reports</button>
+        <button aria-current={section === 'rechecks' ? 'page' : undefined} onClick={() => setSection('rechecks')} type="button">Rechecks</button>
       </nav>
       {section === 'catalogue' && <CatalogueManager />}
       {section === 'categories' && <CategoryManager />}
+      {section === 'reports' && <ReportsManager />}
+      {section === 'rechecks' && <RechecksManager />}
       {section === 'suggestions' && message && <p className="auth-feedback" role="status">{message}</p>}
       {section === 'suggestions' && queue.isPending && <p>Loading suggestions…</p>}
       {section === 'suggestions' && queue.isError && <p role="alert">The review queue could not be loaded. Refresh to try again.</p>}

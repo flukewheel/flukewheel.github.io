@@ -11,6 +11,15 @@ const requestSchema = z.discriminatedUnion('action', [
   z.strictObject({ action: z.literal('status') }),
   z.strictObject({ action: z.literal('queue') }),
   z.strictObject({ action: z.literal('categories') }),
+  z.strictObject({ action: z.literal('reports') }),
+  z.strictObject({ action: z.literal('rechecks') }),
+  z.strictObject({ action: z.literal('review_reports'), website_id: z.string().uuid(), note: z.string().trim().min(1).max(1000) }),
+  z.strictObject({
+    action: z.literal('complete_recheck'), website_id: z.string().uuid(),
+    outcome: z.enum(['allowed', 'blocked', 'needs_review', 'failed']),
+    checked_url: z.string().url().max(2048).nullable(),
+    note: z.string().trim().min(10).max(1000),
+  }),
   z.strictObject({ action: z.literal('catalogue'), search: z.string().max(100) }),
   z.strictObject({
     action: z.literal('edit_website'),
@@ -101,6 +110,29 @@ Deno.serve(async (request) => {
     const { data, error } = await admin.rpc('admin_category_list', { p_actor_id: user.id })
     if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Categories could not be loaded.')
     return Response.json({ categories: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
+  if (parsed.action === 'reports') {
+    const { data, error } = await admin.rpc('admin_report_queue', { p_actor_id: user.id })
+    if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Reports could not be loaded.')
+    return Response.json({ reports: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
+  if (parsed.action === 'rechecks') {
+    const { data, error } = await admin.rpc('admin_recheck_queue', { p_actor_id: user.id })
+    if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Rechecks could not be loaded.')
+    return Response.json({ rechecks: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
+  if (parsed.action === 'review_reports') {
+    const { data, error } = await admin.rpc('review_reports', { p_actor_id: user.id, p_website_id: parsed.website_id, p_note: parsed.note })
+    if (error) return reply(request, error.code === 'P0002' ? 404 : 400, 'INVALID_INPUT', 'Report review could not be saved.')
+    return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
+  if (parsed.action === 'complete_recheck') {
+    const { data, error } = await admin.rpc('complete_recheck', {
+      p_actor_id: user.id, p_website_id: parsed.website_id,
+      p_outcome: parsed.outcome, p_checked_url: parsed.checked_url, p_note: parsed.note,
+    })
+    if (error) return reply(request, error.code === 'P0002' ? 404 : 400, 'INVALID_INPUT', 'Recheck could not be saved.')
+    return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'catalogue') {
     const { data, error } = await admin.rpc('admin_catalogue_list', { p_actor_id: user.id, p_search: parsed.search })
