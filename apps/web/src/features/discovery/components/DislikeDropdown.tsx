@@ -11,11 +11,13 @@ const reasons = [
 ]
 
 interface DislikeDropdownProps {
+  busy?: boolean
   disabled: boolean
   onReasonSelected?: (reason: string) => void
 }
 
 export function DislikeDropdown({
+  busy = false,
   disabled,
   onReasonSelected,
 }: DislikeDropdownProps) {
@@ -36,11 +38,12 @@ export function DislikeDropdown({
       <IconButton
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-disabled={busy || undefined}
         className="icon-button--arrow"
         disabled={disabled}
         icon={<ChevronDown aria-hidden="true" />}
         label="Choose a dislike reason"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => { if (!busy) setOpen((value) => !value) }}
       />
       {open && (
         <div className="dropdown-menu" role="menu">

@@ -188,12 +188,14 @@ button:disabled {
 
 .icon-button[aria-pressed="true"] { background: var(--brand-pale); color: var(--brand-deep); }
 .reaction-controls .icon-button:disabled { cursor: default; }
-.reaction-controls[aria-busy="true"] .icon-button:disabled { cursor: progress; }
+.reaction-controls .icon-button[aria-disabled="true"] { cursor: pointer; }
 
 .icon-button svg {
   width: 1.15rem;
   height: 1.15rem;
   stroke-width: 1.8;
+  pointer-events: none;
+  user-select: none;
 }
 
 .icon-button[data-tooltip],
