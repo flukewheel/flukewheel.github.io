@@ -79,7 +79,6 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
               disabled={!isViewer || !activeWebsite}
               onOpenAuth={onOpenAuth}
               websiteId={activeWebsite?.id}
-              websiteUrl={isViewer ? activeWebsite?.originalUrl : undefined}
             />
           </div>
         </div>

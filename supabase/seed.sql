@@ -415,7 +415,7 @@ where id in (
   '20000000-0000-4000-8000-000000000086'
 );
 
--- User-curated catalogue additions, 2026-10-30. The blocked rows use an external-link viewer fallback.
+-- User-curated catalogue additions, 2026-10-30. Embedding status records compatibility evidence; active entries still load in the viewer.
 insert into public.websites (
   id, original_url, normalised_url, title, description,
   approval_status, active, embedding_status, approved_at, last_validated_at
@@ -588,7 +588,7 @@ from (values
 join public.categories category on category.slug = assignment.slug
 on conflict do nothing;
 
--- User-curated catalogue additions, 2026-10-31. The blocked rows use an external-link viewer fallback.
+-- User-curated catalogue additions, 2026-10-31. Embedding status records compatibility evidence; active entries still load in the viewer.
 insert into public.websites (
   id, original_url, normalised_url, title, description,
   approval_status, active, embedding_status, approved_at, last_validated_at

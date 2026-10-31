@@ -11,13 +11,12 @@ type PublicWebsiteRow = Pick<
   | 'original_url'
   | 'title'
   | 'description'
-  | 'embedding_status'
   | 'thumbnail_path'
   | 'approved_at'
 >
 
 const websiteColumns =
-  'id, original_url, title, description, embedding_status, thumbnail_path, approved_at'
+  'id, original_url, title, description, thumbnail_path, approved_at'
 const accents: Record<string, string> = {
   educational: '#f5c66f',
   funny: '#f0a6b8',
@@ -93,7 +92,6 @@ function toWebsiteSummary(
     title: row.title,
     description: row.description,
     originalUrl: row.original_url,
-    embeddingStatus: row.embedding_status,
     displayDomain: displayDomain(row.original_url),
     categories,
     image: placeholderGradients[paletteIndex],

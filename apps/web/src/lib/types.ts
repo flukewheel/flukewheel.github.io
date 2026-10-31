@@ -10,7 +10,6 @@ export interface WebsiteSummary {
   title: string
   description: string
   originalUrl: string
-  embeddingStatus?: string
   displayDomain: string
   categories: string[]
   image: string

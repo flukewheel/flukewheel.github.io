@@ -26,19 +26,19 @@ test('a catalogue card opens the website inline without the footer', async ({ pa
   await page.getByRole('link', { name: 'Discover Patatap' }).click()
 
   await expect(page.locator('iframe')).toHaveAttribute('src', 'https://www.patatap.com/')
-  await expect(page.getByRole('link', { name: 'Open original website in new tab' })).toHaveAttribute('target', '_blank')
+  await expect(page.getByRole('link', { name: /Open original website/i })).toHaveCount(0)
   await expect(page.locator('footer')).toHaveCount(0)
   await page.getByRole('link', { name: 'flukewheel home' }).click()
   await expect(page.locator('iframe')).toHaveCount(0)
   await expect(page.locator('footer')).toBeVisible()
 })
 
-test('a discovery that cannot embed offers its original website', async ({ page }) => {
+test('a site that blocks embedding is still attempted in the viewer', async ({ page }) => {
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000118')
 
-  await expect(page.getByRole('heading', { name: 'The Anarchist Cookbook (Food Not Bombs)' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Open original website', exact: true })).toHaveAttribute('target', '_blank')
-  await expect(page.locator('iframe')).toHaveCount(0)
+  await expect(page.locator('iframe')).toHaveAttribute('src', 'https://www.foodnotbombs.net/a.%20Anarchist%20Cookbook%20interior%207-30-15-1.pdf')
+  await expect(page.getByText('A discovery to open')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /Open original website/i })).toHaveCount(0)
 })
 
 test('the primary toolbar follows a useful keyboard order', async ({ page }) => {

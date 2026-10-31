@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowUpRight, Bookmark, Copy, Heart, ThumbsDown } from 'lucide-react'
+import { Bookmark, Copy, Heart, ThumbsDown } from 'lucide-react'
 import { useState } from 'react'
 import { IconButton } from '../../../components/IconButton'
 import { rememberPendingAction } from '../../auth/pendingAction'
@@ -11,10 +11,9 @@ interface ReactionControlsProps {
   disabled: boolean
   onOpenAuth: () => void
   websiteId?: string
-  websiteUrl?: string
 }
 
-export function ReactionControls({ disabled, onOpenAuth, websiteId, websiteUrl }: ReactionControlsProps) {
+export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionControlsProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [busy, setBusy] = useState(false)
@@ -55,9 +54,6 @@ export function ReactionControls({ disabled, onOpenAuth, websiteId, websiteUrl }
     <div aria-label="Website actions" className="reaction-controls" role="group">
       <IconButton active={state.data?.reaction === 'love'} disabled={disabled || busy} icon={<Heart aria-hidden="true" />} label="Love this website" onClick={() => void act('love')} />
       <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy discovery link" onClick={() => void copyLink()} />
-      {websiteUrl && (
-        <a aria-label="Open original website in new tab" className="icon-button" data-tooltip="Open original website in new tab" href={websiteUrl} rel="noopener noreferrer" target="_blank" title="Open original website in new tab"><ArrowUpRight aria-hidden="true" /></a>
-      )}
       <IconButton active={state.data?.bookmarked} disabled={disabled || busy} icon={<Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
       <div className="split-control">
         <IconButton active={state.data?.reaction === 'dislike'} disabled={disabled || busy} icon={<ThumbsDown aria-hidden="true" />} label="Dislike this website" onClick={() => void act('dislike')} />
