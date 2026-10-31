@@ -880,6 +880,13 @@ main:not(.viewer-shell) {
 .interest-choice { display: flex; align-items: center; gap: 0.7rem; margin: 0.7rem 0; }
 .interest-choice input { accent-color: var(--brand); }
 
+.bookmark-list { display: grid; max-width: 760px; gap: 1rem; margin: 0 0 1.5rem; padding: 0; list-style: none; }
+.bookmark-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); padding: 1.5rem; }
+.bookmark-item h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.bookmark-item p { margin: 0 0 1rem; color: var(--muted); }
+.bookmark-item > button { flex: none; }
+@media (max-width: 600px) { .bookmark-item { flex-direction: column; } }
+
 .route-state {
   display: flex;
   min-height: calc(100vh - 78px);

@@ -4,6 +4,7 @@ import { RouteState, UnauthorisedState } from '../components/RouteState'
 import { useAuth } from '../features/auth/AuthProvider'
 import { DiscoveryFeed } from '../features/discovery/DiscoveryFeed'
 import { ProfileSettings } from '../features/auth/ProfileSettings'
+import { BookmarkCollection } from '../features/engagement/BookmarkCollection'
 import { AppShell } from './AppShell'
 import { paths, routePatterns } from './paths'
 
@@ -38,6 +39,13 @@ function SettingsRoute() {
   return <ProfileSettings />
 }
 
+function BookmarkRoute() {
+  const { user, loading } = useAuth()
+  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
+  if (!user) return <UnauthorisedState title="Bookmarks are private." />
+  return <BookmarkCollection />
+}
+
 export function RouteError() {
   const error = useRouteError()
 
@@ -67,7 +75,7 @@ export const routes = [
       { path: routePatterns.settings, element: <SettingsRoute /> },
       {
         path: routePatterns.bookmarks,
-        element: <ProtectedPlaceholder title="Bookmarks" privateTitle="Bookmarks are private." />,
+        element: <BookmarkRoute />,
       },
       {
         path: routePatterns.history,

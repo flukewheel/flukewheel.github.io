@@ -2,6 +2,8 @@
 
 The web app provides email registration and sign-in, password recovery, Google sign-in, persistent sessions, profile and interest editing, and trusted avatar uploads. New accounts with no username see a short completion step; a duplicate username produces a correction prompt. Guests can still browse and Bump. A guest Love, Dislike or Bookmark is tied to the original website ID and resumes once after sign-in; closing authentication cancels it.
 
+The bookmark icon is active only while an available discovery is open in the viewer. Signed-in bookmarks appear under the account menu's **Bookmarks** route, where they can be reopened or removed. If a saved catalogue entry becomes unavailable, the collection keeps a removable unavailable item. The list loads in pages of 20.
+
 Signed-in users with an email address can request a password-reset link from **Profile and interests → Account security**. Guests can use **Log in → Forgot password?**. The email link returns to the route where the request began and opens the new-password form.
 
 ## Run locally

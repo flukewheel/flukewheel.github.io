@@ -32,6 +32,7 @@ export function AppShell() {
       if (pending.kind === 'bookmark') await interactionAdapter.saveBookmark(pending.websiteId)
       else await interactionAdapter.setReaction(pending.websiteId, pending.kind, pending.reason ?? null)
       await queryClient.invalidateQueries({ queryKey: ['interaction', userId, pending.websiteId] })
+      if (pending.kind === 'bookmark') await queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] })
     }
     void run().catch(() => setPendingError('Your saved action could not be completed. Please try again.'))
   }, [userId, queryClient])

@@ -45,6 +45,7 @@ export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionCo
       } else if (!reason && state.data?.reaction === kind) await interactionAdapter.removeReaction(targetId)
       else await interactionAdapter.setReaction(targetId, kind, reason ?? null)
       await queryClient.invalidateQueries({ queryKey: ['interaction', user.id, targetId] })
+      if (kind === 'bookmark') await queryClient.invalidateQueries({ queryKey: ['bookmarks', user.id] })
       await queryClient.invalidateQueries({ queryKey: ['recommendations', user.id] })
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'The action could not be saved.') }
     finally { setBusy(false) }
