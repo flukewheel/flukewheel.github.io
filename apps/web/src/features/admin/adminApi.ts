@@ -1,0 +1,88 @@
+import { getSupabaseClient } from '../../lib/supabase'
+
+export interface PendingSubmission {
+  id: string
+  raw_url: string
+  normalised_url: string
+  suggested_categories: string[]
+  description: string | null
+  submitted_at: string
+  validation_status: string | null
+  verification_notes: string | null
+  duplicate_website_id: string | null
+}
+
+export interface ReviewInput {
+  submission_id: string
+  decision: 'approve' | 'reject'
+  title: string | null
+  description: string | null
+  category_ids: string[]
+  note: string | null
+}
+
+export interface ManagedWebsite {
+  id: string
+  title: string
+  description: string
+  original_url: string
+  thumbnail_path: string | null
+  active: boolean
+  embedding_status: 'unknown' | 'allowed' | 'blocked' | 'needs_review'
+  last_validated_at: string | null
+  category_ids: string[]
+}
+
+export interface ManagedCategory {
+  id: string
+  slug: string
+  name: string
+  description: string
+  active: boolean
+  display_order: number
+}
+
+async function invoke<T>(body: object): Promise<T> {
+  const client = getSupabaseClient()
+  if (!client) throw new Error('Administration is unavailable.')
+  const { data, error } = await client.functions.invoke('admin-catalogue', { body })
+  if (error) {
+    const response = 'context' in error ? error.context : null
+    const details = response instanceof Response ? await response.json().catch(() => null) as { message?: string } | null : null
+    const failure = new Error(details?.message ?? 'Administration could not be reached. Please try again.')
+    Object.assign(failure, { status: response instanceof Response ? response.status : 0 })
+    throw failure
+  }
+  return data as T
+}
+
+export const adminApi = {
+  async isAdmin() {
+    try { return (await invoke<{ administrator: boolean }>({ action: 'status' })).administrator }
+    catch (cause) {
+      if ((cause as { status?: number }).status === 403) return false
+      throw cause
+    }
+  },
+  async queue() {
+    const result = await invoke<{ submissions: PendingSubmission[] }>({ action: 'queue' })
+    return result.submissions
+  },
+  async catalogue(search: string) {
+    const result = await invoke<{ websites: ManagedWebsite[] }>({ action: 'catalogue', search })
+    return result.websites
+  },
+  async categories() {
+    const result = await invoke<{ categories: ManagedCategory[] }>({ action: 'categories' })
+    return result.categories
+  },
+  async review(input: ReviewInput) {
+    return invoke<{ status: string; website_id: string | null }>({ action: 'review', ...input })
+  },
+  async editWebsite(input: Omit<ManagedWebsite, 'id' | 'original_url' | 'last_validated_at'> & { website_id: string; note: string }) {
+    return invoke<{ website_id: string }>({ action: 'edit_website', ...input })
+  },
+  async saveCategory(input: Omit<ManagedCategory, 'id'> & { category_id: string | null }) {
+    return invoke<{ category_id: string }>({ action: 'save_category', ...input })
+  },
+}

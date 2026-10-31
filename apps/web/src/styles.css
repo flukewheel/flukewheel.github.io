@@ -825,7 +825,8 @@ main:not(.viewer-shell) {
   font-weight: 650;
 }
 
-.auth-form input {
+.auth-form input:not([type="checkbox"]),
+.auth-form textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 0.65rem;
@@ -833,6 +834,37 @@ main:not(.viewer-shell) {
   color: var(--ink);
   padding: 0.8rem 0.9rem;
 }
+
+.submission-modal { max-height: min(90dvh, 760px); overflow-y: auto; }
+.submission-categories { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; margin: 0; border: 0; padding: 0; }
+.submission-categories legend { margin-bottom: 0.45rem; font-size: 0.88rem; font-weight: 650; }
+.submission-categories label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; }
+.submission-categories input { accent-color: var(--brand); }
+
+.admin-page { max-width: 1280px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3rem) 1rem; }
+.admin-page > h1 { margin: 1rem 0 0.5rem; }
+.admin-page > p { color: var(--muted); }
+.admin-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+.admin-tabs button { border: 1px solid var(--line); border-radius: 0.5rem; background: var(--surface); color: var(--ink); padding: 0.55rem 0.8rem; cursor: pointer; }
+.admin-tabs button[aria-current="page"] { border-color: var(--brand); background: var(--brand-pale); }
+.admin-search { display: flex; align-items: end; gap: 0.75rem; margin-top: 1.5rem; }
+.admin-search label { display: grid; width: min(32rem, 100%); gap: 0.4rem; }
+.admin-search input { width: 100%; border: 1px solid var(--line); border-radius: 0.5rem; background: #171410; color: var(--ink); padding: 0.75rem; }
+.admin-page__layout { display: grid; grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr); gap: 1.5rem; margin-top: 2rem; }
+.admin-queue, .admin-review { min-width: 0; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); padding: 1.25rem; }
+.admin-queue h2, .admin-review h2 { margin: 0 0 1rem; font-size: 1.25rem; }
+.admin-queue button { display: grid; width: 100%; gap: 0.25rem; margin-top: 0.4rem; border: 0; border-radius: 0.5rem; background: transparent; color: var(--ink); padding: 0.65rem; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.admin-queue button:hover, .admin-queue button[aria-current="true"] { background: var(--surface-soft); }
+.admin-queue small { color: var(--muted); }
+.admin-review__url { overflow-wrap: anywhere; color: var(--brand-deep); }
+.admin-preview { display: block; width: 100%; height: min(60vh, 500px); margin-top: 1rem; border: 1px solid var(--line); border-radius: 0.5rem; background: white; }
+.admin-review__fields { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.admin-review__fields > label:not(.admin-review__check) { display: grid; gap: 0.4rem; }
+.admin-review__fields input:not([type="checkbox"]), .admin-review__fields textarea, .admin-review__fields select { width: 100%; border: 1px solid var(--line); border-radius: 0.5rem; background: #171410; color: var(--ink); padding: 0.75rem; }
+.admin-review__check { display: flex; align-items: start; gap: 0.5rem; }
+.admin-review__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+
+@media (max-width: 760px) { .admin-page__layout { grid-template-columns: 1fr; } }
 
 .auth-modal__alternatives {
   display: flex;

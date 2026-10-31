@@ -1,8 +1,10 @@
+import { useQuery } from '@tanstack/react-query'
 import { UserRound } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { paths } from '../../../app/paths'
 import { useAuth } from '../../auth/AuthProvider'
+import { adminApi } from '../../admin/adminApi'
 
 interface ProfileMenuProps {
   onOpenAuth: () => void
@@ -10,6 +12,7 @@ interface ProfileMenuProps {
 
 export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
   const { user, profile, signOut } = useAuth()
+  const admin = useQuery({ queryKey: ['admin-status', user?.id], queryFn: adminApi.isAdmin, enabled: Boolean(user) })
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -44,6 +47,7 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
           <Link onClick={() => setOpen(false)} role="menuitem" to={paths.settings}>Profile and interests</Link>
           <Link onClick={() => setOpen(false)} role="menuitem" to={paths.bookmarks}>Bookmarks</Link>
           <Link onClick={() => setOpen(false)} role="menuitem" to={paths.history}>Browsing history</Link>
+          {admin.data && <Link onClick={() => setOpen(false)} role="menuitem" to={paths.admin}>Administration</Link>}
           {error && <p role="alert">{error}</p>}
           <button onClick={() => { void signOut().then(() => setOpen(false)).catch((cause) => setError(cause instanceof Error ? cause.message : 'Could not sign out.')) }} role="menuitem" type="button">Log out</button>
         </div>

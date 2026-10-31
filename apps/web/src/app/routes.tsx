@@ -9,6 +9,7 @@ import { AppShell } from './AppShell'
 import { paths, routePatterns } from './paths'
 
 const WebsiteViewer = lazy(() => import('../features/viewer/WebsiteViewer'))
+const AdminPage = lazy(() => import('../features/admin/AdminPage').then((module) => ({ default: module.AdminPage })))
 
 interface ShellContext {
   openAuth: () => void
@@ -44,6 +45,13 @@ function BookmarkRoute() {
   if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
   if (!user) return <UnauthorisedState title="Bookmarks are private." />
   return <BookmarkCollection />
+}
+
+function AdminRoute() {
+  const { user, loading } = useAuth()
+  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
+  if (!user) return <UnauthorisedState title="Administration is private." />
+  return <AdminPage />
 }
 
 export function RouteError() {
@@ -83,7 +91,7 @@ export const routes = [
       },
       {
         path: routePatterns.admin,
-        element: <ProtectedPlaceholder title="Administration" privateTitle="Administration is private." />,
+        element: <AdminRoute />,
       },
       { path: '*', element: <Navigate replace to={paths.home} /> },
     ],

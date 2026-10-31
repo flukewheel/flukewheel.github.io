@@ -137,6 +137,7 @@ export const catalogueAdapter = {
     if (error) throw error
     return (data ?? []).map((row) => ({
       id: row.id,
+      slug: row.slug,
       name: row.display_name,
       description: row.description,
       accent: accents[row.slug] ?? '#ff9800',

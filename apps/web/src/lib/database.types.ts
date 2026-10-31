@@ -1,4 +1,4 @@
-﻿
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
@@ -141,14 +141,14 @@ isOneToOne: false
                   ]
                 },"website_submissions": {
                   Row: {
-                    "description": string | null,"id": string,"normalised_url": string,"raw_url": string,"resolved_website_id": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": string,"submitted_at": string,"submitter_id": string | null,"suggested_categories": (string)[]
+                    "description": string | null,"id": string,"normalised_url": string,"raw_url": string,"request_id": string,"resolved_website_id": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": string,"submitted_at": string,"submitter_id": string | null,"suggested_categories": (string)[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "description"?: string | null,"id"?: string,"normalised_url": string,"raw_url": string,"resolved_website_id"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: string,"submitted_at"?: string,"submitter_id"?: string | null,"suggested_categories"?: (string)[]
+                    "description"?: string | null,"id"?: string,"normalised_url": string,"raw_url": string,"request_id"?: string,"resolved_website_id"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: string,"submitted_at"?: string,"submitter_id"?: string | null,"suggested_categories"?: (string)[]
                   }
                   Update: {
-                    "description"?: string | null,"id"?: string,"normalised_url"?: string,"raw_url"?: string,"resolved_website_id"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: string,"submitted_at"?: string,"submitter_id"?: string | null,"suggested_categories"?: (string)[]
+                    "description"?: string | null,"id"?: string,"normalised_url"?: string,"raw_url"?: string,"request_id"?: string,"resolved_website_id"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: string,"submitted_at"?: string,"submitter_id"?: string | null,"suggested_categories"?: (string)[]
                   }
                   Relationships: [
                     {
@@ -179,7 +179,34 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "admin_catalogue_list":
+{ Args: { "p_actor_id": string,"p_search"?: string }; Returns: Json
+                           },
+"admin_category_list":
+{ Args: { "p_actor_id": string }; Returns: Json
+                           },
+"admin_submission_queue":
+{ Args: { "p_actor_id": string }; Returns: Json
+                           },
+"catalogue_admin":
+{ Args: { "p_actor_id": string }; Returns: boolean
+                           },
+"manage_category":
+{ Args: { "p_active": boolean,"p_actor_id": string,"p_category_id": string,"p_description": string,"p_display_order": number,"p_name": string,"p_slug": string }; Returns: string
+                           },
+"manage_website":
+{ Args: { "p_active": boolean,"p_actor_id": string,"p_category_ids": (string)[],"p_description": string,"p_embedding_status": string,"p_note": string,"p_thumbnail_path": string,"p_title": string,"p_website_id": string }; Returns: string
+                           },
+"review_submission":
+{ Args: { "p_actor_id": string,"p_category_ids": (string)[],"p_decision": string,"p_description": string,"p_note": string,"p_submission_id": string,"p_title": string }; Returns: {
+              "review_status": string,"website_id": string
+            }[]
+                           },
+"submit_website_intake":
+{ Args: { "p_description": string,"p_normalised_url": string,"p_raw_url": string,"p_request_id": string,"p_submitter_id": string,"p_suggested_categories": (string)[] }; Returns: {
+              "result": string,"submission_id": string
+            }[]
+                           }
           }
           Enums: {
             [_ in never]: never

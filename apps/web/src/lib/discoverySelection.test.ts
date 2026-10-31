@@ -3,7 +3,7 @@ import type { Category, WebsiteSummary } from './types'
 import { selectNextDiscovery } from './discoverySelection'
 
 const categories: Category[] = [
-  { id: 'art', name: 'Art', description: '', accent: '' },
+  { id: 'art', slug: 'art', name: 'Art', description: '', accent: '' },
 ]
 const websites = Array.from({ length: 109 }, (_, index): WebsiteSummary => ({
   id: `site-${index}`,

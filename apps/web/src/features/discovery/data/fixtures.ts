@@ -3,24 +3,28 @@ import type { Category, WebsiteSummary } from '../../../lib/types'
 export const categories: Category[] = [
   {
     id: 'educational',
+    slug: 'educational',
     name: 'Educational',
     description: 'Learn something curious, useful or unexpectedly absorbing.',
     accent: '#f5c66f',
   },
   {
     id: 'funny',
+    slug: 'funny',
     name: 'Funny',
     description: 'Playful corners of the web made to brighten a spare minute.',
     accent: '#f0a6b8',
   },
   {
     id: 'art',
+    slug: 'art',
     name: 'Art',
     description: 'Independent illustration, design, archives and experiments.',
     accent: '#ff9800',
   },
   {
     id: 'free',
+    slug: 'free',
     name: 'Free',
     description: 'Generous tools, software and resources worth keeping close.',
     accent: '#8fc7b5',
