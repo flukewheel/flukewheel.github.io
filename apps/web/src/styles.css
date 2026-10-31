@@ -186,7 +186,6 @@ button:disabled {
   color: var(--brand-deep);
 }
 
-.icon-button[aria-pressed="true"] { background: var(--brand-pale); color: var(--brand-deep); }
 .reaction-controls .icon-button:disabled { cursor: default; }
 .reaction-controls .icon-button[aria-disabled="true"] { cursor: pointer; }
 
