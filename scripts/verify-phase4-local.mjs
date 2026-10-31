@@ -23,6 +23,8 @@ const denied = await adminCall({ action: 'status' })
 if (denied.status !== 403) throw new Error(`Non-admin access returned ${denied.status}`)
 const directRole = await client.rpc('catalogue_admin', { p_actor_id: signup.user.id })
 if (!directRole.error) throw new Error('Browser role could call the server-only administrator check')
+const directCatalogue = await client.rpc('admin_catalogue_page', { p_actor_id: signup.user.id, p_search: '' })
+if (!directCatalogue.error) throw new Error('Browser role could call the server-only catalogue page')
 
 const roleFile = '.phase4-local-role.sql'
 try {
@@ -63,6 +65,25 @@ if (publicRow.error) throw new Error('Approved website was not visible to guests
 
 const catalogue = await adminCall({ action: 'catalogue', search: 'Phase Four Local Test' })
 if (catalogue.status !== 200 || !catalogue.body.websites.some((item) => item.id === approved.body.website_id)) throw new Error('Approved website missing from catalogue manager')
+const catalogueIds = new Set()
+let afterTitle = null
+let afterId = null
+let pageCount = 0
+while (true) {
+  const page = await adminCall({ action: 'catalogue', search: '', after_title: afterTitle, after_id: afterId })
+  if (page.status !== 200 || !Array.isArray(page.body.websites)) throw new Error('Catalogue page could not be loaded')
+  for (const website of page.body.websites) {
+    if (catalogueIds.has(website.id)) throw new Error('Catalogue pagination repeated a website')
+    catalogueIds.add(website.id)
+  }
+  pageCount += 1
+  if (page.body.websites.length < 50) break
+  const last = page.body.websites.at(-1)
+  afterTitle = last.title
+  afterId = last.id
+  if (pageCount > 20) throw new Error('Catalogue pagination did not terminate')
+}
+if (catalogueIds.size <= 50 || pageCount < 2) throw new Error('Catalogue pagination omitted later websites')
 const edited = await adminCall({
   action: 'edit_website', website_id: approved.body.website_id,
   title: 'Phase Four Local Test', description: 'A local test entry for the review flow.',

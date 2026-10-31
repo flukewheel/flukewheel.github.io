@@ -20,7 +20,11 @@ const requestSchema = z.discriminatedUnion('action', [
     checked_url: z.string().url().max(2048).nullable(),
     note: z.string().trim().min(10).max(1000),
   }),
-  z.strictObject({ action: z.literal('catalogue'), search: z.string().max(100) }),
+  z.strictObject({
+    action: z.literal('catalogue'), search: z.string().max(100),
+    after_title: z.string().max(160).nullable().default(null),
+    after_id: z.string().uuid().nullable().default(null),
+  }),
   z.strictObject({
     action: z.literal('edit_website'),
     website_id: z.string().uuid(),
@@ -135,7 +139,10 @@ Deno.serve(async (request) => {
     return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'catalogue') {
-    const { data, error } = await admin.rpc('admin_catalogue_list', { p_actor_id: user.id, p_search: parsed.search })
+    const { data, error } = await admin.rpc('admin_catalogue_page', {
+      p_actor_id: user.id, p_search: parsed.search,
+      p_after_title: parsed.after_title, p_after_id: parsed.after_id,
+    })
     if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Catalogue could not be loaded.')
     return Response.json({ websites: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }

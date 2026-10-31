@@ -32,13 +32,13 @@ test('administrator can work through review, catalogue and maintenance screens',
     await route.fulfill({ status: 202, contentType: 'application/json', body: JSON.stringify({ status: 'pending', receipt_id: crypto.randomUUID() }) })
   })
   await page.route('**/functions/v1/admin-catalogue', async (route) => {
-    const body = route.request().postDataJSON() as { action: string }
+    const body = route.request().postDataJSON() as { action: string; after_id?: string | null }
     actions.push(body.action)
     const result: Record<string, unknown> = {
       status: { administrator: true },
       queue: { submissions: pending ? [{ id: '40000000-0000-4000-8000-000000000001', raw_url: 'https://example.org/admin-review', normalised_url: 'https://example.org/admin-review', suggested_categories: ['art'], description: 'An unusual page.', submitted_at: new Date().toISOString(), validation_status: 'pending', verification_notes: null, duplicate_website_id: null }] : [] },
       review: { status: 'approved', website_id: websiteId },
-      catalogue: { websites: Array.from({ length: 50 }, (_, index) => ({ id: index === 0 ? websiteId : `20000000-0000-4000-8000-${String(index).padStart(12, '0')}`, title: `Sample Site ${index + 1}`, description: 'A sample website.', original_url: `https://example.org/sample-${index + 1}`, thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] })) },
+      catalogue: { websites: Array.from({ length: 52 }, (_, index) => ({ id: index === 0 ? websiteId : `20000000-0000-4000-8000-${String(index).padStart(12, '0')}`, title: `Sample Site ${index + 1}`, description: 'A sample website.', original_url: `https://example.org/sample-${index + 1}`, thumbnail_path: null, active: true, embedding_status: 'allowed', last_validated_at: null, category_ids: [categoryId] })).slice(body.after_id ? 50 : 0, body.after_id ? 52 : 50) },
       categories: { categories: [{ id: categoryId, slug: 'art', name: 'Art', description: 'Art sites.', active: true, display_order: 1 }] },
       edit_website: { website_id: websiteId },
       save_category: { category_id: categoryId },
@@ -75,6 +75,7 @@ test('administrator can work through review, catalogue and maintenance screens',
 
   await page.getByRole('button', { name: 'Catalogue', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Edit website' })).toBeVisible()
+  await expect(page.getByText('Showing all 52 matching websites.')).toBeVisible()
   const catalogueList = page.getByRole('navigation', { name: 'Catalogue websites' })
   expect(await catalogueList.evaluate((element) => element.scrollHeight > element.clientHeight && getComputedStyle(element).overflowY === 'auto')).toBe(true)
   await page.getByRole('textbox', { name: 'Private change note' }).fill('Reviewing catalogue metadata.')

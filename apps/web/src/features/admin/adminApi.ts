@@ -90,8 +90,19 @@ export const adminApi = {
     return result.submissions
   },
   async catalogue(search: string) {
-    const result = await invoke<{ websites: ManagedWebsite[] }>({ action: 'catalogue', search })
-    return result.websites
+    const websites: ManagedWebsite[] = []
+    let after: ManagedWebsite | undefined
+    while (true) {
+      const result = await invoke<{ websites: ManagedWebsite[] }>({
+        action: 'catalogue', search,
+        after_title: after?.title ?? null,
+        after_id: after?.id ?? null,
+      })
+      websites.push(...result.websites)
+      if (result.websites.length < 50) return websites
+      if (result.websites.at(-1)?.id === after?.id) throw new Error('Catalogue pagination did not advance.')
+      after = result.websites.at(-1)
+    }
   },
   async categories() {
     const result = await invoke<{ categories: ManagedCategory[] }>({ action: 'categories' })

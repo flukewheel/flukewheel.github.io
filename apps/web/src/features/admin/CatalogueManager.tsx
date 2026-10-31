@@ -93,7 +93,7 @@ export function CatalogueManager() {
         <label>Search catalogue by name or URL<input maxLength={100} onChange={(event) => setSearchInput(event.target.value)} value={searchInput} /></label>
         <button className="secondary-button" type="submit">Search</button>
       </form>
-      <p>Showing up to 50 matches. Search to find another website.</p>
+      {catalogue.data && <p>Showing all {catalogue.data.length} matching websites. Search to narrow the list.</p>}
       {message && <p className="auth-feedback" role="status">{message}</p>}
       {catalogue.isPending && <p>Loading catalogue…</p>}
       {catalogue.isError && <p role="alert">The catalogue could not be loaded.</p>}

@@ -182,6 +182,9 @@ isOneToOne: false
             "admin_catalogue_list":
 { Args: { "p_actor_id": string,"p_search"?: string }; Returns: Json
                            },
+"admin_catalogue_page":
+{ Args: { "p_actor_id": string,"p_after_id"?: string,"p_after_title"?: string,"p_search"?: string }; Returns: Json
+                           },
 "admin_category_list":
 { Args: { "p_actor_id": string }; Returns: Json
                            },
