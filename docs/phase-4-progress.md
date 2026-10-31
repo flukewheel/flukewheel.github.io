@@ -1,6 +1,6 @@
 # Phase 4 submission and moderation status
 
-Phase 4 is implemented locally and its database and Edge Functions are deployed to the hosted development project. The frontend is published separately through GitHub Pages. A final signed-in administrator walkthrough and manual compatibility review remain before the phase can be marked complete.
+Phase 4 is implemented locally and deployed to the hosted development project and GitHub Pages. A final signed-in administrator walkthrough and manual compatibility review remain before the phase can be marked complete.
 
 ## Visitor suggestions
 
@@ -22,9 +22,10 @@ The Edge runtime has not been shown to pin outbound requests to approved resolve
 
 ## Verification so far
 
-- Five additive migrations applied locally and on hosted development. The hosted Cron job is active. Both Edge Functions are deployed with the intended JWT settings and exact Pages-origin CORS response.
+- Five additive migrations applied locally and on hosted development. The hosted Cron job is active. Both Edge Functions are deployed with the intended JWT settings and exact Pages-origin CORS response. The Pages publish workflow succeeded.
 - Local smoke checks cover pending intake, duplicates, private-address rejection, guest privacy, admin authority, approval retry, deactivation, categories, report review, report throttling and failed recheck recording.
-- Hosted HTTP checks rejected an unsafe URL and an existing catalogue URL. One temporary hosted suggestion remained pending and returned the same receipt on retry; its validation job was present, then the test row was removed. An unauthenticated admin request was denied.
+- Hosted HTTP checks rejected an unsafe URL and an existing catalogue URL. One temporary hosted suggestion remained pending and returned the same receipt on retry; its validation job was present, then the test row was removed. An unauthenticated admin request was denied. The live suggestion form displayed the hosted duplicate response in a browser.
+- Hosted read-only administrator queries returned the expected queue/catalogue/category/report data. Twenty-five existing stale entries were queued for manual recheck without contacting their URLs.
 - Lint, typecheck, unit tests, production build and 34 desktop/mobile browser tests passed locally, including an admin-screen journey with mocked function responses. Local security advisors reported no warning-or-higher issues.
 
 ## Remaining checks
