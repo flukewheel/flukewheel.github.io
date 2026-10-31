@@ -10,7 +10,7 @@ test('homepage reads the public catalogue and keeps the viewer unmounted', async
   await expect(page.getByRole('heading', { name: 'Recently added' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Explore categories' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Discover The SWLing Post' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Discover Patatap' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Discover All the Damn Tools' })).toHaveCount(0)
   await expect(page.locator('.card-carousel .website-card')).toHaveCount(10)
   await expect(page.locator('.website-card__art img').first()).toBeVisible()
@@ -23,9 +23,9 @@ test('homepage reads the public catalogue and keeps the viewer unmounted', async
 
 test('a catalogue card opens the website inline without the footer', async ({ page }) => {
   await page.goto('/#/')
-  await page.getByRole('link', { name: 'Discover The SWLing Post' }).click()
+  await page.getByRole('link', { name: 'Discover Patatap' }).click()
 
-  await expect(page.locator('iframe')).toHaveAttribute('src', 'https://swling.com/blog/')
+  await expect(page.locator('iframe')).toHaveAttribute('src', 'https://www.patatap.com/')
   await expect(page.getByRole('link', { name: 'Open original website in new tab' })).toHaveAttribute('target', '_blank')
   await expect(page.locator('footer')).toHaveCount(0)
   await page.getByRole('link', { name: 'flukewheel home' }).click()

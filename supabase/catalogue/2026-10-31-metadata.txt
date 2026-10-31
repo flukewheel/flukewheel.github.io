@@ -1,0 +1,50 @@
+Mixtape for You|Make a shareable cassette-style mixtape from a handful of songs.|art,free|allowed
+Brooklyn Street Art|Explore murals, graffiti and street art from Brooklyn and beyond.|art|allowed
+ChronoAtlas|Move through empires, rulers and trade routes on an interactive history map.|educational|blocked
+Theoi Greek Mythology|A reference to Greek gods and myths in classical literature and art.|educational,art,free|allowed
+City Guesser|Watch a city video and guess where in the world you have landed.|funny,educational,free|allowed
+Pomodoro Global|A browser-based Pomodoro timer for focused work sessions.|free|allowed
+Crypto Museum|Explore cryptography, codebreaking machines and intelligence history.|educational|allowed
+The Safety Dance|An essay about how automated brand-safety systems shape online culture.|educational|allowed
+Fallen Flag Railroad Photos|Browse photographs of historic railroad companies and equipment.|educational|allowed
+Is Google Analytics Illegal?|An interactive map of European rulings concerning Google Analytics and privacy.|educational,free|allowed
+Uncle Tom's Cabin and American Culture|A site map for a digital archive about the novel and its cultural history.|educational,free|allowed
+The Keanu Reeves Whoa API|Explore a playful database of Keanu Reeves saying whoa in films.|funny,free|allowed
+Liveuamap UK|A live map of news and events in the United Kingdom.|educational|blocked
+Music Atlas|Explore a galaxy of artists and genres linked by community playlists.|art,educational|blocked
+Paths|Answer questions to explore an illustrative estimate of how many people share your traits.|educational,free|allowed
+Set with Friends|Play the pattern-matching card game Set alone or with friends.|funny,free|allowed
+WoW Fold|Follow illustrated instructions for folding paper airplanes.|educational,free|allowed
+Kaomoji|Browse and copy Japanese text emoticons.|art,free|allowed
+What Is Punk?|Explore an interactive essay on how people define punk music.|art,educational|allowed
+Web Yule Log|A collaborative creative take on the traditional holiday fireplace video.|art|allowed
+Loser Lane|Play a satirical cycling survival game about unsafe streets.|art,funny|allowed
+Bad Kids Jokes|A collection of jokes told by children.|funny|blocked
+QWERTY MIDI|Turn a computer keyboard into a playable MIDI instrument.|art,free|allowed
+baz's PC|Explore a personal corner of the web at niceware.neocities.org.|art|allowed
+DistroSea|Try Linux distributions in a browser without installing them.|free,educational|blocked
+Life at Arizona State University|A personal account of joining a computer science graduate program in Arizona.|educational|allowed
+Hell Let Loose Calculator|A browser artillery calculator for the game Hell Let Loose.|free|allowed
+Not Another Satellite|Explore a personal blog called Not Another Satellite.|art|allowed
+How the SNES Graphics System Works|A technical illustrated guide to the Super Nintendo's graphics hardware.|educational|allowed
+Chrome Music Lab Rhythm|Make rhythms with a playful browser music experiment.|art,educational,free|allowed
+tiny london|Zoom into an isometric pixel-art map of Greater London.|art,educational|allowed
+Optical Toys|Explore interactive optical illusions and visual toys.|art,educational|allowed
+Reigns|Explore the swipe-driven kingdom game Reigns.|funny,art|allowed
+Musical Genre Is Not Disappearing|An essay about genre labels and the ways music is understood.|art,educational|allowed
+O'zapft Is! Celebrating Oktoberfest|A magazine article introducing Oktoberfest traditions.|educational|allowed
+Best Year in Music|Explore Billboard hits through an interactive history of popular music.|art,educational|allowed
+Break Glass to Sound Alarm|A tiny interactive page built around a fire alarm.|funny|allowed
+Beautiful News|Uplifting data stories and visualizations from Information is Beautiful.|educational,art|allowed
+It Is as If You Were Doing Work|An interactive satire of office work by Pippin Barr.|art,funny|allowed
+Encyclopedia Dramatica|A satirical wiki about internet culture.|funny|blocked
+Fourier Visualizations|See Fourier approximations and oscillators through interactive diagrams.|educational,art|allowed
+The RIP Off|A game about eulogizing celebrities before anyone else.|funny|allowed
+50 Cent Adjusted for Inflation|A one-joke website that recalculates the rapper's name for inflation.|funny|allowed
+After the Beep|Listen to and leave voicemail messages in a web art project.|art|allowed
+Full Rainbow|Make a seven-letter word against the clock in a daily word game.|funny,free|allowed
+Wild Bread|Browse the visual world of Wild Bread.|art|allowed
+R74n|A collection of playful web projects, experiences and tools.|funny,free,art|allowed
+Crazy Pumpkin|Play a Halloween-themed browser game starring a pumpkin.|funny,art|allowed
+Xmas Xperiment|An interactive holiday experiment with sound and visuals.|art|allowed
+Patatap|Create sound and animation by pressing keys or tapping the screen.|art,free|allowed
