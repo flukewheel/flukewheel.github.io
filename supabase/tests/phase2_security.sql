@@ -40,16 +40,25 @@ insert into public.websites (
 insert into private.user_roles (user_id, role) values
   ('30000000-0000-4000-8000-000000000003', 'admin');
 
+select set_config('flukewheel_test.visible_websites',
+  (select count(*) from public.websites where approval_status = 'approved' and active)::text, true);
+select set_config('flukewheel_test.visible_links',
+  (select count(*) from public.website_categories wc
+   join public.websites w on w.id = wc.website_id
+   where w.approval_status = 'approved' and w.active)::text, true);
+select set_config('flukewheel_test.all_websites',
+  (select count(*) from public.websites)::text, true);
+
 set local role anon;
 do $$
 begin
   if (select count(*) from public.categories) <> 4 then
     raise exception 'guest category access failed';
   end if;
-  if (select count(*) from public.websites) <> 109 then
+  if (select count(*) from public.websites) <> current_setting('flukewheel_test.visible_websites')::integer then
     raise exception 'pending or rejected website leaked to guest';
   end if;
-  if (select count(*) from public.website_categories) <> 198 then
+  if (select count(*) from public.website_categories) <> current_setting('flukewheel_test.visible_links')::integer then
     raise exception 'guest category links mismatch';
   end if;
   begin
@@ -92,7 +101,7 @@ begin
   if (select count(*) from public.website_submissions) <> 1 then
     raise exception 'submission owner isolation failed';
   end if;
-  if (select count(*) from public.websites) <> 109 then
+  if (select count(*) from public.websites) <> current_setting('flukewheel_test.visible_websites')::integer then
     raise exception 'pending or rejected website leaked to member';
   end if;
   begin
@@ -198,7 +207,7 @@ begin
   if (select count(*) from private.user_roles where role = 'admin') <> 1 then
     raise exception 'trusted admin authority missing';
   end if;
-  if (select count(*) from public.websites) <> 118 then
+  if (select count(*) from public.websites) <> current_setting('flukewheel_test.all_websites')::integer then
     raise exception 'service role cannot inspect moderation rows';
   end if;
 end;
