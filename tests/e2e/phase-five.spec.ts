@@ -33,11 +33,12 @@ test('returning from a category restores the homepage position', async ({ page }
   await expect(page.locator('.category-card')).toHaveCount(4)
   await page.getByRole('heading', { name: 'Explore categories' }).scrollIntoViewIfNeeded()
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200)
+  const homePosition = await page.evaluate(() => window.scrollY)
   await page.getByRole('link', { name: /Art Independent illustration/ }).click()
   await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
   await page.getByRole('link', { name: /Back to homepage/ }).click()
   await expect(page).toHaveURL(/#\/$/)
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200)
+  await expect.poll(() => page.evaluate((previous) => Math.abs(window.scrollY - previous), homePosition)).toBeLessThan(200)
 })
 
 test('members receive cold-start recommendations and guests see the prompt after logout', async ({ page }) => {
