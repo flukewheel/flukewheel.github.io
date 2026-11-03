@@ -465,6 +465,22 @@ main:not(.viewer-shell) {
   padding-top: clamp(3.5rem, 8vw, 7rem);
 }
 
+.browse-page {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) 1rem 5rem;
+}
+
+.browse-page__heading { margin-bottom: 2rem; }
+.browse-page__heading h1 {
+  margin: 1rem 0 0.5rem;
+  font-size: clamp(2.1rem, 5vw, 3.5rem);
+  letter-spacing: -0.04em;
+}
+.browse-page__heading p { max-width: 62ch; color: var(--muted); }
+.browse-page__more { margin-top: 2rem; }
+
 .section-heading {
   display: flex;
   align-items: end;
@@ -742,6 +758,7 @@ main:not(.viewer-shell) {
   padding: 1.25rem;
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .category-card::before {
@@ -1045,9 +1062,6 @@ main:not(.viewer-shell) {
 
   .card-carousel { grid-auto-columns: calc((100% - 1.2rem) / 2); }
 
-  .card-grid .website-card:last-child {
-    display: none;
-  }
 
   .auth-invitation {
     grid-template-columns: auto minmax(0, 1fr);
@@ -1096,9 +1110,6 @@ main:not(.viewer-shell) {
 
   .loading-wheel { min-height: calc(100vh - 132px); }
 
-  .card-grid .website-card:last-child {
-    display: block;
-  }
 
   .auth-invitation {
     grid-template-columns: 1fr;

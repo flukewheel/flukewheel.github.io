@@ -212,6 +212,11 @@ isOneToOne: false
 "manage_website":
 { Args: { "p_active": boolean,"p_actor_id": string,"p_category_ids": (string)[],"p_description": string,"p_embedding_status": string,"p_note": string,"p_thumbnail_path": string,"p_title": string,"p_website_id": string }; Returns: string
                            },
+"recommend_website_ids":
+{ Args: { "p_category_id"?: string,"p_limit"?: number }; Returns: {
+              "website_id": string
+            }[]
+                           },
 "review_reports":
 { Args: { "p_actor_id": string,"p_note": string,"p_website_id": string }; Returns: string
                            },

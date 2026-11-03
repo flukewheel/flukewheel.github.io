@@ -47,7 +47,7 @@ describe('Phase 1 application shell', () => {
   it('keeps the interest selection while navigating into a category', async () => {
     const user = userEvent.setup()
     render(<App />)
-    const category = await screen.findByRole('button', { name: /educational/i })
+    const category = await screen.findByRole('link', { name: /educational/i })
 
     await user.click(category)
 

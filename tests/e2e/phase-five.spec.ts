@@ -1,0 +1,88 @@
+import { expect, test } from '@playwright/test'
+
+test('guests browse bounded recent cards and paged categories without a viewer on home', async ({ page }) => {
+  const externalFrameRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.isNavigationRequest() && request.frame().parentFrame()) externalFrameRequests.push(request.url())
+  })
+
+  await page.goto('/#/')
+  await expect(page.getByRole('region', { name: 'For you' }).getByRole('button', { name: 'Log in / Sign up' })).toBeVisible()
+  await expect(page.locator('.card-carousel .website-card')).toHaveCount(10)
+  expect(externalFrameRequests).toEqual([])
+  await expect(page.locator('iframe')).toHaveCount(0)
+
+  await page.getByRole('link', { name: 'See all websites' }).click()
+  await expect(page).toHaveURL(/#\/recent$/)
+  await expect(page.locator('.browse-page .website-card')).toHaveCount(24)
+  await page.getByRole('button', { name: 'Show more websites' }).click()
+  await expect(page.locator('.browse-page .website-card')).toHaveCount(48)
+
+  await page.getByRole('combobox', { name: 'Discovery interest' }).selectOption({ label: 'Art' })
+  await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
+  await expect(page.locator('.browse-page .website-card').first()).toBeVisible()
+  const categories = await page.locator('.browse-page .website-card__meta span:last-child').allTextContents()
+  expect(categories.every((text) => text.includes('Art'))).toBe(true)
+  await page.getByRole('link', { name: 'Clear category' }).click()
+  await expect(page).toHaveURL(/#\/recent$/)
+  await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toHaveValue('all')
+})
+
+test('members receive cold-start recommendations and guests see the prompt after logout', async ({ page }) => {
+  const email = `phase5-${crypto.randomUUID()}@example.test`
+  await page.goto('/#/')
+  await page.getByRole('button', { name: 'Log in', exact: true }).click()
+  await page.getByRole('button', { name: 'Create an account' }).click()
+  await page.getByRole('textbox', { name: 'Email address' }).fill(email)
+  await page.getByLabel('Password', { exact: true }).fill('FlukewheelTestPassword42!')
+  const rpcResponse = page.waitForResponse((response) => response.url().includes('/rpc/recommend_website_ids'))
+  await page.getByRole('button', { name: 'Sign up', exact: true }).click()
+  expect((await rpcResponse).status()).toBe(200)
+  await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
+  await page.getByRole('button', { name: 'Not now' }).click()
+  const forYou = page.getByRole('region', { name: 'For you' })
+  await expect(forYou.locator('.website-card')).toHaveCount(6)
+  await expect(forYou.getByRole('link', { name: 'Choose interests' })).toBeVisible()
+  await expect(page.locator('iframe')).toHaveCount(0)
+
+  await forYou.getByRole('link', { name: 'Choose interests' }).click()
+  await expect(page.getByRole('heading', { name: 'Profile and interests' })).toBeVisible()
+  await page.getByRole('checkbox', { name: 'Art' }).check()
+  await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
+  const refreshedRecommendations = page.waitForResponse((response) => response.url().includes('/rpc/recommend_website_ids'))
+  await page.getByRole('link', { name: /Back to discovery/ }).click()
+  expect((await refreshedRecommendations).status()).toBe(200)
+  await expect(forYou.locator('.website-card')).toHaveCount(6)
+
+  await page.getByRole('combobox', { name: 'Discovery interest' }).selectOption({ label: 'Art' })
+  await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
+  await page.getByRole('link', { name: /Back to homepage/ }).click()
+  await expect(forYou.locator('.website-card')).toHaveCount(6)
+  const recommendationCategories = await forYou.locator('.website-card__meta span:last-child').allTextContents()
+  expect(recommendationCategories.every((text) => text.includes('Art'))).toBe(true)
+
+  await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
+  await page.getByRole('menuitem', { name: 'Log out' }).click()
+  await page.goto('/#/')
+  await expect(forYou.getByRole('button', { name: 'Log in / Sign up' })).toBeVisible()
+  await expect(forYou.locator('.website-card')).toHaveCount(0)
+})
+
+test('members can retry a recommendation failure without losing the home feed', async ({ page }) => {
+  const email = `phase5-retry-${crypto.randomUUID()}@example.test`
+  await page.route('**/rpc/recommend_website_ids', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: '{"message":"Temporary failure"}' }))
+  await page.goto('/#/')
+  await page.getByRole('button', { name: 'Log in', exact: true }).click()
+  await page.getByRole('button', { name: 'Create an account' }).click()
+  await page.getByRole('textbox', { name: 'Email address' }).fill(email)
+  await page.getByLabel('Password', { exact: true }).fill('FlukewheelTestPassword42!')
+  await page.getByRole('button', { name: 'Sign up', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
+  await page.getByRole('button', { name: 'Not now' }).click()
+  const forYou = page.getByRole('region', { name: 'For you' })
+  await expect(forYou.getByText('Your recommendations could not be loaded.')).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Recently added' }).locator('.website-card')).toHaveCount(10)
+  await page.unroute('**/rpc/recommend_website_ids')
+  await forYou.getByRole('button', { name: 'Try again' }).click()
+  await expect(forYou.locator('.website-card')).toHaveCount(6)
+})

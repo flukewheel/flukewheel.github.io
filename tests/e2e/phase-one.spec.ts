@@ -83,13 +83,13 @@ test('an unknown website ID has a safe recovery state', async ({ page }) => {
 
 test('browser history preserves database category context around a viewer', async ({ page }) => {
   await page.goto('/#/')
-  await page.getByRole('button', { name: /educational/i }).click()
+  await page.getByRole('link', { name: /educational/i }).click()
 
   const categoryUrl = page.url()
   const selectedId = await page.getByRole('combobox', { name: 'Discovery interest' }).inputValue()
   expect(selectedId).toMatch(/^[0-9a-f-]{36}$/i)
   expect(categoryUrl).toContain(`#/category/${selectedId}`)
-  await page.locator('.card-carousel .card-link').first().click()
+  await page.locator('.card-grid .card-link').first().click()
   const viewerUrl = page.url()
   expect(viewerUrl).toMatch(/#\/viewer\/[0-9a-f-]{36}$/i)
 

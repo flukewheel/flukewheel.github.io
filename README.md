@@ -32,6 +32,7 @@ The local database is built from `supabase/migrations` and `supabase/seed.sql`. 
 
 The separate hosted development backend and its current Auth setup are recorded in [Phase 2 hosted development](docs/phase-2-hosted-development.md).
 Phase 3 authentication, profile setup and remaining hosted provider steps are recorded in [Phase 3 authentication](docs/phase-3-auth.md).
+Phase 5 homepage and catalogue browsing progress is recorded in [Phase 5 discovery progress](docs/phase-5-progress.md).
 
 ## Quality checks
 

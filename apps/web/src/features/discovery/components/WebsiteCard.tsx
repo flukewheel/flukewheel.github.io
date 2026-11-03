@@ -2,7 +2,6 @@ import { ArrowUpRight } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { paths } from '../../../app/paths'
-import { thumbnailIds } from '../../../lib/thumbnailIds'
 import type { WebsiteSummary } from '../../../lib/types'
 
 interface WebsiteCardProps {
@@ -11,20 +10,23 @@ interface WebsiteCardProps {
 
 export function WebsiteCard({ website }: WebsiteCardProps) {
   const [imageFailed, setImageFailed] = useState(false)
-  const hasThumbnail = thumbnailIds.has(website.id) && !imageFailed
+  const hasThumbnail = Boolean(website.thumbnailUrl) && !imageFailed
   return (
     <article className="website-card">
       <div
         aria-hidden="true"
         className="website-card__art"
-        style={{ background: website.image }}
+        style={{ background: imageFailed ? '#292621' : website.image }}
       >
         {hasThumbnail ? (
           <img
             alt=""
+            decoding="async"
+            height="360"
             loading="lazy"
             onError={() => setImageFailed(true)}
-            src={`${import.meta.env.BASE_URL}thumbnails/${website.id}.jpg`}
+            src={website.thumbnailUrl ?? undefined}
+            width="640"
           />
         ) : (
           <span>{website.displayDomain.slice(0, 1).toUpperCase()}</span>

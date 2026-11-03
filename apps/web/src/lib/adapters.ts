@@ -2,6 +2,7 @@ import { categories as testCategories, websites as testWebsites } from '../featu
 import type { Database } from './database.types'
 import { getSupabaseClient } from './supabase'
 import { selectNextDiscovery } from './discoverySelection'
+import { thumbnailIds } from './thumbnailIds'
 import type { Category, WebsiteSummary } from './types'
 
 type WebsiteRow = Database['public']['Tables']['websites']['Row']
@@ -95,8 +96,16 @@ function toWebsiteSummary(
     displayDomain: displayDomain(row.original_url),
     categories,
     image: placeholderGradients[paletteIndex],
+    thumbnailUrl: row.thumbnail_path
+      ? clientOrThrow().storage.from('thumbnails').getPublicUrl(row.thumbnail_path).data.publicUrl
+      : thumbnailIds.has(row.id) ? `${import.meta.env.BASE_URL}thumbnails/${row.id}.jpg` : null,
     addedLabel: addedLabel(row.approved_at),
   }
+}
+
+async function summariesFor(rows: PublicWebsiteRow[]): Promise<WebsiteSummary[]> {
+  const names = await categoryNamesFor(rows.map((row) => row.id))
+  return rows.map((row) => toWebsiteSummary(row, names.get(row.id) ?? []))
 }
 
 function shouldUseTestFixtures() {
@@ -105,6 +114,60 @@ function shouldUseTestFixtures() {
 
 export const catalogueAdapter = {
   listRecent: async (): Promise<WebsiteSummary[]> => {
+    if (shouldUseTestFixtures()) return testWebsites.slice(0, 10)
+
+    const { data, error } = await clientOrThrow()
+      .from('websites')
+      .select(websiteColumns)
+      .order('approved_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(10)
+    if (error) throw error
+    return summariesFor(data ?? [])
+  },
+
+  listPage: async (categoryId: string | null, offset: number, limit = 24) => {
+    if (shouldUseTestFixtures()) {
+      const category = testCategories.find((item) => item.id === categoryId)
+      const matching = category ? testWebsites.filter((website) => website.categories.includes(category.name)) : testWebsites
+      return { websites: matching.slice(offset, offset + limit), hasMore: matching.length > offset + limit }
+    }
+
+    const client = clientOrThrow()
+    const base = categoryId
+      ? client.from('websites').select(`${websiteColumns}, website_categories!inner(category_id)`)
+        .eq('website_categories.category_id', categoryId)
+      : client.from('websites').select(websiteColumns)
+    const { data, error } = await base
+      .order('approved_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(offset, offset + limit)
+    if (error) throw error
+    const rows = (data ?? []).slice(0, limit)
+    return { websites: await summariesFor(rows), hasMore: (data?.length ?? 0) > limit }
+  },
+
+  listRecommendations: async (categoryId: string | null): Promise<WebsiteSummary[]> => {
+    if (shouldUseTestFixtures()) {
+      const category = testCategories.find((item) => item.id === categoryId)
+      return testWebsites.filter((website) => !category || website.categories.includes(category.name)).slice(0, 6)
+    }
+
+    const client = clientOrThrow()
+    const { data: recommendations, error: recommendationError } = await client.rpc('recommend_website_ids', {
+      p_category_id: categoryId ?? undefined,
+      p_limit: 6,
+    })
+    if (recommendationError) throw recommendationError
+    const ids = (recommendations ?? []).map((item) => item.website_id)
+    if (ids.length === 0) return []
+    const { data, error } = await client.from('websites').select(websiteColumns).in('id', ids)
+    if (error) throw error
+    const byId = new Map((data ?? []).map((row) => [row.id, row]))
+    return summariesFor(ids.flatMap((id) => byId.get(id) ? [byId.get(id)!] : []))
+  },
+
+  listDiscoveryPool: async (): Promise<WebsiteSummary[]> => {
     if (shouldUseTestFixtures()) return testWebsites
 
     const client = clientOrThrow()
@@ -121,8 +184,7 @@ export const catalogueAdapter = {
       if (!data || data.length < 100) break
     }
 
-    const names = await categoryNamesFor(rows.map((row) => row.id))
-    return rows.map((row) => toWebsiteSummary(row, names.get(row.id) ?? []))
+    return summariesFor(rows)
   },
 
   listCategories: async (): Promise<Category[]> => {
@@ -159,8 +221,7 @@ export const catalogueAdapter = {
     if (error) throw error
     if (!data) return null
 
-    const names = await categoryNamesFor([id])
-    return toWebsiteSummary(data, names.get(id) ?? [])
+    return (await summariesFor([data]))[0]
   },
 }
 
@@ -172,7 +233,7 @@ export const discoveryAdapter = {
     seenIds: string[],
   ) => {
     const [websites, categories] = await Promise.all([
-      catalogueAdapter.listRecent(),
+      catalogueAdapter.listDiscoveryPool(),
       catalogueAdapter.listCategories(),
     ])
     return selectNextDiscovery(websites, categories, interestId, seenIds)

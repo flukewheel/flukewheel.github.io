@@ -14,5 +14,6 @@ export interface WebsiteSummary {
   displayDomain: string
   categories: string[]
   image: string
+  thumbnailUrl?: string | null
   addedLabel: string
 }

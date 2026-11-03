@@ -3,6 +3,7 @@ import { Navigate, useOutletContext, useRouteError } from 'react-router-dom'
 import { RouteState, UnauthorisedState } from '../components/RouteState'
 import { useAuth } from '../features/auth/AuthProvider'
 import { DiscoveryFeed } from '../features/discovery/DiscoveryFeed'
+import { CatalogueBrowse } from '../features/discovery/CatalogueBrowse'
 import { ProfileSettings } from '../features/auth/ProfileSettings'
 import { BookmarkCollection } from '../features/engagement/BookmarkCollection'
 import { AppShell } from './AppShell'
@@ -78,7 +79,8 @@ export const routes = [
     errorElement: <RouteError />,
     children: [
       { index: true, element: <FeedRoute /> },
-      { path: routePatterns.category, element: <FeedRoute /> },
+      { path: routePatterns.category, element: <CatalogueBrowse /> },
+      { path: routePatterns.recent, element: <CatalogueBrowse /> },
       { path: routePatterns.viewer, element: <WebsiteViewer /> },
       { path: routePatterns.settings, element: <SettingsRoute /> },
       {

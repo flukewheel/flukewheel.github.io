@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { paths } from '../../app/paths'
@@ -15,6 +15,7 @@ export function ProfileSettings() {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const client = getSupabaseClient()
+  const queryClient = useQueryClient()
   const categories = useQuery({ queryKey: ['categories'], queryFn: catalogueAdapter.listCategories })
   const interests = useQuery({
     queryKey: ['user-interests', user?.id],
@@ -54,7 +55,11 @@ export function ProfileSettings() {
       ? await client.from('user_interests').delete().eq('user_id', user.id).eq('category_id', categoryId)
       : await client.from('user_interests').insert({ user_id: user.id, category_id: categoryId })
     if (response.error) { setError(response.error.message); setLocalInterests(null) }
-    else { await interests.refetch(); setLocalInterests(null) }
+    else {
+      await interests.refetch()
+      await queryClient.invalidateQueries({ queryKey: ['recommendations', user.id] })
+      setLocalInterests(null)
+    }
   }
 
   async function sendPasswordReset() {
