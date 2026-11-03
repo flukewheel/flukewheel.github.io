@@ -27,8 +27,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!client) { queueMicrotask(() => setLoading(false)); return }
     let alive = true
-    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
       if (!alive) return
+      if (event === 'SIGNED_OUT') {
+        queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== 'catalogue' && query.queryKey[0] !== 'categories' })
+        setProfile(null)
+      }
       setUser(session?.user && !session.user.is_anonymous ? session.user : null)
       setLoading(false)
     })
@@ -38,7 +42,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setLoading(false)
     }).catch(() => { if (alive) setLoading(false) })
     return () => { alive = false; subscription.unsubscribe() }
-  }, [client])
+  }, [client, queryClient])
 
   useEffect(() => {
     if (!userId || !client) {

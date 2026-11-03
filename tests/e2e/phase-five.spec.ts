@@ -28,6 +28,18 @@ test('guests browse bounded recent cards and paged categories without a viewer o
   await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toHaveValue('all')
 })
 
+test('returning from a category restores the homepage position', async ({ page }) => {
+  await page.goto('/#/')
+  await expect(page.locator('.category-card')).toHaveCount(4)
+  await page.getByRole('heading', { name: 'Explore categories' }).scrollIntoViewIfNeeded()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200)
+  await page.getByRole('link', { name: /Art Independent illustration/ }).click()
+  await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
+  await page.getByRole('link', { name: /Back to homepage/ }).click()
+  await expect(page).toHaveURL(/#\/$/)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200)
+})
+
 test('members receive cold-start recommendations and guests see the prompt after logout', async ({ page }) => {
   const email = `phase5-${crypto.randomUUID()}@example.test`
   await page.goto('/#/')
@@ -61,11 +73,16 @@ test('members receive cold-start recommendations and guests see the prompt after
   const recommendationCategories = await forYou.locator('.website-card__meta span:last-child').allTextContents()
   expect(recommendationCategories.every((text) => text.includes('Art'))).toBe(true)
 
+  const secondTab = await page.context().newPage()
+  await secondTab.goto('/#/')
+  await expect(secondTab.getByRole('region', { name: 'For you' }).locator('.website-card')).toHaveCount(6)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
   await page.goto('/#/')
   await expect(forYou.getByRole('button', { name: 'Log in / Sign up' })).toBeVisible()
   await expect(forYou.locator('.website-card')).toHaveCount(0)
+  await expect(secondTab.getByRole('region', { name: 'For you' }).getByRole('button', { name: 'Log in / Sign up' })).toBeVisible()
+  await secondTab.close()
 })
 
 test('members can retry a recommendation failure without losing the home feed', async ({ page }) => {

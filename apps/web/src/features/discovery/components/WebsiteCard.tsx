@@ -16,7 +16,7 @@ export function WebsiteCard({ website }: WebsiteCardProps) {
       <div
         aria-hidden="true"
         className="website-card__art"
-        style={{ background: imageFailed ? '#292621' : website.image }}
+        style={{ background: hasThumbnail ? website.image : '#292621' }}
       >
         {hasThumbnail ? (
           <img

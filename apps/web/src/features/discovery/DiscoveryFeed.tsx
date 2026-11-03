@@ -90,7 +90,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
     return () => window.clearInterval(timer)
   }, [carouselPaused, recentCount])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const save = () => { if (restoredRef.current) sessionStorage.setItem(homeScrollKey, String(window.scrollY)) }
     window.addEventListener('scroll', save, { passive: true })
     return () => window.removeEventListener('scroll', save)

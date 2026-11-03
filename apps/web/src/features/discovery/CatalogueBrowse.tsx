@@ -37,7 +37,7 @@ export function CatalogueBrowse() {
     else if (!categoryId) dispatch({ type: 'interest-selected', interestId: 'all' })
   }, [category, categoryId, dispatch])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const save = () => { if (restoredRef.current) sessionStorage.setItem(scrollKey, String(window.scrollY)) }
     window.addEventListener('scroll', save, { passive: true })
     return () => window.removeEventListener('scroll', save)
