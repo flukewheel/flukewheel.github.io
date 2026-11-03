@@ -20,9 +20,10 @@ Phase 5 is implemented locally and published at https://flukewheel.github.io/ as
 - Headless screenshots of desktop and mobile home and recent browse routes were inspected. This is local visual verification, not a published-origin acceptance check.
 - GitHub Pages workflow [41557874757](https://github.com/flukewheel/flukewheel.github.io/actions/runs/41557874757) succeeded for commit `0d9faa4`. Headless checks on the published origin at desktop and mobile widths found ten recent cards, four categories, the guest For you prompt, 24-card recent and Art browse pages, no home iframe or external frame request, and no page errors. Guest Bump from Art opened a viewer and retained the Art interest at both widths. Screenshots were inspected.
 - A read-only hosted SQL check under the authenticated role and a synthetic JWT subject returned six cold-start recommendation IDs. This verifies the hosted RPC path, but does not replace an interactive signed-in browser check.
+- The project owner reported signing out of a real signed-in session and signing back in on the published site. This confirms the live sign-out and sign-in path from the owner's session; the For you card display was not yet reported.
 
 ## Remaining rollout
 
-1. With a real signed-in account on the published origin, check For you cards, interest changes, and sign-out on desktop and mobile. This requires account credentials or the owner's own session, which were not used for the automated published-origin check.
+1. Confirm that For you shows website cards after sign-in on the published origin and updates after changing an interest. The owner's live sign-out and sign-in check is recorded above.
 
 The 31 October owner decision remains in force: active catalogue sites open directly in the Flukewheel viewer iframe, even where a site blocks framing. Phase 5 does not reintroduce an external-opening fallback.
