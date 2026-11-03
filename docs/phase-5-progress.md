@@ -1,6 +1,6 @@
 # Phase 5 discovery progress
 
-Phase 5 is implemented and verified in the local development stack as of 3 November 2026. The Phase 5 migration has been applied to hosted Supabase. The frontend is awaiting publication through GitHub Pages.
+Phase 5 is implemented locally and published at https://flukewheel.github.io/ as of 3 November 2026. The Phase 5 migration is applied to the linked hosted Supabase project. The published signed-in interface still needs an owner-account walkthrough.
 
 ## Implemented locally
 
@@ -18,10 +18,11 @@ Phase 5 is implemented and verified in the local development stack as of 3 Novem
 - The hosted security advisor still reports the previously known [leaked-password protection warning](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). It reported no new Phase 5 warning.
 - Lint, typecheck, unit tests, production build and all 40 desktop/mobile browser journeys passed. Phase 5 browser checks cover bounded recent pages, category browsing, guest prompt, member cold start, interest invalidation, logout cache behaviour, recommendation retry, and absence of a home viewer frame.
 - Headless screenshots of desktop and mobile home and recent browse routes were inspected. This is local visual verification, not a published-origin acceptance check.
+- GitHub Pages workflow [41557874757](https://github.com/flukewheel/flukewheel.github.io/actions/runs/41557874757) succeeded for commit `0d9faa4`. Headless checks on the published origin at desktop and mobile widths found ten recent cards, four categories, the guest For you prompt, 24-card recent and Art browse pages, no home iframe or external frame request, and no page errors. Guest Bump from Art opened a viewer and retained the Art interest at both widths. Screenshots were inspected.
+- A read-only hosted SQL check under the authenticated role and a synthetic JWT subject returned six cold-start recommendation IDs. This verifies the hosted RPC path, but does not replace an interactive signed-in browser check.
 
 ## Remaining rollout
 
-1. Publish the frontend through the existing GitHub Pages workflow.
-2. Check the published origin as a guest and signed-in member on desktop and mobile, including thumbnail loading, category browsing, Bump interest context and For you recommendations. Confirm no home iframe or original-site request and check Supabase errors.
+1. With a real signed-in account on the published origin, check For you cards, interest changes, and sign-out on desktop and mobile. This requires account credentials or the owner's own session, which were not used for the automated published-origin check.
 
 The 31 October owner decision remains in force: active catalogue sites open directly in the Flukewheel viewer iframe, even where a site blocks framing. Phase 5 does not reintroduce an external-opening fallback.
