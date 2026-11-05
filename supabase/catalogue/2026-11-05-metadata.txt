@@ -1,0 +1,57 @@
+﻿Connector Identification|Identify an electronic connector by its shape, pins and other physical features.|educational,free|unknown
+Stardewdle|Guess a Stardew Valley item in a daily word-style game.|funny,free|unknown
+The Safe Box|Explore an interactive safe-box puzzle by Eduard Sizov.|funny,art|unknown
+Triangles Playground|Experiment with geometric patterns made from triangles.|art,educational|unknown
+Ryan Reid Comics|Read illustrated comics by Ryan Reid.|art,funny|unknown
+Fliptiles|Flip tiles to solve a compact browser puzzle.|funny,free|unknown
+Library of Time|Compare calendars, clocks and ways of measuring time.|educational,art|unknown
+TrueSize|Compare the real sizes of countries and regions on a map.|educational,free|unknown
+100 Dots|Explore an interactive project built around one hundred dots.|art,funny|unknown
+Wood Filter|Filter wood species by appearance and physical properties.|educational,free|unknown
+A Number From the Ghost|Explore interactive music videos and their levels.|art,free|unknown
+Search Engine Party|Compare search engines by privacy, features and jurisdiction.|educational,free|unknown
+Global Nature Watch|Explore forest cover and landscape change on an interactive map.|educational,free|unknown
+If I Knew Then|Read life and career advice from Harvard Business School's class of 1963.|educational,free|unknown
+URL Lengthener|Turn an ordinary web address into a comically long one.|funny,free|unknown
+Meal Plan Wrapped|Read a personal account of building a meal-planning project at a hackathon.|educational,funny|unknown
+Rijkscollection|Explore artworks from Amsterdam's Rijksmuseum in an immersive gallery.|art,educational|unknown
+Generating Music in the Waveform Domain|Read an illustrated explanation of neural audio generation.|educational,art|unknown
+Plan59|Browse an archive of mid-century illustration and retro graphics.|art,educational|unknown
+AuralFret|Explore guitar chords, scales and progressions on an interactive fretboard.|art,educational|unknown
+Video Notes|Explore a project for taking notes alongside videos.|educational,free|unknown
+Wilderness Survival|Read guides and reference material on outdoor survival skills.|educational,free|unknown
+PathFinding.js Visualizer|Watch pathfinding algorithms search through a grid.|educational,free|unknown
+Topological Quantum Field Theory Club|Explore notes and resources about topological quantum field theory.|educational,free|unknown
+After Hours Programming|Learn programming concepts from tutorials and reference pages.|educational,free|unknown
+Beach Nearby|Find and explore beaches around the world.|educational,free|unknown
+Math Operators|Browse a visual reference to mathematical operators and symbols.|educational,free|unknown
+SandVox Simulator|Play with an interactive sand simulation by Oimo.|art,free|unknown
+The British Empire|Browse illustrated historical material about the British Empire.|educational,free|unknown
+AI 2040: Plan A|Read a proposed scenario and policy plan for advanced AI by 2040.|educational,free|unknown
+UN Speeches Explorer|Explore how countries refer to one another in United Nations speeches.|educational,art|unknown
+A Zig Memory Leak|Read a debugging story about finding a memory leak in a Zig program.|educational,free|unknown
+Women's Pockets|Explore a visual investigation into the size of women's clothing pockets.|educational,art|unknown
+Pictorial C64 Fault Guide|Diagnose Commodore 64 faults using photos of common screen patterns.|educational,free|unknown
+Kebabs and Train Stations|Read a playful study of kebab shops near train stations.|funny,educational|unknown
+I Hate Ads|Visit a deliberately over-the-top homage to chaotic web advertising.|funny,art|unknown
+Every Second|Explore visualizations of events that happen every second.|educational,art|unknown
+Let's Build AI|Browse a community-curated directory of AI models, tools and learning resources.|educational,free|unknown
+Random Trivia Generator|Generate trivia questions across a range of topics.|funny,free|unknown
+Choice of the Dragon|Play a choice-driven fantasy story as a dragon.|funny,free|unknown
+Smart Text Editor|Write and edit text in a browser-based editor.|free|unknown
+Wikitrivia|Put Wikipedia events in chronological order in a trivia game.|educational,funny|unknown
+Guess My Word|Guess a hidden word with clues from a browser game.|funny,free|unknown
+Chord Player|Build and play chord progressions in an online music tool.|art,free|unknown
+Kernel Bugs|Read an investigation into how long operating-system bugs can go unnoticed.|educational,free|unknown
+LightScreen|Turn your display into a full-screen light source with adjustable color.|free|unknown
+Afloat|Explore an interactive music project by Sounds of System Breakdown.|art,free|unknown
+RockFall|Play a browser game built around falling rocks.|funny,free|unknown
+GIRP|Climb a cliff by gripping lettered holds in Bennett Foddy's browser game.|funny,free|unknown
+iO-808|Program beats with a browser-based drum machine.|art,free|unknown
+Kaleidoscope|Play with a digital kaleidoscope and learn how the illusion works.|art,educational|unknown
+Things.in|Browse attractions and places to visit around the world.|educational,free|unknown
+Jolley Comics|Read independent comics from Jolley Comics.|art,funny|unknown
+Feature Visualization|Explore interactive explanations of what image-recognition networks see.|educational,art|unknown
+Life Calendar|See a life represented as a calendar of weeks.|art,free|unknown
+The Human Calendar|View a people-powered calendar that changes each day.|art,funny|unknown
+Pictures of Walls|Browse photographs of walls from different places.|art,free|unknown
