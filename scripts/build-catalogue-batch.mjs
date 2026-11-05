@@ -10,7 +10,7 @@ if (urls.length === 0 || urls.length !== metadata.length) throw new Error('Catal
 
 const quote = (value) => `'${value.replaceAll("'", "''")}'`
 const categories = new Set(['educational', 'funny', 'art', 'free'])
-const statuses = new Set(['allowed', 'blocked'])
+const statuses = new Set(['allowed', 'blocked', 'unknown'])
 const records = urls.map((url, index) => {
   const [title, description, categoryList, status] = metadata[index].split('|')
   const parsed = new URL(url)
@@ -23,7 +23,7 @@ const records = urls.map((url, index) => {
 })
 if (new Set(records.map((record) => record.normalized)).size !== records.length) throw new Error('Duplicate normalized URL')
 
-const values = records.map((record) => `  (${quote(record.id)}::uuid, ${quote(record.url)}, ${quote(record.normalized)}, ${quote(record.title)}, ${quote(record.description)}, 'approved', true, ${quote(record.status)}, now(), now())`).join(',\n')
+const values = records.map((record) => `  (${quote(record.id)}::uuid, ${quote(record.url)}, ${quote(record.normalized)}, ${quote(record.title)}, ${quote(record.description)}, 'approved', true, ${quote(record.status)}, now(), ${record.status === 'unknown' ? 'null' : 'now()'})`).join(',\n')
 const assignments = records.flatMap((record) => record.slugs.map((slug) => `  (${quote(record.id)}::uuid, ${quote(slug)})`)).join(',\n')
 const marker = `-- User-curated catalogue additions, ${date}.`
 const sql = `${marker} Embedding status records compatibility evidence; active entries still load in the viewer.\ninsert into public.websites (\n  id, original_url, normalised_url, title, description,\n  approval_status, active, embedding_status, approved_at, last_validated_at\n) values\n${values}\non conflict (id) do update set\n  original_url = excluded.original_url,\n  normalised_url = excluded.normalised_url,\n  title = excluded.title,\n  description = excluded.description,\n  approval_status = excluded.approval_status,\n  active = excluded.active,\n  embedding_status = excluded.embedding_status,\n  approved_at = excluded.approved_at,\n  last_validated_at = excluded.last_validated_at;\n\ninsert into public.website_categories (website_id, category_id)\nselect assignment.website_id, category.id\nfrom (values\n${assignments}\n) as assignment(website_id, slug)\njoin public.categories category on category.slug = assignment.slug\non conflict do nothing;\n`

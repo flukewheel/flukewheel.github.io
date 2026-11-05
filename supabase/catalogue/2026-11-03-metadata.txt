@@ -1,0 +1,140 @@
+The Impossible Quiz|Answer trick questions in a classic browser quiz.|funny,free|unknown
+Scary Maze|Guide a cursor through narrow maze levels without touching the walls.|funny,free|unknown
+PowerPoint Karaoke|Improvise a presentation from slides you have never seen before.|funny,free|unknown
+Wikipedia File Explorer|Browse Wikipedia and Wikimedia Commons through a simulated Windows XP desktop.|educational,free|unknown
+The Bob Club|Visit a lighthearted club for people named Bob and anyone who knows one.|funny|unknown
+Print Me Money|Enter a salary and watch a playful counter print what you earn.|funny,free|unknown
+Interactive Platypus|Play with an animated platypus in this CodePen experiment.|art,funny|unknown
+VOLE.wtf|Explore a collection of daft browser games and playful web projects.|funny,art|unknown
+L-Trees|Watch a procedural tree and particle experiment grow in the browser.|art,educational|unknown
+I'm Remembering!|Browse a nostalgic archive of 1980s and 1990s pop culture memories.|art,funny|unknown
+Sketch of three.js|Explore interactive visual sketches built with three.js.|art,free|unknown
+Marimo|Play with a soft interactive visual experiment by Oimo.|art,funny|unknown
+Things I Have Drawn|See children's drawings transformed into playful real-world images.|art,funny|unknown
+Data Clocks|Explore clocks that connect data and the passage of time.|art,educational|unknown
+CSS Puns|Browse visual jokes built around CSS and web design.|funny,art|unknown
+Every Cube|Scroll through the reachable permutations of a Rubik's Cube.|educational,art|unknown
+Five Hundred Clocks|Browse hundreds of creative ways to display the time.|art|unknown
+Gravity Points|Move points and watch a browser-based gravity animation react.|art,free|unknown
+PageOrb|Enter a strange digital portal where familiar websites take unexpected turns.|art|unknown
+T000 Day|Find the current day number on a minimalist calendar page.|free|unknown
+Human Shader|See a shader image computed by hand by graphics artist Inigo Quilez.|art,educational|unknown
+Bouletcorp|Read illustrated comics and stories by French artist Boulet.|art,funny|unknown
+The Transmission Hypothesis|Explore an unusual piece of interactive web fiction.|art|unknown
+Belgium Doesn't Exist!|Read a satirical conspiracy page about Belgium.|funny|unknown
+SpirOps Procedural Locomotion|Adjust parameters in a procedural walking animation demo.|art,educational|unknown
+Zoomquilt 2|Travel through a collaborative painting that appears to zoom forever.|art|unknown
+Haunted|Explore a haunted browser experience from The Digital Panda.|art,funny|unknown
+This Man|Explore the internet legend of a face said to appear in people's dreams.|funny,educational|unknown
+Milkyboard|Improvise and loop music in a browser-based instrument.|art,free|unknown
+Strict Rules About Stray Cats|Read a humorous set of rules about taking in stray cats.|funny|unknown
+Philosophy for Kids|Read a free introduction to philosophy for younger readers.|educational,free|unknown
+Plant|Read the first page of an independent webcomic called Plant.|art|unknown
+British Seaside Simulator|Experience the sights and sounds of British coastal resorts online.|funny,art|unknown
+List of Graphs|Browse Wikipedia's collection of graph types and examples.|educational,free|unknown
+Michael Murder|Explore Michael Murder's personal corner of the web.|art|unknown
+OpenGuessr|Guess locations around the world in a free geography game.|funny,educational,free|unknown
+Eyeball|Test your precision by clicking the right place on a line.|funny,free|unknown
+Wake Me Up|Explore an animated experimental website by Isadora Digital Agency.|art|unknown
+Wii U Architecture|Read an illustrated technical account of the Wii U hardware.|educational|unknown
+Fidget|Play with an interactive browser project by Matt Keeter.|art,free|unknown
+Kirillov's Musings|Browse a personal collection of notes and ideas.|educational|unknown
+Movie-Map|Find films similar to a movie you already like.|free|unknown
+Actorle|Guess an actor from clues hidden in their filmography.|funny,free|unknown
+Kubrick 2001|Read an in-depth analysis of 2001: A Space Odyssey.|educational,art|unknown
+TV100|Read Diamond Geezer's list of 100 television shows.|educational|unknown
+Perfect Days|Explore the official site for Wim Wenders' film Perfect Days.|art|unknown
+RunPee|Find suggested bathroom breaks during a film and catch up afterward.|free|unknown
+Globe TV|Browse live television, webcams, news and radio from around the world.|art,free|unknown
+The Oracle of Bacon|Find connections between film actors through their shared credits.|funny,free|unknown
+How I Track My Life|Read a personal account of recording sleep, work and mood over time.|educational|unknown
+Click to Relax|Take a short interactive pause in the browser.|art,free|unknown
+Aluminum Foil Deflector Beanie|Read a satirical guide to blocking imaginary mind control.|funny|unknown
+Dental Scope|Explore an interactive 3D model of teeth and dental anatomy.|educational,free|unknown
+Coblis Color Blindness Simulator|Preview how an image may appear with different forms of color vision.|educational,free|unknown
+Every Second: Your Body|Watch a visualization of events happening in the human body every second.|educational,art|unknown
+Department of Teeth|File a playful claim for a lost tooth with the Tooth Fairy.|funny|unknown
+My Experience Biohacking|Read a personal account of experimenting with body technology.|educational|unknown
+Something Is Going On with Colorectal Cancer|Explore data on the rise of colorectal cancer in younger people.|educational|unknown
+Undercover Autism|Read personal writing about autistic experience.|educational|unknown
+Know Your Substance|Explore information about substances and their effects.|educational|unknown
+Interactive Brain Model|Explore a three-dimensional model of the human brain.|educational,free|unknown
+Every Second: Animal Heartbeats|Compare how quickly different animals' hearts beat.|educational,art|unknown
+HackerTube Playlists|Browse curated video playlists about computing and hacking.|educational,free|unknown
+1337x Top 100|Browse a ranked list of popular torrent listings.|free|unknown
+PlasticList|Explore data on plastic chemicals found in foods.|educational|unknown
+Bivector|Learn geometric algebra through diagrams, tools and lessons.|educational,free|unknown
+Falling Posts|Explore a playful web experiment involving falling posts.|art,funny|unknown
+Matt's Script Archive|Browse a collection of classic Perl CGI scripts.|educational,free|unknown
+Weekle|Play a word game called Weekle in the browser.|funny,free|unknown
+Another Day Closer to the End|Visit a minimalist web project about the passing of time.|art|unknown
+Gnod Art Faves|Discover artists through an interactive preference explorer.|art,free|unknown
+Premier League Fixtures|Add a football team's fixtures to your digital calendar.|free|unknown
+Taquitos.net|Browse thousands of snack reviews from around the world.|funny,educational|unknown
+Ross Spiral Curriculum|Explore a literary curriculum about the evolution of human consciousness.|educational|unknown
+An Introduction to Combinatorics|Learn counting and arrangement through worked examples.|educational,free|unknown
+Dark Patterns|Explore how subscription services make cancellation difficult.|educational,art|unknown
+5,000 Restaurant Menus|Explore historic restaurant menus from the late nineteenth and early twentieth centuries.|educational,art|unknown
+The Big Censored Theory|Explore a visual case study of television censorship in China.|educational,art|unknown
+A People Map of the UK|See a map that replaces place names with notable local people.|educational,art|unknown
+LyricVisualizer|Explore a browser experiment that visualizes song lyrics.|art,free|unknown
+Zone One|Watch a live map of central London's trains, buses, boats and aircraft.|educational,art|unknown
+Like a Ritual|Explore an audiovisual tribute to the band Title Fight.|art|unknown
+Dhampyrism|Explore an eccentric personal website on Neocities.|art|unknown
+Steven Brust Fan Page|Browse writing and resources about novelist Steven Brust.|educational|unknown
+Bad Day Today?|Let off steam with a playful explosion-themed web toy.|funny,free|unknown
+Cerulean|Explore SkyTruth's map of ocean oil pollution.|educational,free|unknown
+Whac-a-Moji|Play a small emoji-themed browser game.|funny,free|unknown
+The Pixar Theory|Follow an interactive story connecting Pixar films.|art,funny|unknown
+Normal Time|Explore a browser artwork about how time is perceived.|art|unknown
+IndieWeb|Learn about people-owned websites and the independent web.|educational,free|unknown
+DOOM CAPTCHA|Prove you are human by playing a tiny DOOM challenge.|funny,free|unknown
+The Flavor Foley Files|Read behind-the-scenes notes for the tracks on Flavor Foley's albums.|art|unknown
+Sky|Explore an interactive sky artwork by Nazli Ercan.|art|unknown
+The Revolving Internet|Watch Constant Dullaart's rotating internet artwork.|art|unknown
+file.io|Share a file through a simple temporary link.|free|unknown
+TI 84 Calculator Online|Use a graphing calculator in the browser.|educational,free|unknown
+Equity Calculator|Estimate the value of stock options with an online calculator.|free|unknown
+BrantSteele Big Brother Simulator|Run a custom Big Brother-style competition simulation.|funny,free|unknown
+The Museum of Ridiculously Interesting Things|Browse curious objects, art, ideas and history.|art,educational|unknown
+Webzine 98|Explore an independent webzine with an early-web spirit.|art|unknown
+The Moon|Explore an interactive visualization of the Moon.|art,educational|unknown
+Low Tech Webring Directory|Browse a directory of small, low-tech personal websites.|art,free|unknown
+Life Universe|Explore an interactive visual simulation by Oimo.|art|unknown
+Apostrophe Protection Society|Learn apostrophe rules and browse real examples of punctuation mistakes.|educational,funny|unknown
+United States Frequency Allocation Chart|See how the United States divides up the radio spectrum.|educational,art|unknown
+Flighty Airports Meltdown Map|Explore airport delays, weather and flight performance on a live map.|educational,free|unknown
+Jmail|Explore a public archive of Jeffrey Epstein emails in a familiar inbox interface.|educational|unknown
+Obo Comic|Read the first page of an independent online comic.|art|unknown
+Spenny|Guess the price of everyday groceries in a daily game.|funny,free|unknown
+GoOnlineTools|Browse a collection of browser-based utility tools.|free|unknown
+Windows 93|Explore a playful web desktop inspired by old operating systems.|funny,art|unknown
+Google Gravity|Watch a familiar search page fall apart under gravity.|funny,art|unknown
+Just for Fun|Browse a directory of creative coding projects and playful web experiments.|art,free|unknown
+The World Radio|Tune in to live radio stations around the world on an interactive globe.|art,free|unknown
+The Museum of Digital Influence|Explore an online museum about the history of digital media.|educational,art|unknown
+Life's a Glitch|Read an essay about Y2K and what it teaches about technology.|educational|unknown
+Animal Photo Art References|Find animal photographs at useful angles for drawing reference.|art,free|unknown
+Gridland|Match tiles, build a settlement and survive in a browser game.|funny,free|unknown
+My Excuse|Type an excuse and watch it become increasingly absurd.|funny,free|unknown
+Skip Metaprogression Unlocks|Browse save files that skip game progression unlocks.|free|unknown
+Sakura|Watch a procedurally grown cherry blossom tree shed petals.|art|unknown
+The Literary Canon of the 1990s|Explore literature taught in college courses through syllabus data.|educational,art|unknown
+Angle Ref|Find head-angle photo references for drawing portraits.|art,free|unknown
+The Eyeballing Game|Test how precisely you can judge shapes and angles.|funny,educational,free|unknown
+Colah's Blog|Read illustrated essays about neural networks and machine learning.|educational|unknown
+Fanlore|Explore a community wiki about fan communities and their history.|educational,free|unknown
+RobinWords|Solve word ladders by changing one letter at a time.|funny,free|unknown
+Escherllate|Draw repeating Escher-style tessellations in a browser sketchbook.|art,free|unknown
+Freeboard|Arrange ideas on a flexible visual board.|art,free|unknown
+Billard|Make music by setting bouncing balls in motion.|art,free|unknown
+RogueScroll|Watch live headlines flow through a retro scrolling news display.|educational,free|unknown
+21 Grams Experiment|Read about the historical attempt to weigh the human soul.|educational,free|unknown
+Credit Card Number Generator and Validator|Generate test card numbers and check their format.|free|unknown
+Magic: The Gathering Fun 40|Read about an alternative forty-card Magic format.|funny,educational|unknown
+SVG Artista|Animate SVG line drawings with a browser-based tool.|art,free|unknown
+ZenithTrack|See the stars passing overhead as the Earth turns in real time.|art,educational|unknown
+Draw Beats|Create rhythms by drawing patterns in the browser.|art,free|unknown
+The Matrix RPG|Explore a fan-made role-playing game inspired by The Matrix.|funny|unknown
+Humanity Draw|Add a drawing to a shared online mural.|art,free|unknown
+Bare Feet|Explore the music and work of Bare Feet.|art|unknown
