@@ -1004,10 +1004,13 @@ main:not(.viewer-shell) {
   font-size: 0.8rem;
 }
 
-.viewer-meta > div { display: flex; align-items: baseline; gap: 0.8rem; min-width: 0; }
+.viewer-meta > div { display: flex; flex: 1; align-items: baseline; gap: 0.8rem; min-width: 0; }
 .viewer-meta strong, .viewer-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .viewer-meta span { color: #c6bdcf; }
 .viewer-meta p { margin: 0; color: #e8d8ff; }
+.viewer-help-toggle { flex: none; border: 0; background: transparent; color: #e8d8ff; cursor: pointer; font: inherit; }
+.viewer-help-toggle:hover { text-decoration: underline; }
+.viewer-help { margin: 0; padding: 0.4rem 1rem; background: #211a20; color: #e8d8ff; font-size: 0.8rem; }
 
 .viewer-shell iframe {
   width: 100%;

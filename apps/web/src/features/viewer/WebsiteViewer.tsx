@@ -11,6 +11,7 @@ export default function WebsiteViewer() {
   const { websiteId = '' } = useParams()
   const { dispatch } = useAppState()
   const [hintForId, setHintForId] = useState<string | null>(null)
+  const [helpForId, setHelpForId] = useState<string | null>(null)
   const [frameLoadedForId, setFrameLoadedForId] = useState<string | null>(null)
   const website = useQuery({
     queryKey: ['catalogue', websiteId],
@@ -62,8 +63,15 @@ export default function WebsiteViewer() {
           <span>{website.data.displayDomain}</span>
         </div>
         {frameLoadedForId !== websiteId && <p role="status">Opening website…</p>}
-        {hintForId === websiteId && <p role="status">Having trouble loading? Choose Broken website from the thumbs-down menu, or try Bump! again.</p>}
+        {hintForId === websiteId && (
+          <button className="viewer-help-toggle" onClick={() => setHelpForId(helpForId === websiteId ? null : websiteId)} type="button">
+            Trouble viewing?
+          </button>
+        )}
       </div>
+      {helpForId === websiteId && (
+        <p className="viewer-help" role="status">Choose Broken website from the thumbs-down menu, or try Bump! again.</p>
+      )}
       <iframe
         onLoad={() => setFrameLoadedForId(websiteId)}
         referrerPolicy="strict-origin-when-cross-origin"
