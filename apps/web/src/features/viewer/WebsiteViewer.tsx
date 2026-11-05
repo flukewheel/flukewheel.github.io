@@ -70,7 +70,7 @@ export default function WebsiteViewer() {
         )}
       </div>
       {helpForId === websiteId && (
-        <p className="viewer-help" role="status">Choose Broken website from the thumbs-down menu, or try Bump! again.</p>
+        <p className="viewer-help" role="status">Choose Broken website from the thumbs-down menu, or spin the Wheel again.</p>
       )}
       <iframe
         onLoad={() => setFrameLoadedForId(websiteId)}

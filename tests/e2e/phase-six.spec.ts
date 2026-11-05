@@ -10,11 +10,48 @@ test('Copy Link copies the original website URL', async ({ page }) => {
     })
   })
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000362')
-  const button = page.getByRole('button', { name: 'Copy discovery link' })
+  const button = page.getByRole('button', { name: 'Copy link' })
   await expect(button).toBeEnabled()
   await button.click()
   await expect.poll(() => page.evaluate(() => (window as Window & { copiedWebsiteUrl?: string }).copiedWebsiteUrl))
     .toBe('https://barefeetmusic.com/')
+})
+
+test('Open original website launches the source URL in a new tab', async ({ page }) => {
+  await page.goto('/#/viewer/20000000-0000-4000-8000-000000000362')
+  const popupPromise = page.waitForEvent('popup')
+  await page.getByRole('button', { name: 'Open original website' }).click()
+  const popup = await popupPromise
+  await expect(popup).toHaveURL('https://barefeetmusic.com/')
+  await expect(page).toHaveURL(/#\/viewer\/20000000-0000-4000-8000-000000000362$/)
+})
+
+test('Wheel idles, pauses on hover, and briefly accelerates when pressed', async ({ page }) => {
+  await page.route('**/functions/v1/bump-website', async (route) => {
+    await route.fulfill({ status: 500, body: '{}' })
+  })
+  await page.goto('/#/')
+  const wheel = page.getByRole('button', { name: 'Wheel' })
+  const icon = wheel.locator('img.wheel-button__icon')
+  const angle = async () => Number((await icon.getAttribute('style'))?.match(/rotate\(([-\d.]+)deg\)/)?.[1])
+  const box = await wheel.boundingBox()
+  expect(box).not.toBeNull()
+  expect(box!.width).toBe(box!.height)
+  const idleStart = await angle()
+  await page.waitForTimeout(300)
+  expect(await angle()).toBeGreaterThan(idleStart)
+  await wheel.hover()
+  await page.waitForTimeout(50)
+  const paused = await angle()
+  await page.waitForTimeout(200)
+  expect(await angle()).toBe(paused)
+  await wheel.click()
+  await page.waitForTimeout(650)
+  expect(await angle()).toBeGreaterThan(paused + 90)
+  await page.waitForTimeout(1050)
+  const settled = await angle()
+  await page.waitForTimeout(150)
+  expect(await angle()).toBe(settled)
 })
 
 test('a delayed Bump cannot replace a website opened while it was pending', async ({ page }) => {
@@ -37,7 +74,7 @@ test('a delayed Bump cannot replace a website opened while it was pending', asyn
   })
   await page.goto('/#/')
   const pending = page.waitForRequest('**/functions/v1/bump-website')
-  await page.getByRole('button', { name: 'Bump!' }).click()
+  await page.getByRole('button', { name: 'Wheel' }).click()
   await pending
   await page.locator('.card-carousel .card-link').first().click()
   const cardUrl = page.url()

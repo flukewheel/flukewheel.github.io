@@ -7,7 +7,7 @@ import { paths } from '../../../app/paths'
 import { IconButton } from '../../../components/IconButton'
 import { catalogueAdapter, discoveryAdapter } from '../../../lib/adapters'
 import { SubmissionModal } from '../../submissions/SubmissionModal'
-import { BumpButton } from './BumpButton'
+import { WheelButton } from './WheelButton'
 import { InterestSelector } from './InterestSelector'
 import { ProfileMenu } from './ProfileMenu'
 import { ReactionControls } from './ReactionControls'
@@ -103,7 +103,7 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
         </div>
 
         <div className="topbar__centre">
-          <BumpButton busy={bumping} onBump={() => void bump()} />
+          <WheelButton busy={bumping} onWheel={() => void bump()} />
           <InterestSelector />
         </div>
 
@@ -115,7 +115,7 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
         <p className="toolbar-error" role="alert">
           {bumpError === 'empty'
             ? 'No eligible sites in this interest yet. Choose another interest.'
-            : "We couldn't find a discovery. Please try Bump! again."}
+            : "We couldn't find a discovery. Please try the Wheel again."}
         </p>
       )}
       {bumpNotice && <p className="toolbar-error" role="status">A recent discovery may repeat because this interest has few options.</p>}

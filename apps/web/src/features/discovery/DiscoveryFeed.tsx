@@ -153,7 +153,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
         ) : (
           <div className="auth-invitation">
             <div className="auth-invitation__icon" aria-hidden="true"><Compass /></div>
-            <div><h3>Make every Bump! a little more yours.</h3><p>Choose interests, remember great finds and shape your future discoveries while keeping the surprises.</p></div>
+            <div><h3>Make every spin a little more yours.</h3><p>Choose interests, remember great finds and shape your future discoveries while keeping the surprises.</p></div>
             <div className="auth-invitation__actions">
               <button className="primary-button" onClick={onOpenAuth} type="button"><LogIn aria-hidden="true" /> Log in / Sign up</button>
               <button className="secondary-button" onClick={() => { void authAdapter.signInWithGoogle().catch((cause) => setGoogleError(cause instanceof Error ? cause.message : 'Google sign-in could not start.')) }} type="button">Continue with Google</button>

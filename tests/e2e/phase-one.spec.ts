@@ -4,7 +4,7 @@ test('homepage reads the public catalogue and keeps the viewer unmounted', async
   await page.goto('/#/')
 
   await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Bump!' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Wheel' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'internet as an art.' })).toBeVisible()
   await expect(page.getByText('It never got smaller or less interesting, you just became held down by the commerce of things.')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Recently added' })).toBeVisible()
@@ -26,7 +26,7 @@ test('a catalogue card opens the website inline without the footer', async ({ pa
 
   await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
   await expect(page.locator('iframe')).toHaveAttribute('src', /^https?:\/\//)
-  await expect(page.getByRole('link', { name: /Open original website/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Open original website' })).toBeEnabled()
   await expect(page.locator('footer')).toHaveCount(0)
   await page.getByRole('link', { name: 'flukewheel home' }).click()
   await expect(page.locator('iframe')).toHaveCount(0)
@@ -38,7 +38,7 @@ test('a site that blocks embedding is still attempted in the viewer', async ({ p
 
   await expect(page.locator('iframe')).toHaveAttribute('src', 'https://www.foodnotbombs.net/a.%20Anarchist%20Cookbook%20interior%207-30-15-1.pdf')
   await expect(page.getByText('A discovery to open')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: /Open original website/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Open original website' })).toBeEnabled()
 })
 
 test('the primary toolbar follows a useful keyboard order', async ({ page }) => {
@@ -52,7 +52,7 @@ test('the primary toolbar follows a useful keyboard order', async ({ page }) => 
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Add a website' })).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Bump!' })).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Wheel' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toBeFocused()
   await page.keyboard.press('Tab')
@@ -113,7 +113,7 @@ test('Bump remembers seen sites across a refresh', async ({ page }) => {
   const visited = new Set<string>()
   for (let index = 0; index < 20; index += 1) {
     const previousUrl = page.url()
-    await page.getByRole('button', { name: 'Bump!' }).click()
+    await page.getByRole('button', { name: 'Wheel' }).click()
     await expect(page).not.toHaveURL(previousUrl)
     await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
     const id = page.url().split('/').at(-1)!

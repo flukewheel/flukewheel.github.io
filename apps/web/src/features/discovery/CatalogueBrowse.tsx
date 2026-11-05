@@ -57,7 +57,7 @@ export function CatalogueBrowse() {
       <div className="browse-page__heading">
         <Link className="text-link" to={paths.home}>← Back to homepage</Link>
         <h1>{categoryId ? category?.name ?? 'Explore a category' : 'Recently added websites'}</h1>
-        <p>{category ? `Browse ${category.name.toLowerCase()} discoveries. Bump! will favour this interest until you change it.` : 'Explore the latest websites added to Flukewheel.'}</p>
+        <p>{category ? `Browse ${category.name.toLowerCase()} discoveries. The Wheel will favour this interest until you change it.` : 'Explore the latest websites added to Flukewheel.'}</p>
         {categoryId && <Link className="text-link" onClick={() => dispatch({ type: 'interest-selected', interestId: 'all' })} to={paths.recent}>Clear category</Link>}
       </div>
 

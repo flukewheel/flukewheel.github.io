@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bookmark, Check, Copy, Heart, LoaderCircle, ThumbsDown } from 'lucide-react'
+import { ArrowUpRight, Bookmark, Check, Copy, Heart, LoaderCircle, ThumbsDown } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { IconButton } from '../../../components/IconButton'
 import { rememberPendingAction } from '../../auth/pendingAction'
@@ -38,7 +38,11 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
       if (!originalUrl) throw new Error('The original URL is unavailable.')
       await navigator.clipboard.writeText(originalUrl)
     }
-    catch { setError({ websiteId: websiteId ?? '', message: 'The discovery link could not be copied.' }) }
+    catch { setError({ websiteId: websiteId ?? '', message: 'The website link could not be copied.' }) }
+  }
+
+  function openOriginal() {
+    if (originalUrl) window.open(originalUrl, '_blank', 'noopener,noreferrer')
   }
 
   async function act(kind: ActionKind, reason?: string) {
@@ -50,7 +54,7 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
       return
     }
     if ((kind === 'bookmark' && bookmarked) || (kind === 'love' && loved)
-      || (kind === 'dislike' && disliked && (!reason || state.data?.reason === reason))) return
+      || (kind === 'dislike' && disliked && reason !== undefined && state.data?.reason === reason)) return
     inFlight.current.add(targetId)
     setBusyAction({ websiteId: targetId, kind }); setError(null)
     try {
@@ -61,6 +65,13 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
           reaction: current?.reaction ?? state.data?.reaction ?? null,
           reason: current?.reason ?? state.data?.reason ?? null,
           bookmarked: true,
+        }))
+      } else if (kind === 'dislike' && disliked && reason === undefined) {
+        await interactionAdapter.removeReaction(targetId)
+        queryClient.setQueryData<InteractionState>(cacheKey, (current) => ({
+          reaction: null,
+          reason: null,
+          bookmarked: current?.bookmarked ?? state.data?.bookmarked ?? false,
         }))
       } else {
         await interactionAdapter.setReaction(targetId, kind, reason ?? null)
@@ -83,7 +94,8 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
   return (
     <div aria-busy={Boolean(currentBusy)} aria-label="Website actions" className="reaction-controls" role="group">
       <IconButton active={loved} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'love' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <Heart aria-hidden="true" className={loved ? 'reaction-icon--loved' : undefined} />} label="Love this website" onClick={() => void act('love')} />
-      <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy discovery link" onClick={() => void copyLink()} />
+      <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy link" onClick={() => void copyLink()} />
+      <IconButton disabled={disabled || !originalUrl} icon={<ArrowUpRight aria-hidden="true" />} label="Open original website" onClick={openOriginal} />
       <IconButton active={bookmarked} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'bookmark' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : bookmarked ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
       <div className="split-control">
         <IconButton active={disliked} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'dislike' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <ThumbsDown aria-hidden="true" className={disliked ? 'reaction-icon--disliked' : undefined} />} label="Dislike this website" onClick={() => void act('dislike')} />

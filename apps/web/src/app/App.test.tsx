@@ -34,7 +34,7 @@ describe('Phase 1 application shell', () => {
 
     expect(screen.getByRole('button', { name: /love this website/i })).toBeDisabled()
     expect(
-      screen.getByRole('button', { name: /copy discovery link/i }),
+      screen.getByRole('button', { name: /copy link/i }),
     ).toBeDisabled()
     expect(
       screen.getByRole('button', { name: /bookmark this website/i }),
