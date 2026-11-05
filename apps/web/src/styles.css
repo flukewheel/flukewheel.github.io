@@ -989,9 +989,25 @@ main:not(.viewer-shell) {
 
 .viewer-shell {
   display: flex;
+  flex-direction: column;
   height: calc(100vh - 78px);
   background: #110f0c;
 }
+
+.viewer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 1rem;
+  color: #f8f5ff;
+  font-size: 0.8rem;
+}
+
+.viewer-meta > div { display: flex; align-items: baseline; gap: 0.8rem; min-width: 0; }
+.viewer-meta strong, .viewer-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-meta span { color: #c6bdcf; }
+.viewer-meta p { margin: 0; color: #e8d8ff; }
 
 .viewer-shell iframe {
   width: 100%;

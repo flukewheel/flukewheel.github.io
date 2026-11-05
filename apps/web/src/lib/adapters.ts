@@ -2,6 +2,7 @@ import { categories as testCategories, websites as testWebsites } from '../featu
 import type { Database } from './database.types'
 import { getSupabaseClient } from './supabase'
 import { selectNextDiscovery } from './discoverySelection'
+import { bumpResponseSchema } from '@flukewheel/contracts'
 import { thumbnailIds } from './thumbnailIds'
 import type { Category, WebsiteSummary } from './types'
 
@@ -226,17 +227,36 @@ export const catalogueAdapter = {
 }
 
 export const discoveryAdapter = {
-  // Phase 2 keeps guest selection on the client. Phase 6 replaces this with
-  // the bounded server selection contract and recorded member history.
   bump: async (
     interestId: string,
     seenIds: string[],
+    requestId: string,
   ) => {
-    const [websites, categories] = await Promise.all([
-      catalogueAdapter.listDiscoveryPool(),
-      catalogueAdapter.listCategories(),
-    ])
-    return selectNextDiscovery(websites, categories, interestId, seenIds)
+    if (shouldUseTestFixtures()) {
+      const [websites, categories] = await Promise.all([
+        catalogueAdapter.listDiscoveryPool(), catalogueAdapter.listCategories(),
+      ])
+      return selectNextDiscovery(websites, categories, interestId, seenIds)
+    }
+    const client = clientOrThrow()
+    const { data, error } = await client.functions.invoke('bump-website', {
+      body: {
+        category_id: interestId === 'all' ? null : interestId,
+        recent_ids: seenIds.slice(-20),
+        request_id: requestId,
+      },
+    })
+    if (error) {
+      const body = 'context' in error && error.context instanceof Response
+        ? await error.context.clone().json().catch(() => null) as { code?: string } | null
+        : null
+      if (body?.code === 'EMPTY_CATALOGUE') return null
+      throw error
+    }
+    const selection = bumpResponseSchema.parse(data)
+    const website = await catalogueAdapter.getById(selection.website.id)
+    if (!website) throw new Error('The selected website is no longer available.')
+    return { website, resetCycle: false, exclusionsRelaxed: selection.exclusions_relaxed }
   },
 }
 

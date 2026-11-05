@@ -10,13 +10,14 @@ import { DislikeDropdown } from './DislikeDropdown'
 interface ReactionControlsProps {
   disabled: boolean
   onOpenAuth: () => void
+  originalUrl?: string
   websiteId?: string
 }
 
 type ActionKind = 'love' | 'dislike' | 'bookmark'
 type InteractionState = Awaited<ReturnType<typeof interactionAdapter.getState>>
 
-export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionControlsProps) {
+export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId }: ReactionControlsProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [busyAction, setBusyAction] = useState<{ websiteId: string; kind: ActionKind } | null>(null)
@@ -33,7 +34,10 @@ export function ReactionControls({ disabled, onOpenAuth, websiteId }: ReactionCo
   const disliked = state.data?.reaction === 'dislike'
 
   async function copyLink() {
-    try { await navigator.clipboard.writeText(window.location.href) }
+    try {
+      if (!originalUrl) throw new Error('The original URL is unavailable.')
+      await navigator.clipboard.writeText(originalUrl)
+    }
     catch { setError({ websiteId: websiteId ?? '', message: 'The discovery link could not be copied.' }) }
   }
 

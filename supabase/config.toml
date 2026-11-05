@@ -396,6 +396,9 @@ verify_jwt = false
 [functions.admin-catalogue]
 verify_jwt = true
 
+[functions.bump-website]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Home } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
 import { paths } from '../../app/paths'
@@ -10,6 +10,8 @@ import { catalogueAdapter } from '../../lib/adapters'
 export default function WebsiteViewer() {
   const { websiteId = '' } = useParams()
   const { dispatch } = useAppState()
+  const [hintForId, setHintForId] = useState<string | null>(null)
+  const [frameLoadedForId, setFrameLoadedForId] = useState<string | null>(null)
   const website = useQuery({
     queryKey: ['catalogue', websiteId],
     queryFn: () => catalogueAdapter.getById(websiteId),
@@ -20,6 +22,11 @@ export default function WebsiteViewer() {
       dispatch({ type: 'website-visited', websiteId: website.data.id })
     }
   }, [dispatch, website.data])
+
+  useEffect(() => {
+    const show = window.setTimeout(() => setHintForId(websiteId), 9000)
+    return () => window.clearTimeout(show)
+  }, [websiteId])
 
   if (website.isPending) {
     return <LoadingWheel />
@@ -38,13 +45,31 @@ export default function WebsiteViewer() {
     )
   }
 
+  if (new URL(website.data.originalUrl).origin === window.location.origin) {
+    return (
+      <main className="route-state" role="alert">
+        <h1>That discovery isn't available.</h1>
+        <Link className="primary-link" to={paths.home}>Return home</Link>
+      </main>
+    )
+  }
+
   return (
     <main className="viewer-shell">
+      <div className="viewer-meta">
+        <div>
+          <strong>{website.data.title}</strong>
+          <span>{website.data.displayDomain}</span>
+        </div>
+        {frameLoadedForId !== websiteId && <p role="status">Opening website…</p>}
+        {hintForId === websiteId && <p role="status">Having trouble loading? Choose Broken website from the thumbs-down menu, or try Bump! again.</p>}
+      </div>
       <iframe
-        aria-label={`${website.data.title} website`}
+        onLoad={() => setFrameLoadedForId(websiteId)}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-forms allow-scripts allow-same-origin"
         src={website.data.originalUrl}
+        title={`${website.data.title} website`}
       />
     </main>
   )

@@ -40,7 +40,7 @@ function readInitialState(): AppState {
             ? (value as { recentWebsiteIds: unknown[] }).recentWebsiteIds
             : []
         ).filter((id): id is string => typeof id === 'string'),
-      )],
+      )].slice(-20),
     }
   } catch {
     return initialState
@@ -57,7 +57,7 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         seenWebsiteIds: action.resetCycle
           ? [action.websiteId]
-          : [...state.seenWebsiteIds, action.websiteId],
+          : [...state.seenWebsiteIds, action.websiteId].slice(-20),
       }
   }
 }

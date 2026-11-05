@@ -27,14 +27,14 @@ isOneToOne: false
                   ]
                 },"bump_history": {
                   Row: {
-                    "discovered_at": string,"id": string,"request_id": string,"source": string,"user_id": string,"website_id": string
+                    "discovered_at": string,"exclusions_relaxed": boolean,"id": string,"request_id": string,"source": string,"user_id": string,"website_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "discovered_at"?: string,"id"?: string,"request_id": string,"source": string,"user_id": string,"website_id": string
+                    "discovered_at"?: string,"exclusions_relaxed"?: boolean,"id"?: string,"request_id": string,"source": string,"user_id": string,"website_id": string
                   }
                   Update: {
-                    "discovered_at"?: string,"id"?: string,"request_id"?: string,"source"?: string,"user_id"?: string,"website_id"?: string
+                    "discovered_at"?: string,"exclusions_relaxed"?: boolean,"id"?: string,"request_id"?: string,"source"?: string,"user_id"?: string,"website_id"?: string
                   }
                   Relationships: [
                     {
@@ -161,14 +161,14 @@ isOneToOne: false
                   ]
                 },"websites": {
                   Row: {
-                    "active": boolean,"approval_status": string,"approved_at": string | null,"description": string,"embedding_status": string,"id": string,"last_validated_at": string | null,"normalised_url": string,"original_url": string,"submitted_at": string,"thumbnail_path": string | null,"title": string
+                    "active": boolean,"approval_status": string,"approved_at": string | null,"description": string,"discovery_key": number,"embedding_status": string,"id": string,"last_validated_at": string | null,"normalised_url": string,"original_url": string,"submitted_at": string,"thumbnail_path": string | null,"title": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"approval_status"?: string,"approved_at"?: string | null,"description": string,"embedding_status"?: string,"id"?: string,"last_validated_at"?: string | null,"normalised_url": string,"original_url": string,"submitted_at"?: string,"thumbnail_path"?: string | null,"title": string
+                    "active"?: boolean,"approval_status"?: string,"approved_at"?: string | null,"description": string,"discovery_key"?: number,"embedding_status"?: string,"id"?: string,"last_validated_at"?: string | null,"normalised_url": string,"original_url": string,"submitted_at"?: string,"thumbnail_path"?: string | null,"title": string
                   }
                   Update: {
-                    "active"?: boolean,"approval_status"?: string,"approved_at"?: string | null,"description"?: string,"embedding_status"?: string,"id"?: string,"last_validated_at"?: string | null,"normalised_url"?: string,"original_url"?: string,"submitted_at"?: string,"thumbnail_path"?: string | null,"title"?: string
+                    "active"?: boolean,"approval_status"?: string,"approved_at"?: string | null,"description"?: string,"discovery_key"?: number,"embedding_status"?: string,"id"?: string,"last_validated_at"?: string | null,"normalised_url"?: string,"original_url"?: string,"submitted_at"?: string,"thumbnail_path"?: string | null,"title"?: string
                   }
                   Relationships: [
 
@@ -223,6 +223,11 @@ isOneToOne: false
 "review_submission":
 { Args: { "p_actor_id": string,"p_category_ids": (string)[],"p_decision": string,"p_description": string,"p_note": string,"p_submission_id": string,"p_title": string }; Returns: {
               "review_status": string,"website_id": string
+            }[]
+                           },
+"select_bump_website":
+{ Args: { "p_category_id": string,"p_current_id": string,"p_recent_ids": (string)[],"p_request_id": string,"p_seed": number }; Returns: {
+              "exclusions_relaxed": boolean,"website_id": string
             }[]
                            },
 "submit_website_intake":
