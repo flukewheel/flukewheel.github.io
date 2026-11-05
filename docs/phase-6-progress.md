@@ -1,6 +1,6 @@
 # Phase 6 Bump and viewer progress
 
-Phase 6 implementation started on 5 November 2026. The database migrations, Bump Edge Function and frontend are deployed. Published guest discovery and viewer checks have passed. A real signed-in Bump on the published origin is still unverified, so Phase 6 is not yet marked complete.
+Phase 6 is complete and published as of 5 November 2026. The database migrations, Bump Edge Function and frontend are deployed. Published guest discovery and viewer checks passed, and the project owner confirmed two consecutive signed-in Bumps worked on the published site.
 
 ## Implemented
 
@@ -17,10 +17,11 @@ Phase 6 implementation started on 5 November 2026. The database migrations, Bump
 - An isolated local account test created and removed a test user, verified one history row for two identical requests and rejected an unknown category. The local guest function also returned an eligible inline site.
 - Lint, typecheck, unit tests and production build passed. The initial 42 desktop/mobile browser tests passed. Ten Phase 6 browser checks now pass for original-URL copying, delayed-selection navigation, compact viewer help, slow pages and in-frame redirects at both widths. A 46-test run passed 45 tests; one existing mobile reaction test timed out while waiting for an icon after a reason change, then passed when rerun alone. That intermittent interaction remains under observation.
 - A representative local selector call took about 25 ms in PostgreSQL; 100 calls returned 84 distinct websites. Local security and performance advisors reported no issues.
-- Hosted migrations and the Edge Function deployed. A hosted guest request returned an approved, active, embedding-allowed site. GitHub Pages workflow 42072861556 published the frontend. Headless checks on the published origin showed guest Bump reaching a viewer at desktop and mobile widths, no iframe on home and no page errors. Screenshots of WorldGuessr and The Physics Hypertextbook showed both real sites rendering inside their iframes. The screenshots also exposed a large delayed trouble message on working pages; it was changed to a compact, user-opened control and verified locally. Hosted advisors reported only the previously known leaked-password-protection warning.
+- Hosted migrations and the Edge Function deployed. A hosted guest request returned an approved, active, embedding-allowed site. GitHub Pages workflows 42072861556 and 42074365654 published the frontend and its viewer-help correction. Headless checks on the published origin showed guest Bump reaching a viewer at desktop and mobile widths, no iframe on home and no page errors. Screenshots of WorldGuessr and The Physics Hypertextbook showed both real sites rendering inside their iframes. A later mobile check showed Rain Mirage rendering with a compact help control that stayed closed until clicked. Hosted advisors reported only the previously known leaked-password-protection warning.
+- A read-only hosted cold-start query returned six recommendation IDs after the scoring migration. The owner reported that two consecutive Bumps worked while signed in on the published site. This checks the live account path that the local member retry test cannot prove by itself.
 
-## Owner decision and remaining checks
+## Owner decision and completion
 
 The owner's 31 October viewer-only decision supersedes the plan's external-opening controls: active cards still attempt an inline iframe even when embedding is blocked. Bump selection remains limited to entries marked allowed. The 140 newest sites with unknown embedding status stay browsable but are excluded from automatic Bump and For you selection until checked.
 
-The compact viewer-help correction must be published and checked on the actual Pages origin. A real signed-in Bump and recommendation transition on that origin remains the final account-level check. Local tests cover slow, redirected and unavailable viewer states; representative real sites were visually checked on the published origin.
+The local and published checks above satisfy the Phase 6 completion criteria. The existing mobile reaction test's one intermittent timeout remains tracked for Phase 7 work; it passed on an isolated rerun. Future catalogue compatibility review continues as an operating task, especially for entries currently marked unknown.
