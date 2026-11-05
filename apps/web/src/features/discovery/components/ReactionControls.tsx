@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowUpRight, Bookmark, Check, Copy, Heart, LoaderCircle, ThumbsDown } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IconButton } from '../../../components/IconButton'
 import { rememberPendingAction } from '../../auth/pendingAction'
 import { useAuth } from '../../auth/AuthProvider'
@@ -23,6 +23,11 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
   const [busyAction, setBusyAction] = useState<{ websiteId: string; kind: ActionKind } | null>(null)
   const inFlight = useRef(new Set<string>())
   const [error, setError] = useState<{ websiteId: string; message: string } | null>(null)
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
+  const copyFeedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => {
+    if (copyFeedbackTimeout.current) clearTimeout(copyFeedbackTimeout.current)
+  }, [])
   const state = useQuery({
     queryKey: ['interaction', user?.id, websiteId],
     enabled: Boolean(user && websiteId),
@@ -32,13 +37,21 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
   const bookmarked = state.data?.bookmarked === true
   const loved = state.data?.reaction === 'love'
   const disliked = state.data?.reaction === 'dislike'
+  const copied = Boolean(originalUrl && copiedUrl === originalUrl)
 
   async function copyLink() {
     try {
       if (!originalUrl) throw new Error('The original URL is unavailable.')
       await navigator.clipboard.writeText(originalUrl)
+      if (copyFeedbackTimeout.current) clearTimeout(copyFeedbackTimeout.current)
+      setCopiedUrl(originalUrl)
+      setError(null)
+      copyFeedbackTimeout.current = setTimeout(() => setCopiedUrl(null), 2000)
     }
-    catch { setError({ websiteId: websiteId ?? '', message: 'The website link could not be copied.' }) }
+    catch {
+      setCopiedUrl(null)
+      setError({ websiteId: websiteId ?? '', message: 'The website link could not be copied.' })
+    }
   }
 
   function openOriginal() {
@@ -53,18 +66,19 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
       onOpenAuth()
       return
     }
-    if ((kind === 'bookmark' && bookmarked) || (kind === 'love' && loved)
+    if ((kind === 'love' && loved)
       || (kind === 'dislike' && disliked && reason !== undefined && state.data?.reason === reason)) return
     inFlight.current.add(targetId)
     setBusyAction({ websiteId: targetId, kind }); setError(null)
     try {
       const cacheKey = ['interaction', user.id, targetId] as const
       if (kind === 'bookmark') {
-        await interactionAdapter.saveBookmark(targetId)
+        if (bookmarked) await interactionAdapter.removeBookmark(targetId)
+        else await interactionAdapter.saveBookmark(targetId)
         queryClient.setQueryData<InteractionState>(cacheKey, (current) => ({
           reaction: current?.reaction ?? state.data?.reaction ?? null,
           reason: current?.reason ?? state.data?.reason ?? null,
-          bookmarked: true,
+          bookmarked: !bookmarked,
         }))
       } else if (kind === 'dislike' && disliked && reason === undefined) {
         await interactionAdapter.removeReaction(targetId)
@@ -94,7 +108,8 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
   return (
     <div aria-busy={Boolean(currentBusy)} aria-label="Website actions" className="reaction-controls" role="group">
       <IconButton active={loved} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'love' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <Heart aria-hidden="true" className={loved ? 'reaction-icon--loved' : undefined} />} label="Love this website" onClick={() => void act('love')} />
-      <IconButton disabled={disabled} icon={<Copy aria-hidden="true" />} label="Copy link" onClick={() => void copyLink()} />
+      <IconButton disabled={disabled} icon={copied ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Copy aria-hidden="true" />} label="Copy link" onClick={() => void copyLink()} />
+      <span className="sr-only" role="status">{copied ? 'Link copied' : ''}</span>
       <IconButton disabled={disabled || !originalUrl} icon={<ArrowUpRight aria-hidden="true" />} label="Open original website" onClick={openOriginal} />
       <IconButton active={bookmarked} aria-disabled={Boolean(currentBusy) || undefined} disabled={disabled} icon={currentBusy === 'bookmark' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : bookmarked ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
       <div className="split-control">

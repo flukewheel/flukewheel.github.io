@@ -67,11 +67,13 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(bookmarkButton).not.toHaveAttribute('aria-pressed', 'true')
   await expect(bookmarkButton).toHaveCSS('cursor', 'pointer')
   let bookmarkWrites = 0
+  let bookmarkDeletes = 0
   await page.route('**/rest/v1/bookmarks**', async (route) => {
     if (route.request().method() === 'POST') {
       bookmarkWrites += 1
       await new Promise((resolve) => setTimeout(resolve, 700))
     }
+    if (route.request().method() === 'DELETE') bookmarkDeletes += 1
     await route.continue()
   })
   await bookmarkButton.click()
@@ -86,8 +88,12 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(bookmarkButton).toHaveCSS('cursor', 'pointer')
   await expect(page.getByRole('group', { name: 'Website actions' })).toHaveAttribute('aria-busy', 'false')
   await bookmarkButton.click()
-  await expect(bookmarkButton.locator('svg.reaction-icon--saved')).toBeVisible()
+  await expect(bookmarkButton.locator('svg.lucide-bookmark')).toBeVisible()
+  await expect(bookmarkButton).not.toHaveAttribute('aria-pressed', 'true')
   expect(bookmarkWrites).toBe(1)
+  expect(bookmarkDeletes).toBe(1)
+  await page.reload()
+  await expect(bookmarkButton.locator('svg.lucide-bookmark')).toBeVisible()
   await page.route('**/rest/v1/website_reactions**', async (route) => {
     if (['POST', 'PATCH'].includes(route.request().method())) await new Promise((resolve) => setTimeout(resolve, 700))
     await route.continue()

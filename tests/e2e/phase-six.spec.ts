@@ -15,6 +15,9 @@ test('Copy Link copies the original website URL', async ({ page }) => {
   await button.click()
   await expect.poll(() => page.evaluate(() => (window as Window & { copiedWebsiteUrl?: string }).copiedWebsiteUrl))
     .toBe('https://barefeetmusic.com/')
+  await expect(button.locator('svg.lucide-check')).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Link copied' })).toBeVisible()
+  await expect(button.locator('svg.lucide-copy')).toBeVisible({ timeout: 5000 })
 })
 
 test('Open original website launches the source URL in a new tab', async ({ page }) => {
