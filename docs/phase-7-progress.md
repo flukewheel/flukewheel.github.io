@@ -1,6 +1,6 @@
-# Phase 7 engagement and collections progress
+# Phase 7 engagement and collections completion
 
-Phase 7 is deployed. The clean migration reset and the published signed-in account journey passed. A focused production recommendation-ranking check remains before final sign-off.
+Phase 7 is complete. The implementation is deployed, the clean migration reset passed, and both published signed-in journeys passed.
 
 ## Implemented
 
@@ -29,7 +29,8 @@ Phase 7 is deployed. The clean migration reset and the published signed-in accou
 - Commit `efec50f` was pushed to `main`, and GitHub Pages workflow run `42390501329` succeeded. A headless check of the published origin loaded the guest feed and private history/settings guards without page errors.
 - An isolated temporary Supabase database applied the full migration chain and seeds from scratch. An explicit `db reset --local` then reapplied all migrations and seeds successfully. The rollback-only Phase 7 history, member-visit and account-deletion SQL tests passed against that reset database. The temporary stack and files were removed afterward.
 - A disposable Gmail plus-address was confirmed on the published origin. Its signed-in feed loaded recommendations and changed to the interest-based state after selecting an interest. Wheel discovery, Love toggle, bookmark, all four labelled visit sources, owner-scoped JSON export, and history clearing after reload passed in a headless browser with no page errors. The account was deleted through the UI; a later login failed, and hosted read-only SQL found no matching Auth user or profile.
+- A second authorised disposable account verified activity-driven personalisation on the published origin. The six-item recommendation order changed after a recommended card visit and a `Not interested` reaction; the response remained successful and the browser reported no page errors. The account was deleted through the UI, and hosted read-only SQL found no matching Auth user or test profile. Temporary browser files were removed.
 
-## Remaining Phase 7 work
+## Completion
 
-- Run one focused published-origin check that compares recommendation ranking before and after a member activity signal. The first live journey confirmed recommendations load after interest selection and member actions, while the local Phase 5/6 SQL checks cover scoring. It did not capture a before/after ranking comparison. Automatic approval review rejected a second disposable sign-up as outside the single-account authorization.
+The local implementation, hosted rollout, migration reset, automated checks, and published member journeys satisfy the Phase 7 completion criteria.
