@@ -1,6 +1,6 @@
 # Phase 7 engagement and collections progress
 
-Phase 7 is implemented locally and remains in progress until the hosted rollout and live checks. None of its migrations or new frontend/function code has been deployed.
+Phase 7 is deployed and remains in progress pending signed-in checks on the published origin.
 
 ## Implemented
 
@@ -25,9 +25,11 @@ Phase 7 is implemented locally and remains in progress until the hosted rollout 
 - The final full browser suite passed 62/62 tests at desktop and mobile widths. Lint, typecheck, unit tests and production build pass. Local security and performance advisors reported no warning-level issues.
 - An isolated local smoke test created a disposable Auth user and avatar object, then verified that account deletion removed both. A second disposable administrator account was refused and remained intact. The test cleaned up its fixtures.
 - A delayed Love followed by a new Wheel discovery kept the reaction on the original website, at desktop and mobile widths. Existing rollback-only Phase 5 recommendation and Phase 6 Bump selection SQL regressions passed after the Phase 7 history changes.
+- The three Phase 7 migrations were pushed to the hosted database. Hosted checks confirmed both history policies and the account-deletion trigger. The `delete-account` Edge Function is active with JWT verification; an unauthenticated request returned HTTP 401.
+- Commit `efec50f` was pushed to `main`, and GitHub Pages workflow run `42390501329` succeeded. A headless check of the published origin loaded the guest feed and private history/settings guards without page errors.
 
 ## Remaining Phase 7 work
 
 - Verify a clean migration reset in an isolated local database. The current local database was preserved rather than reset.
 - Check activity-driven personalisation with signed-in data on the published origin. Existing local Phase 5/6 checks cover recommendation invalidation and scoring, and the rapid-navigation member check covers reaction identity.
-- Deploy the three migrations, `delete-account` function and frontend; then check signed-in history, export and deletion on the published origin before marking Phase 7 complete.
+- Check signed-in history, export and deletion on the published origin before marking Phase 7 complete. These destructive and private flows have passed locally but have not been exercised with a disposable account on the hosted site.
