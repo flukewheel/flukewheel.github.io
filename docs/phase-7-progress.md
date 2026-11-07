@@ -1,6 +1,6 @@
 # Phase 7 engagement and collections progress
 
-Phase 7 is deployed and its clean migration reset has passed. It remains in progress pending signed-in checks on the published origin.
+Phase 7 is deployed. The clean migration reset and the published signed-in account journey passed. A focused production recommendation-ranking check remains before final sign-off.
 
 ## Implemented
 
@@ -28,8 +28,8 @@ Phase 7 is deployed and its clean migration reset has passed. It remains in prog
 - The three Phase 7 migrations were pushed to the hosted database. Hosted checks confirmed both history policies and the account-deletion trigger. The `delete-account` Edge Function is active with JWT verification; an unauthenticated request returned HTTP 401.
 - Commit `efec50f` was pushed to `main`, and GitHub Pages workflow run `42390501329` succeeded. A headless check of the published origin loaded the guest feed and private history/settings guards without page errors.
 - An isolated temporary Supabase database applied the full migration chain and seeds from scratch. An explicit `db reset --local` then reapplied all migrations and seeds successfully. The rollback-only Phase 7 history, member-visit and account-deletion SQL tests passed against that reset database. The temporary stack and files were removed afterward.
+- A disposable Gmail plus-address was confirmed on the published origin. Its signed-in feed loaded recommendations and changed to the interest-based state after selecting an interest. Wheel discovery, Love toggle, bookmark, all four labelled visit sources, owner-scoped JSON export, and history clearing after reload passed in a headless browser with no page errors. The account was deleted through the UI; a later login failed, and hosted read-only SQL found no matching Auth user or profile.
 
 ## Remaining Phase 7 work
 
-- Check activity-driven personalisation with signed-in data on the published origin. Existing local Phase 5/6 checks cover recommendation invalidation and scoring, and the rapid-navigation member check covers reaction identity.
-- Check signed-in history, export and deletion on the published origin before marking Phase 7 complete. These private flows passed locally. Automated approval review rejected both access to hosted service credentials and a disposable public sign-up using the owner's Gmail plus-address, so the hosted account check requires an explicitly authorised test-account route.
+- Run one focused published-origin check that compares recommendation ranking before and after a member activity signal. The first live journey confirmed recommendations load after interest selection and member actions, while the local Phase 5/6 SQL checks cover scoring. It did not capture a before/after ranking comparison. Automatic approval review rejected a second disposable sign-up as outside the single-account authorization.
