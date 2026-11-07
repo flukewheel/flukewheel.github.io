@@ -7,6 +7,7 @@ import { getSupabaseClient } from '../../lib/supabase'
 import { useAuth } from '../auth/AuthProvider'
 
 const pageSize = 20
+type Cursor = { created_at: string; website_id: string } | null
 
 export function BookmarkCollection() {
   const { user } = useAuth()
@@ -17,20 +18,26 @@ export function BookmarkCollection() {
   const bookmarks = useInfiniteQuery({
     queryKey: ['bookmarks', user?.id],
     enabled: Boolean(user && client),
-    initialPageParam: 0,
+    initialPageParam: null as Cursor,
     queryFn: async ({ pageParam }) => {
       if (!user || !client) return []
-      const { data, error: readError } = await client
+      let query = client
         .from('bookmarks')
         .select('website_id, created_at, websites(id, title, description)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .order('website_id', { ascending: false })
-        .range(pageParam * pageSize, (pageParam + 1) * pageSize - 1)
+        .limit(pageSize)
+      if (pageParam) {
+        query = query.or(`created_at.lt.${pageParam.created_at},and(created_at.eq.${pageParam.created_at},website_id.lt.${pageParam.website_id})`)
+      }
+      const { data, error: readError } = await query
       if (readError) throw readError
       return data
     },
-    getNextPageParam: (lastPage, pages) => lastPage.length === pageSize ? pages.length : undefined,
+    getNextPageParam: (lastPage) => lastPage.length === pageSize
+      ? { created_at: lastPage[lastPage.length - 1].created_at, website_id: lastPage[lastPage.length - 1].website_id }
+      : undefined,
   })
   const entries = bookmarks.data?.pages.flat() ?? []
 
@@ -64,7 +71,7 @@ export function BookmarkCollection() {
               <div>
                 <h2>{entry.websites?.title ?? 'Unavailable website'}</h2>
                 <p>{entry.websites?.description ?? 'This discovery is no longer available in the catalogue.'}</p>
-                {entry.websites && <Link className="text-link" to={paths.viewer(entry.website_id)}>Open in viewer</Link>}
+                {entry.websites && <Link className="text-link" state={{ historySource: 'bookmark', historyRequestId: crypto.randomUUID() }} to={paths.viewer(entry.website_id)}>Open in viewer</Link>}
               </div>
               <button className="secondary-button" disabled={removingId === entry.website_id} onClick={() => void remove(entry.website_id)} type="button">Remove bookmark</button>
             </li>

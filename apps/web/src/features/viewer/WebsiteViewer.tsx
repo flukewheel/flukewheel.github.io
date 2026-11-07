@@ -1,18 +1,36 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Home } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
 import { paths } from '../../app/paths'
 import { LoadingWheel } from '../../components/LoadingWheel'
 import { catalogueAdapter } from '../../lib/adapters'
+import { interactionAdapter } from '../../lib/adapters/interactions'
+import { useAuth } from '../auth/AuthProvider'
+
+type VisitSource = 'card' | 'bookmark' | 'history'
+function visitFromState(state: unknown): { source: VisitSource; requestId: string } | null {
+  if (!state || typeof state !== 'object') return null
+  const value = state as Record<string, unknown>
+  if (value.historySource !== 'card' && value.historySource !== 'bookmark' && value.historySource !== 'history') return null
+  if (typeof value.historyRequestId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.historyRequestId)) return null
+  return { source: value.historySource, requestId: value.historyRequestId }
+}
 
 export default function WebsiteViewer() {
   const { websiteId = '' } = useParams()
+  const location = useLocation()
+  const visit = visitFromState(location.state)
+  const visitSource = visit?.source
+  const visitRequestId = visit?.requestId
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
   const { dispatch } = useAppState()
   const [hintForId, setHintForId] = useState<string | null>(null)
   const [helpForId, setHelpForId] = useState<string | null>(null)
   const [frameLoadedForId, setFrameLoadedForId] = useState<string | null>(null)
+  const [visitErrorForId, setVisitErrorForId] = useState<string | null>(null)
   const website = useQuery({
     queryKey: ['catalogue', websiteId],
     queryFn: () => catalogueAdapter.getById(websiteId),
@@ -23,6 +41,21 @@ export default function WebsiteViewer() {
       dispatch({ type: 'website-visited', websiteId: website.data.id })
     }
   }, [dispatch, website.data])
+
+  useEffect(() => {
+    if (!user || !website.data || !visitSource || !visitRequestId) return
+    let active = true
+    const userId = user.id
+    const id = website.data.id
+    void interactionAdapter.recordVisit(id, visitSource, visitRequestId)
+      .then(async () => {
+        await queryClient.invalidateQueries({ queryKey: ['history', userId] })
+        await queryClient.invalidateQueries({ queryKey: ['recommendations', userId] })
+        if (active) setVisitErrorForId(null)
+      })
+      .catch(() => { if (active) setVisitErrorForId(id) })
+    return () => { active = false }
+  }, [user, website.data, visitSource, visitRequestId, queryClient])
 
   useEffect(() => {
     const show = window.setTimeout(() => setHintForId(websiteId), 9000)
@@ -68,6 +101,7 @@ export default function WebsiteViewer() {
             Trouble viewing?
           </button>
         )}
+        {user && visitErrorForId === websiteId && <p role="alert">This visit could not be saved to your history.</p>}
       </div>
       {helpForId === websiteId && (
         <p className="viewer-help" role="status">Choose Broken website from the thumbs-down menu, or spin the Wheel again.</p>

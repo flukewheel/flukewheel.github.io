@@ -6,6 +6,7 @@ import { DiscoveryFeed } from '../features/discovery/DiscoveryFeed'
 import { CatalogueBrowse } from '../features/discovery/CatalogueBrowse'
 import { ProfileSettings } from '../features/auth/ProfileSettings'
 import { BookmarkCollection } from '../features/engagement/BookmarkCollection'
+import { BrowsingHistory } from '../features/engagement/BrowsingHistory'
 import { AppShell } from './AppShell'
 import { paths, routePatterns } from './paths'
 
@@ -21,19 +22,6 @@ function FeedRoute() {
   return <DiscoveryFeed onOpenAuth={openAuth} />
 }
 
-function ProtectedPlaceholder({ title, privateTitle }: { title: string; privateTitle: string }) {
-  const { user, loading } = useAuth()
-
-  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
-  if (!user) return <UnauthorisedState title={privateTitle} />
-
-  return (
-    <RouteState eyebrow="Coming in a later phase" title={title}>
-      <p>The route boundary is ready for its secure data-backed workflow.</p>
-    </RouteState>
-  )
-}
-
 function SettingsRoute() {
   const { user, loading } = useAuth()
   if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
@@ -46,6 +34,13 @@ function BookmarkRoute() {
   if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
   if (!user) return <UnauthorisedState title="Bookmarks are private." />
   return <BookmarkCollection />
+}
+
+function HistoryRoute() {
+  const { user, loading } = useAuth()
+  if (loading) return <RouteState eyebrow="Account" title="Loading your account…"><p>Please wait.</p></RouteState>
+  if (!user) return <UnauthorisedState title="Browsing history is private." />
+  return <BrowsingHistory />
 }
 
 function AdminRoute() {
@@ -89,7 +84,7 @@ export const routes = [
       },
       {
         path: routePatterns.history,
-        element: <ProtectedPlaceholder title="Browsing history" privateTitle="Browsing history is private." />,
+        element: <HistoryRoute />,
       },
       {
         path: routePatterns.admin,

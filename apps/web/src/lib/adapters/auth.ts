@@ -48,4 +48,15 @@ export const authAdapter = {
     const { error } = await clientOrThrow().auth.signOut()
     if (error) throw error
   },
+  async deleteAccount(email: string) {
+    const client = clientOrThrow()
+    const { data, error } = await client.functions.invoke('delete-account', { body: { confirm_email: email } })
+    if (error) {
+      const response = 'context' in error ? error.context : null
+      const details = response instanceof Response ? await response.json().catch(() => null) as { message?: string } | null : null
+      throw new Error(details?.message ?? 'Your account could not be deleted. Please try again.')
+    }
+    if (data?.code !== 'OK') throw new Error('Your account could not be deleted. Please try again.')
+    await client.auth.signOut({ scope: 'local' })
+  },
 }

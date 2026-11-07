@@ -9,6 +9,13 @@ async function authenticated() {
 }
 
 export const interactionAdapter = {
+  async recordVisit(websiteId: string, source: 'card' | 'bookmark' | 'history', requestId: string) {
+    const { client, userId } = await authenticated()
+    const { error } = await client.from('bump_history').upsert({
+      user_id: userId, website_id: websiteId, source, request_id: requestId,
+    }, { onConflict: 'user_id,request_id', ignoreDuplicates: true })
+    if (error) throw error
+  },
   async getState(websiteId: string) {
     const { client, userId } = await authenticated()
     const [reaction, bookmark] = await Promise.all([

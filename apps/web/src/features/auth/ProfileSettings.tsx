@@ -1,9 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { paths } from '../../app/paths'
 import { catalogueAdapter } from '../../lib/adapters'
 import { authAdapter } from '../../lib/adapters/auth'
+import { exportAccountData } from '../../lib/adapters/accountData'
 import { getSupabaseClient } from '../../lib/supabase'
 import { useAuth } from './AuthProvider'
 
@@ -12,10 +13,12 @@ export function ProfileSettings() {
   const [username, setUsername] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [localInterests, setLocalInterests] = useState<string[] | null>(null)
+  const [confirmationEmail, setConfirmationEmail] = useState('')
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const client = getSupabaseClient()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const categories = useQuery({ queryKey: ['categories'], queryFn: catalogueAdapter.listCategories })
   const interests = useQuery({
     queryKey: ['user-interests', user?.id],
@@ -72,6 +75,37 @@ export function ProfileSettings() {
     finally { setBusy(false) }
   }
 
+  async function downloadData() {
+    setBusy(true); setError(null); setMessage(null)
+    try {
+      const data = await exportAccountData()
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'flukewheel-account-data.json'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setMessage('Your data export is ready.')
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Your data could not be exported.') }
+    finally { setBusy(false) }
+  }
+
+  async function deleteAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user?.email || confirmationEmail.trim().toLowerCase() !== user.email.toLowerCase()) return
+    if (!window.confirm('Permanently delete your Flukewheel account and personal data? This cannot be undone.')) return
+    setBusy(true); setError(null); setMessage(null)
+    try {
+      await authAdapter.deleteAccount(confirmationEmail.trim())
+      queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== 'catalogue' && query.queryKey[0] !== 'categories' })
+      navigate(paths.home, { replace: true })
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Your account could not be deleted.') }
+    finally { setBusy(false) }
+  }
+
   return (
     <main id="main-content" className="settings-page">
       <div className="settings-heading">
@@ -109,6 +143,22 @@ export function ProfileSettings() {
           <button className="secondary-button" disabled={busy} onClick={() => void sendPasswordReset()} type="button">Send password reset email</button>
         </section>
       )}
+      <section className="settings-card" aria-labelledby="data-heading">
+        <h2 id="data-heading">Your data</h2>
+        <p>Download your profile, interests, reactions, bookmarks, discovery history and website suggestions as JSON.</p>
+        <button className="secondary-button" disabled={busy} onClick={() => void downloadData()} type="button">Export my data</button>
+      </section>
+      <section className="settings-card" aria-labelledby="delete-heading">
+        <h2 id="delete-heading">Delete account</h2>
+        <p>This permanently removes your account, profile, interests, reactions, bookmarks, history and suggestions. Approved websites remain in the public catalogue.</p>
+        <p>Your sessions are removed. An access token already issued to a device may remain valid until it expires, but your personal records will be gone.</p>
+        <form className="auth-form" onSubmit={(event) => void deleteAccount(event)}>
+          <label>Type your account email to confirm
+            <input autoComplete="off" onChange={(event) => setConfirmationEmail(event.target.value)} type="email" value={confirmationEmail} />
+          </label>
+          <button className="secondary-button" disabled={busy || confirmationEmail.trim().toLowerCase() !== user.email?.toLowerCase()} type="submit">Permanently delete account</button>
+        </form>
+      </section>
     </main>
   )
 }

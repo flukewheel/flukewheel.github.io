@@ -42,6 +42,7 @@ export function WebsiteCard({ website }: WebsiteCardProps) {
         <Link
           aria-label={`Discover ${website.title}`}
           className="card-link"
+          state={{ historySource: 'card', historyRequestId: crypto.randomUUID() }}
           to={paths.viewer(website.id)}
         >
           Take a look <ArrowUpRight aria-hidden="true" />
