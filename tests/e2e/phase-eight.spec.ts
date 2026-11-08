@@ -33,6 +33,22 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   expect(colors.text).toBe(colors.page)
   await expect(spin.locator('.spin-section__arrow')).toBeVisible()
   const largeWheel = spin.getByRole('button', { name: 'Spin the Wheel' })
+  const motion = await spin.evaluate((section) => ({
+    arrow: getComputedStyle(section.querySelector('.spin-section__arrow')!).animationDuration,
+    wheel: getComputedStyle(section.querySelector('.wheel-button')!).animationDuration,
+    swoop: getComputedStyle(section, '::before').animationDuration,
+  }))
+  expect(motion).toEqual({ arrow: '4s', wheel: '4s', swoop: '4s' })
+  await page.addStyleTag({ content: '.spin-section__arrow, .spin-section .wheel-button { animation: none !important; }' })
+  const [sectionBox, textBox, arrowBox, wheelBox] = await Promise.all([
+    spin, spin.locator('h2'), spin.locator('.spin-section__arrow'), largeWheel,
+  ].map(async (element) => (await element.boundingBox())!))
+  const left = textBox.x - sectionBox.x
+  const right = sectionBox.x + sectionBox.width - wheelBox.x - wheelBox.width
+  const top = wheelBox.y - sectionBox.y
+  expect(Math.abs(left - right)).toBeLessThan(1)
+  expect(Math.abs(right - top)).toBeLessThan(1)
+  expect(Math.abs((arrowBox.x - textBox.x - textBox.width) - (wheelBox.x - arrowBox.x - arrowBox.width))).toBeLessThan(1)
   await expect(largeWheel.locator('img')).toHaveAttribute('src', /icon\.png$/)
   expect((await largeWheel.boundingBox())!.width).toBeGreaterThan((await page.getByRole('button', { name: 'Wheel', exact: true }).boundingBox())!.width)
   const icon = largeWheel.locator('img')
@@ -98,6 +114,13 @@ test('narrow layout and reduced motion keep controls usable', async ({ page }) =
   await page.goto('/#/')
   await page.getByRole('heading', { name: 'Recently added' }).waitFor()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
+  const spin = page.locator('.spin-section')
+  const reducedMotion = await spin.evaluate((section) => ({
+    arrow: getComputedStyle(section.querySelector('.spin-section__arrow')!).animationIterationCount,
+    wheel: getComputedStyle(section.querySelector('.wheel-button')!).animationIterationCount,
+    swoop: getComputedStyle(section, '::before').animationIterationCount,
+  }))
+  expect(reducedMotion).toEqual({ arrow: '1', wheel: '1', swoop: '1' })
   const wheel = page.getByRole('button', { name: 'Wheel', exact: true })
   const icon = wheel.locator('img')
   const before = await icon.evaluate((element) => getComputedStyle(element).transform)
