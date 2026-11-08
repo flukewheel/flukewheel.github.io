@@ -93,6 +93,6 @@ Deno.serve(async (request) => {
   if (error || !data?.[0]) return reply(request, 500, 'INTERNAL_ERROR', 'The suggestion could not be saved. Please try again.', parsed.request_id)
   const result = data[0] as { submission_id: string | null; result: string }
   if (result.result === 'duplicate') return reply(request, 409, 'CONFLICT', 'This website has already been suggested or added.', parsed.request_id)
-  if (result.result === 'rate_limited') return reply(request, 429, 'RATE_LIMITED', 'Suggestions are full for now. Please try again tomorrow.', parsed.request_id)
+  if (result.result === 'rate_limited') return reply(request, 429, 'RATE_LIMITED', 'The suggestion limit for the past 24 hours has been reached. Please try again later.', parsed.request_id)
   return Response.json({ request_id: parsed.request_id, submission_id: result.submission_id, status: 'pending' }, { status: 202, headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
 })
