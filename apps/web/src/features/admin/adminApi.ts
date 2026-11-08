@@ -125,7 +125,7 @@ export const adminApi = {
   async review(input: ReviewInput) {
     return invoke<{ status: string; website_id: string | null }>({ action: 'review', ...input })
   },
-  async editWebsite(input: Omit<ManagedWebsite, 'id' | 'original_url' | 'last_validated_at'> & { website_id: string; note: string }) {
+  async editWebsite(input: Omit<ManagedWebsite, 'id' | 'last_validated_at'> & { website_id: string; note: string }) {
     return invoke<{ website_id: string }>({ action: 'edit_website', ...input })
   },
   async deleteWebsite(websiteId: string, confirmTitle: string) {

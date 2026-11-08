@@ -8,6 +8,8 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
   const { user } = useAuth()
   const categories = useQuery({ queryKey: ['admin-categories', user?.id], queryFn: adminApi.categories })
   const [title, setTitle] = useState(website.title)
+  const [originalUrl, setOriginalUrl] = useState(website.original_url)
+  const [editingUrl, setEditingUrl] = useState(false)
   const [description, setDescription] = useState(website.description)
   const [thumbnailPath, setThumbnailPath] = useState(website.thumbnail_path ?? '')
   const [categoryIds, setCategoryIds] = useState(website.category_ids)
@@ -18,17 +20,23 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [confirmationTitle, setConfirmationTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const changed = title.trim() !== website.title || description.trim() !== website.description
+    || originalUrl.trim() !== website.original_url || (thumbnailPath.trim() || null) !== website.thumbnail_path
+    || active !== website.active || embeddingStatus !== website.embedding_status
+    || categoryIds.length !== website.category_ids.length || categoryIds.some((id) => !website.category_ids.includes(id))
 
   async function save() {
     setBusy(true); setError(null)
     try {
       await adminApi.editWebsite({
         website_id: website.id,
+        original_url: originalUrl.trim(),
         title: title.trim(), description: description.trim(),
         thumbnail_path: thumbnailPath.trim() || null, category_ids: categoryIds,
         active, embedding_status: embeddingStatus, note: note.trim(),
       })
       setNote('')
+      setEditingUrl(false)
       await onSaved()
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'The catalogue change could not be saved.') }
     finally { setBusy(false) }
@@ -47,7 +55,17 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
   return (
     <section aria-label={`Edit ${website.title}`} className="admin-review">
       <h2>Edit website</h2>
-      <p className="admin-review__url">{website.original_url}</p>
+      {editingUrl ? (
+        <div className="admin-review__url-edit">
+          <label>Web address<input autoFocus maxLength={2048} onChange={(event) => setOriginalUrl(event.target.value)} type="url" value={originalUrl} /></label>
+          <button className="secondary-button" disabled={busy} onClick={() => { setOriginalUrl(website.original_url); setEditingUrl(false) }} type="button">Cancel address edit</button>
+        </div>
+      ) : (
+        <div className="admin-review__url-edit">
+          <p className="admin-review__url">{website.original_url}</p>
+          <button className="secondary-button" disabled={busy} onClick={() => setEditingUrl(true)} type="button">Edit web address</button>
+        </div>
+      )}
       <div className="admin-review__fields">
         <label>Title<input maxLength={160} onChange={(event) => setTitle(event.target.value)} value={title} /></label>
         <label>Description<textarea maxLength={1000} onChange={(event) => setDescription(event.target.value)} rows={3} value={description} /></label>
@@ -64,10 +82,10 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
           </select>
         </label>
         <label className="admin-review__check"><input checked={active} onChange={(event) => setActive(event.target.checked)} type="checkbox" />Active in discovery</label>
-        <label>Private change note<textarea maxLength={1000} onChange={(event) => setNote(event.target.value)} rows={2} value={note} /></label>
+        <label>Private change note (optional)<textarea maxLength={1000} onChange={(event) => setNote(event.target.value)} rows={2} value={note} /></label>
       </div>
       {error && <p className="auth-feedback auth-feedback--error" role="alert">{error}</p>}
-      <button className="primary-button" disabled={busy || !note.trim()} onClick={() => void save()} type="button">{busy ? 'Saving…' : 'Save website'}</button>
+      <button className="primary-button" disabled={busy || !changed} onClick={() => void save()} type="button">{busy ? 'Saving…' : 'Save website'}</button>
       <div className="admin-delete">
         {confirmingDelete ? (
           <>

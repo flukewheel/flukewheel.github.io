@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { normaliseSubmissionUrl } from '../_shared/submission-url.ts'
 
 const allowedOrigins = new Set([
   'https://flukewheel.github.io',
@@ -28,13 +29,14 @@ const requestSchema = z.discriminatedUnion('action', [
   z.strictObject({
     action: z.literal('edit_website'),
     website_id: z.string().uuid(),
+    original_url: z.string().min(8).max(2048),
     title: z.string().trim().min(1).max(160),
     description: z.string().trim().min(1).max(1000),
     thumbnail_path: z.string().max(512).nullable(),
     category_ids: z.array(z.string().uuid()).min(1).max(8),
     active: z.boolean(),
     embedding_status: z.enum(['unknown', 'allowed', 'blocked', 'needs_review']),
-    note: z.string().trim().min(1).max(1000),
+    note: z.string().trim().max(1000),
   }),
   z.strictObject({
     action: z.literal('delete_website'),
@@ -175,13 +177,20 @@ Deno.serve(async (request) => {
     return Response.json({ websites: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'edit_website') {
+    let normalisedUrl: string
+    try { normalisedUrl = normaliseSubmissionUrl(parsed.original_url) }
+    catch (cause) { return reply(request, 400, 'INVALID_INPUT', cause instanceof Error ? cause.message : 'Enter a valid website URL.') }
     const { data, error } = await admin.rpc('manage_website', {
       p_actor_id: user.id, p_website_id: parsed.website_id, p_title: parsed.title,
+      p_original_url: parsed.original_url, p_normalised_url: normalisedUrl,
       p_description: parsed.description, p_thumbnail_path: parsed.thumbnail_path,
       p_category_ids: parsed.category_ids, p_active: parsed.active,
       p_embedding_status: parsed.embedding_status, p_note: parsed.note,
     })
-    if (error) return reply(request, error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : 500, 'INVALID_INPUT', 'The catalogue change could not be saved.')
+    if (error) {
+      const status = error.code === '23505' ? 409 : error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : 500
+      return reply(request, status, status === 409 ? 'CONFLICT' : 'INVALID_INPUT', status === 409 ? 'That web address is already in the catalogue.' : 'The catalogue change could not be saved.')
+    }
     return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'delete_website') {
