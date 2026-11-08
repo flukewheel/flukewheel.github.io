@@ -52,6 +52,7 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
   const initialHomeScroll = useMemo(() => Number(sessionStorage.getItem(homeScrollKey) ?? 0), [])
   const initialRecentScroll = useMemo(() => Number(sessionStorage.getItem(recentScrollKey) ?? 0), [])
   const [carouselPaused, setCarouselPaused] = useState(false)
+  const [showAllCategories, setShowAllCategories] = useState(false)
   const catalogue = useQuery({ queryKey: ['catalogue', 'recent'], queryFn: catalogueAdapter.listRecent })
   const categoryQuery = useQuery({ queryKey: ['categories'], queryFn: catalogueAdapter.listCategories })
   const selectedCategory = categoryQuery.data?.find((category) => category.id === state.selectedInterest)
@@ -182,13 +183,16 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
         {categoryQuery.isPending && <div aria-live="polite" className="inline-state"><p>Loading categories…</p></div>}
         {categoryQuery.isError && <div className="inline-state" role="alert"><p>We couldn’t load the categories.</p><button onClick={() => void categoryQuery.refetch()} type="button">Try again</button></div>}
         {categoryQuery.isSuccess && categoryQuery.data.length === 0 && <EmptyState><p>No categories are available yet.</p></EmptyState>}
-        {categoryQuery.isSuccess && categoryQuery.data.length > 0 && <div className="category-grid">{categoryQuery.data.map((category, index) => (
-          <Link className="category-card" key={category.id} onClick={() => dispatch({ type: 'interest-selected', interestId: category.id })} style={{ '--category-accent': category.accent } as CSSProperties} to={paths.category(category.id)}>
+        {categoryQuery.isSuccess && categoryQuery.data.length > 0 && <>
+          <div className="category-grid" id="home-category-grid">{(showAllCategories ? categoryQuery.data : categoryQuery.data.slice(0, 6)).map((category, index) => (
+          <Link className="category-card" key={category.id} onClick={() => dispatch({ type: 'interest-selected', interestId: category.id })} style={{ '--category-accent': `hsl(${(28 + index * 18) % 360} 80% 66%)` } as CSSProperties} to={paths.category(category.id)}>
             <span className="category-card__number">{String(index + 1).padStart(2, '0')}</span>
             <span><strong>{category.name}</strong><small>{category.description}</small></span>
             <ArrowRight aria-hidden="true" />
           </Link>
-        ))}</div>}
+          ))}</div>
+          {categoryQuery.data.length > 6 && <button aria-controls="home-category-grid" aria-expanded={showAllCategories} className="secondary-button category-grid__toggle" onClick={() => setShowAllCategories((current) => !current)} type="button">{showAllCategories ? 'See less' : 'See more'}</button>}
+        </>}
       </section>
     </main>
   )

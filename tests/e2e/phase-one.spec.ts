@@ -102,6 +102,9 @@ test('interest picker shows icons, responds to hover and closes with Escape', as
   await showMobileMenu(page)
   if (testInfo.project.name !== 'mobile') {
     expect(await trigger.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgba(0, 0, 0, 0)')
+    expect(await trigger.evaluate((element) => getComputedStyle(element).borderColor)).toBe('rgba(0, 0, 0, 0)')
+    await trigger.hover()
+    expect(await trigger.evaluate((element) => getComputedStyle(element).borderColor)).not.toBe('rgba(0, 0, 0, 0)')
   }
   await trigger.click()
   const grid = page.locator('.interest-selector__grid')

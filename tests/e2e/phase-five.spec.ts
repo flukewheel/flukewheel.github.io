@@ -34,7 +34,17 @@ test('guests browse bounded recent cards and paged categories without a viewer o
 
 test('returning from a category restores the homepage position', async ({ page }) => {
   await page.goto('/#/')
+  await expect(page.locator('.category-card')).toHaveCount(6)
+  const seeMore = page.getByRole('button', { name: 'See more' })
+  await expect(seeMore).toHaveAttribute('aria-expanded', 'false')
+  await seeMore.click()
   await expect(page.locator('.category-card')).toHaveCount(20)
+  const accents = await page.locator('.category-card').evaluateAll((cards) => cards.map((card) => getComputedStyle(card).getPropertyValue('--category-accent').trim()))
+  expect(new Set(accents).size).toBe(20)
+  expect(accents).toEqual(Array.from({ length: 20 }, (_, index) => `hsl(${(28 + index * 18) % 360} 80% 66%)`))
+  await page.getByRole('button', { name: 'See less' }).click()
+  await expect(page.locator('.category-card')).toHaveCount(6)
+  await expect(seeMore).toHaveAttribute('aria-expanded', 'false')
   await page.getByRole('heading', { name: 'Explore categories' }).scrollIntoViewIfNeeded()
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200)
   const homePosition = await page.evaluate(() => window.scrollY)

@@ -57,7 +57,7 @@ export function InterestSelector({ onSelect }: { onSelect?: () => void } = {}) {
         <MenuDismissLayer onDismiss={() => setOpen(false)} />
       )}
       {open && (
-        <div aria-label="Choose a discovery interest" className="interest-selector__panel" id={panelId}>
+        <div aria-label="Choose a discovery interest" className="interest-selector__panel" id={panelId} style={{ backdropFilter: 'blur(34px) saturate(175%) brightness(1.08)' }}>
           <div className="interest-selector__heading">
             <strong>Explore interests</strong>
             <span>Pick a path for your next discovery</span>
