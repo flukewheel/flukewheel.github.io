@@ -59,7 +59,6 @@ const requestSchema = z.discriminatedUnion('action', [
     title: z.string().trim().max(160).nullable(),
     description: z.string().trim().max(1000).nullable(),
     category_ids: z.array(z.string().uuid()).max(8),
-    note: z.string().trim().max(1000).nullable(),
   }),
 ])
 
@@ -223,7 +222,7 @@ Deno.serve(async (request) => {
     p_title: parsed.title,
     p_description: parsed.description,
     p_category_ids: parsed.category_ids,
-    p_note: parsed.note,
+    p_note: null,
   })
   if (error) {
     const status = error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : error.code === '23505' ? 409 : 500

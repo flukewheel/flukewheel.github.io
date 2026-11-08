@@ -84,12 +84,14 @@ test('administrator can work through review, catalogue and maintenance screens',
   await expect(page.getByRole('heading', { name: 'Administration' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Approve and publish' }).click()
-  await expect(page.getByRole('alert')).toContainText('Check the embedded page')
+  await expect(page.getByRole('alert')).toContainText('Complete the title, description and at least one category')
+  await page.getByRole('button', { name: 'Preview in Flukewheel' }).click()
+  await expect(page.getByTitle('Suggested website preview')).toBeVisible()
+  await page.getByRole('button', { name: 'Hide preview' }).click()
   await page.getByRole('textbox', { name: 'Title' }).fill('Admin reviewed site')
   await page.getByRole('textbox', { name: 'Description' }).fill('A useful discovery for the catalogue.')
   await page.getByRole('checkbox', { name: 'Arts, Design & Crafts', exact: true }).check()
-  await page.getByRole('textbox', { name: 'Private verification or rejection note' }).fill('Checked inline on the hosted origin.')
-  await page.getByRole('checkbox', { name: 'I checked that this page is usable inside Flukewheel.' }).check()
+  await expect(page.getByRole('textbox', { name: 'Private verification or rejection note' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Approve and publish' }).click()
   await expect(page.getByText('No suggestions are waiting for review.')).toBeVisible()
 

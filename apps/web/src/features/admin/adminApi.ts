@@ -18,7 +18,6 @@ export interface ReviewInput {
   title: string | null
   description: string | null
   category_ids: string[]
-  note: string | null
 }
 
 export interface ManagedWebsite {

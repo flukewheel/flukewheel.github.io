@@ -17,8 +17,6 @@ function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission;
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState(submission.description ?? '')
   const [categoryIds, setCategoryIds] = useState<string[]>([])
-  const [note, setNote] = useState('')
-  const [checked, setChecked] = useState(false)
   const [preview, setPreview] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,8 +24,8 @@ function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission;
   async function review(decision: 'approve' | 'reject') {
     setBusy(true); setError(null)
     try {
-      if (decision === 'approve' && (!checked || !title.trim() || !description.trim() || categoryIds.length === 0 || note.trim().length < 10)) {
-        throw new Error('Check the embedded page and complete its title, description, categories and verification note before approving.')
+      if (decision === 'approve' && (!title.trim() || !description.trim() || categoryIds.length === 0)) {
+        throw new Error('Complete the title, description and at least one category before approving.')
       }
       const result = await adminApi.review({
         submission_id: submission.id,
@@ -35,7 +33,6 @@ function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission;
         title: decision === 'approve' ? title.trim() : null,
         description: decision === 'approve' ? description.trim() : null,
         category_ids: decision === 'approve' ? categoryIds : [],
-        note: note.trim() || null,
       })
       await queryClient.invalidateQueries({ queryKey: ['catalogue'] })
       await onReviewed(result.status === 'approved' ? 'Website approved and added to discovery.' : result.status === 'duplicate' ? 'Existing website linked; no duplicate was created.' : 'Suggestion rejected.')
@@ -50,7 +47,7 @@ function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission;
       {submission.description && <p><strong>Visitor note:</strong> {submission.description}</p>}
       {submission.suggested_categories.length > 0 && <p><strong>Suggested categories:</strong> {submission.suggested_categories.join(', ')}</p>}
       {submission.duplicate_website_id && <p role="alert">A catalogue entry already has this normalized URL.</p>}
-      <p>Check this page on the hosted Flukewheel origin before approval. The preview may show a browser error if the site blocks embedding.</p>
+      <p>Preview this page in Flukewheel to see how it appears in the viewer. Some sites block embedding.</p>
       <button className="secondary-button" onClick={() => setPreview((value) => !value)} type="button">{preview ? 'Hide preview' : 'Preview in Flukewheel'}</button>
       {preview && <iframe className="admin-preview" referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin" src={submission.raw_url} title="Suggested website preview" />}
       <div className="admin-review__fields">
@@ -69,10 +66,6 @@ function ReviewForm({ submission, onReviewed }: { submission: PendingSubmission;
             </label>
           ))}
         </fieldset>
-        <label>Private verification or rejection note
-          <textarea maxLength={1000} onChange={(event) => setNote(event.target.value)} rows={3} value={note} />
-        </label>
-        <label className="admin-review__check"><input checked={checked} onChange={(event) => setChecked(event.target.checked)} type="checkbox" /> I checked that this page is usable inside Flukewheel.</label>
       </div>
       {error && <p className="auth-feedback auth-feedback--error" role="alert">{error}</p>}
       <div className="admin-review__actions">
@@ -106,7 +99,7 @@ export function AdminPage() {
     <main className="admin-page" id="main-content">
       <Link className="text-link" to={paths.home}>← Back to discovery</Link>
       <h1>Administration</h1>
-      <p>Review suggested websites before they enter discovery. Only pages checked in Flukewheel should be approved.</p>
+      <p>Review suggested websites before they enter discovery.</p>
       <nav aria-label="Administration sections" className="admin-tabs">
         <button aria-current={section === 'suggestions' ? 'page' : undefined} onClick={() => setSection('suggestions')} type="button">Suggestions</button>
         <button aria-current={section === 'catalogue' ? 'page' : undefined} onClick={() => setSection('catalogue')} type="button">Catalogue</button>
