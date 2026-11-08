@@ -13,8 +13,16 @@ test('homepage reads the public catalogue and keeps the viewer unmounted', async
   await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Explore categories' })).toBeVisible()
   await expect(page.locator('.card-carousel .website-card')).toHaveCount(10)
-  await expect(page.locator('.card-carousel .card-link').first()).toBeVisible()
-  await expect(page.locator('.card-carousel .website-card__art').first()).toBeVisible()
+  const recentCard = page.locator('.card-carousel .website-card').first()
+  await expect(recentCard.getByRole('button', { name: /Take a look at/ })).toBeVisible()
+  await expect(recentCard.locator('.website-card__meta')).toHaveCount(0)
+  expect(await recentCard.locator('.website-card__body').evaluate((body) => [...body.children].map((child) => child.tagName))).toEqual(['H3', 'P', 'BUTTON'])
+  const cardBounds = (await recentCard.boundingBox())!
+  const imageBounds = (await recentCard.locator('.website-card__art').boundingBox())!
+  expect(cardBounds.height).toBeGreaterThanOrEqual(260)
+  expect(cardBounds.height).toBeLessThan(290)
+  expect(Math.abs(imageBounds.height - cardBounds.height)).toBeLessThanOrEqual(2)
+  expect(await recentCard.evaluate((card) => getComputedStyle(card).fontFamily)).toContain('Space Mono Local')
   await expect(page.getByText('made with')).toBeVisible()
   await expect(page.getByText('Fresh finds')).toHaveCount(0)
   await expect(page.getByText('The Public Domain Review')).toHaveCount(0)

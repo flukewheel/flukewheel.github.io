@@ -50,7 +50,7 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   expect(Math.abs(right - top)).toBeLessThan(1)
   expect(Math.abs((arrowBox.x - textBox.x - textBox.width) - (wheelBox.x - arrowBox.x - arrowBox.width))).toBeLessThan(1)
   await expect(largeWheel.locator('img')).toHaveAttribute('src', /icon\.png$/)
-  expect((await largeWheel.boundingBox())!.width).toBeGreaterThan((await page.getByRole('button', { name: 'Wheel', exact: true }).boundingBox())!.width)
+  expect((await largeWheel.boundingBox())!.width).toBeGreaterThan((await page.getByRole('button', { name: 'Wheel', exact: true }).boundingBox())!.width * 1.4)
   const icon = largeWheel.locator('img')
   const before = await icon.getAttribute('style')
   await page.waitForTimeout(250)

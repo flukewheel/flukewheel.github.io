@@ -144,7 +144,7 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
         {catalogue.isPending && <CardSkeleton />}
         {catalogue.isError && <div className="inline-state" role="alert"><p>We couldn’t load the latest finds.</p><button onClick={() => void catalogue.refetch()} type="button">Try again</button></div>}
         {catalogue.isSuccess && catalogue.data.length === 0 && <EmptyState><p>No websites have been added yet.</p></EmptyState>}
-        {catalogue.isSuccess && catalogue.data.length > 0 && <div aria-label="Recently added websites" className="card-carousel" onScroll={(event) => { if (restoredRef.current) sessionStorage.setItem(recentScrollKey, String(event.currentTarget.scrollLeft)) }} ref={recentRef}>{catalogue.data.map((website) => <WebsiteCard key={website.id} website={website} />)}</div>}
+        {catalogue.isSuccess && catalogue.data.length > 0 && <div aria-label="Recently added websites" className="card-carousel" onScroll={(event) => { if (restoredRef.current) sessionStorage.setItem(recentScrollKey, String(event.currentTarget.scrollLeft)) }} ref={recentRef}>{catalogue.data.map((website) => <WebsiteCard key={website.id} recent website={website} />)}</div>}
       </section>
 
       <section aria-labelledby="for-you-heading" className="feed-section">
