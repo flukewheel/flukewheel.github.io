@@ -16,6 +16,9 @@ const people = []
 const pendingId = crypto.randomUUID()
 const pendingUrl = `https://phase8-${pendingId}.example.test/`
 let pendingCreated = false
+let submittedId = null
+let approvedId = null
+const approvedTitle = 'Phase 8 approval fixture'
 const storageFixtures = []
 const onePixelPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64')
 
@@ -59,10 +62,56 @@ async function storageObject(bucket, path, token, method = 'GET') {
   })
 }
 
+async function edge(name, token, body) {
+  const response = await fetch(`${api}/functions/v1/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: publicKey,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+  return { status: response.status, body: await response.json() }
+}
+
 try {
   const a = await createPerson('a')
   const b = await createPerson('b')
   const administrator = await createPerson('admin')
+  execSync(`npx supabase db query --local "insert into private.user_roles (user_id, role) values ('${administrator.id}', 'admin')"`, { stdio: ['ignore', 'pipe', 'pipe'] })
+  const suggestionUrl = `https://phase8-${crypto.randomUUID()}.example.org/`
+  const submitted = await edge('submit-website', null, {
+    original_url: suggestionUrl, suggested_categories: ['art'],
+    description: 'Synthetic Phase 8 intake fixture.', request_id: crypto.randomUUID(),
+  })
+  assert.equal(submitted.status, 202, 'Guest suggestion was not accepted.')
+  submittedId = submitted.body.submission_id
+  assert(submittedId, 'Suggestion receipt lacked an ID.')
+  const queue = await edge('admin-catalogue', administrator.token, { action: 'queue' })
+  assert.equal(queue.status, 200, 'Administrator could not load the review queue.')
+  assert(queue.body.submissions.some((item) => item.id === submittedId), 'New suggestion was absent from the review queue.')
+  const reviewed = await edge('admin-catalogue', administrator.token, {
+    action: 'review', submission_id: submittedId, decision: 'approve',
+    title: approvedTitle, description: 'Synthetic catalogue test fixture.',
+    category_ids: ['10000000-0000-4000-8000-000000000003'],
+    note: 'Synthetic Phase 8 workflow fixture; no external site was inspected.',
+  })
+  assert.equal(reviewed.status, 200, 'Administrator could not approve the suggestion.')
+  assert.equal(reviewed.body.status, 'approved')
+  approvedId = reviewed.body.website_id
+  const publicApproved = await rest(`websites?select=id,title&id=eq.${approvedId}`, null)
+  assert.deepEqual(publicApproved.body, [{ id: approvedId, title: approvedTitle }], 'Approved suggestion was not public.')
+  const oversized = await fetch(`${api}/functions/v1/admin-catalogue`, {
+    method: 'POST',
+    headers: { apikey: publicKey, Authorization: `Bearer ${administrator.token}`, 'Content-Type': 'application/json' },
+    body: new ReadableStream({ start(controller) {
+      controller.enqueue(new TextEncoder().encode(JSON.stringify({ action: 'status', padding: 'x'.repeat(9000) })))
+      controller.close()
+    } }),
+    duplex: 'half',
+  })
+  assert.equal(oversized.status, 413, 'Chunked administrator request bypassed the byte limit.')
   const avatarPath = `${a.id}/phase8-${crypto.randomUUID()}.png`
   const thumbnailPath = `phase8-${crypto.randomUUID()}.png`
   for (const [bucket, path] of [['avatars', avatarPath], ['thumbnails', thumbnailPath]]) {
@@ -82,7 +131,6 @@ try {
       assert(!attempted.ok, 'Browser role uploaded an image through Storage.')
     }
   }
-  execSync(`npx supabase db query --local "insert into private.user_roles (user_id, role) values ('${administrator.id}', 'admin')"`, { stdio: ['ignore', 'pipe', 'pipe'] })
   const profiles = await service.from('profiles').upsert([{ id: a.id }, { id: b.id }, { id: administrator.id }])
   if (profiles.error) throw profiles.error
   const websites = await service.from('websites').insert({
@@ -154,9 +202,22 @@ try {
     assert(recommendations.body.length > 0)
   }
 
-  console.log('Phase 8 direct REST/RPC/Storage guest, member A/B and administrator boundaries passed.')
+  console.log('Phase 8 suggestion-to-approval and direct REST/RPC/Storage boundaries passed.')
 } finally {
+  const cleanupErrors = []
+  if (approvedId && people.length > 0) {
+    const removed = await service.rpc('delete_website_permanently', {
+      p_actor_id: people[2], p_website_id: approvedId, p_confirm_title: approvedTitle,
+    })
+    if (removed.error) cleanupErrors.push(removed.error)
+    else {
+      try {
+        execSync(`npx supabase db query --local "delete from private.moderation_events where target_type = 'website' and target_id = '${approvedId}'"`, { stdio: ['ignore', 'pipe', 'pipe'] })
+      } catch (error) { cleanupErrors.push(error) }
+    }
+  } else if (submittedId) await service.from('website_submissions').delete().eq('id', submittedId)
   for (const { bucket, path } of storageFixtures) await service.storage.from(bucket).remove([path])
   if (pendingCreated) await service.from('websites').delete().eq('id', pendingId)
   for (const id of people.reverse()) await service.auth.admin.deleteUser(id)
+  if (cleanupErrors.length) throw cleanupErrors[0]
 }

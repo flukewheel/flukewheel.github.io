@@ -63,7 +63,9 @@ a {
 
 button:focus-visible,
 a:focus-visible,
-select:focus-visible {
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
   outline-offset: 3px;
 }
@@ -208,7 +210,7 @@ button:disabled {
   border: 1px solid #b94747;
   border-radius: 0.5rem;
   background: var(--surface-soft);
-  color: #a52c38;
+  color: #ff9da7;
   font-size: 0.75rem;
   line-height: 1.35;
   box-shadow: var(--shadow);
@@ -1088,6 +1090,14 @@ main:not(.viewer-shell) {
 }
 
 @media (max-width: 620px) {
+  .icon-button[data-tooltip]::after,
+  .carousel-button[data-tooltip]::after,
+  .profile-button[data-tooltip]::after {
+    max-width: 4rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .topbar {
     grid-template-areas: "brand profile" "centre centre" "actions actions";
     grid-template-columns: 1fr auto;

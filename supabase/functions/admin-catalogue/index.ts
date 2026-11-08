@@ -77,6 +77,26 @@ function defaultKey(variable: string, legacy: string): string | undefined {
   } catch { return Deno.env.get(legacy) }
 }
 
+class PayloadTooLarge extends Error {}
+
+async function boundedJson(request: Request): Promise<unknown> {
+  if (!request.body) throw new Error('Missing body')
+  const reader = request.body.getReader()
+  const chunks: Uint8Array[] = []
+  let length = 0
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    length += value.length
+    if (length > 8192) { await reader.cancel(); throw new PayloadTooLarge() }
+    chunks.push(value)
+  }
+  const bytes = new Uint8Array(length)
+  let offset = 0
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: headersFor(request) })
   if (request.method !== 'POST') return reply(request, 405, 'INVALID_INPUT', 'Use POST for administration.')
@@ -100,10 +120,13 @@ Deno.serve(async (request) => {
 
   let parsed: z.infer<typeof requestSchema>
   try {
-    const result = requestSchema.safeParse(await request.json())
+    const result = requestSchema.safeParse(await boundedJson(request))
     if (!result.success) throw new Error()
     parsed = result.data
-  } catch { return reply(request, 400, 'INVALID_INPUT', 'The administration request is invalid.') }
+  } catch (cause) {
+    if (cause instanceof PayloadTooLarge) return reply(request, 413, 'INVALID_INPUT', 'The request is too large.')
+    return reply(request, 400, 'INVALID_INPUT', 'The administration request is invalid.')
+  }
 
   if (parsed.action === 'status') {
     return Response.json({ administrator: true }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })

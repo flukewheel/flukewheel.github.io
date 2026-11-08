@@ -104,8 +104,8 @@ Deno.serve(async (request) => {
       image.quality = 82
       return image.write(MagickFormat.WebP, (data) => new Uint8Array(data))
     })
-  } catch (error) {
-    console.error('Avatar conversion failed:', error instanceof Error ? error.message : 'unknown error')
+  } catch {
+    console.error('Avatar conversion failed during image processing.')
     return reply(request, 400, 'INVALID_INPUT', 'Image could not be decoded or is outside size limits.')
   }
   if (output.length === 0 || output.length > MAX_INPUT) return reply(request, 400, 'INVALID_INPUT', 'Processed image is too large.')
