@@ -47,16 +47,14 @@ describe('Phase 1 application shell', () => {
   it('keeps the interest selection while navigating into a category', async () => {
     const user = userEvent.setup()
     render(<App />)
-    const category = await screen.findByRole('link', { name: /educational/i })
+    const category = await screen.findByRole('link', { name: /education, learning/i })
 
     await user.click(category)
 
     await waitFor(() => {
-      expect(window.location.hash).toContain('/category/educational')
+      expect(window.location.hash).toContain('/category/education-learning')
     })
-    expect(screen.getByRole('combobox', { name: /discovery interest/i })).toHaveValue(
-      'educational',
-    )
+    expect(screen.getByRole('button', { name: /discovery interest/i })).toHaveTextContent('Education, Learning')
   })
 
   it('recovers safely when a route fails to render', async () => {

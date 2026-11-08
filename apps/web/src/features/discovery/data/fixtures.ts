@@ -1,35 +1,13 @@
 import type { Category, WebsiteSummary } from '../../../lib/types'
+import { categoryDefinitions } from './categoryDefinitions'
 
-export const categories: Category[] = [
-  {
-    id: 'educational',
-    slug: 'educational',
-    name: 'Educational',
-    description: 'Learn something curious, useful or unexpectedly absorbing.',
-    accent: '#f5c66f',
-  },
-  {
-    id: 'funny',
-    slug: 'funny',
-    name: 'Funny',
-    description: 'Playful corners of the web made to brighten a spare minute.',
-    accent: '#f0a6b8',
-  },
-  {
-    id: 'art',
-    slug: 'art',
-    name: 'Art',
-    description: 'Independent illustration, design, archives and experiments.',
-    accent: '#ff9800',
-  },
-  {
-    id: 'free',
-    slug: 'free',
-    name: 'Free',
-    description: 'Generous tools, software and resources worth keeping close.',
-    accent: '#8fc7b5',
-  },
-]
+export const categories: Category[] = categoryDefinitions.map(([slug, name, description]) => ({
+  id: slug,
+  slug,
+  name,
+  description,
+  accent: '#ff9800',
+}))
 
 export const websites: WebsiteSummary[] = [
   {
@@ -38,7 +16,7 @@ export const websites: WebsiteSummary[] = [
     description: 'A curious independent corner of the web from Hypertext TV.',
     originalUrl: 'https://www.hypertext.tv',
     displayDomain: 'www.hypertext.tv',
-    categories: ['Art', 'Funny'],
+    categories: ['Arts, Design & Crafts', 'Fun Stuff'],
     image: 'linear-gradient(135deg, #263a58, #7ab8d1)',
     addedLabel: 'Added today',
   },
@@ -48,7 +26,7 @@ export const websites: WebsiteSummary[] = [
     description: 'An independent website by Normal Bob Smith.',
     originalUrl: 'https://normalbobsmith.com',
     displayDomain: 'normalbobsmith.com',
-    categories: ['Art', 'Free'],
+    categories: ['Arts, Design & Crafts', 'Other'],
     image: 'linear-gradient(135deg, #563333, #d68c75)',
     addedLabel: 'Added today',
   },
@@ -58,7 +36,7 @@ export const websites: WebsiteSummary[] = [
     description: 'A small web project at kbs.im.',
     originalUrl: 'https://www.kbs.im',
     displayDomain: 'www.kbs.im',
-    categories: ['Art', 'Educational'],
+    categories: ['Arts, Design & Crafts', 'Education, Learning'],
     image: 'linear-gradient(135deg, #67441b, #ffb048)',
     addedLabel: 'Added today',
   },
@@ -68,7 +46,7 @@ export const websites: WebsiteSummary[] = [
     description: 'Rob Dobi\'s illustrated time capsule of music and style subcultures.',
     originalUrl: 'http://www.dobi.nu/yourscenesucks/',
     displayDomain: 'www.dobi.nu/yourscenesucks',
-    categories: ['Art', 'Funny'],
+    categories: ['Arts, Design & Crafts', 'Fun Stuff'],
     image: 'linear-gradient(135deg, #5a3444, #dc9d78)',
     addedLabel: 'Added today',
   },
@@ -78,7 +56,7 @@ export const websites: WebsiteSummary[] = [
     description: 'Play a daily geography puzzle and test your knowledge of the map.',
     originalUrl: 'https://maptap.gg/',
     displayDomain: 'maptap.gg',
-    categories: ['Educational', 'Funny'],
+    categories: ['Education, Learning', 'Fun Stuff'],
     image: 'linear-gradient(135deg, #1d4b46, #73c6a6)',
     addedLabel: 'Added today',
   },
@@ -88,7 +66,7 @@ export const websites: WebsiteSummary[] = [
     description: 'Spin the globe and listen to live radio from cities around the world.',
     originalUrl: 'https://radio.garden/',
     displayDomain: 'radio.garden',
-    categories: ['Art', 'Funny'],
+    categories: ['Arts, Design & Crafts', 'Fun Stuff'],
     image: 'linear-gradient(135deg, #0d3b2e, #72d39b)',
     addedLabel: 'Added yesterday',
   },
@@ -98,7 +76,7 @@ export const websites: WebsiteSummary[] = [
     description: 'Land somewhere unexpected and explore a random street-level view.',
     originalUrl: 'https://www.mapcrunch.com/',
     displayDomain: 'mapcrunch.com',
-    categories: ['Funny', 'Educational'],
+    categories: ['Fun Stuff', 'Education, Learning'],
     image: 'linear-gradient(135deg, #cc704b, #f1d39a)',
     addedLabel: 'Added this week',
   },
@@ -108,7 +86,7 @@ export const websites: WebsiteSummary[] = [
     description: 'Make luminous generative drawings with a wonderfully simple canvas.',
     originalUrl: 'https://weavesilk.com/',
     displayDomain: 'weavesilk.com',
-    categories: ['Art', 'Free'],
+    categories: ['Arts, Design & Crafts', 'Other'],
     image: 'linear-gradient(135deg, #261b57, #cf76d5)',
     addedLabel: 'Added this month',
   },

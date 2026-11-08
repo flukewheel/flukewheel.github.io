@@ -29,11 +29,11 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(page.getByLabel('Change profile picture')).toHaveCount(0)
   await Promise.all([
     page.waitForResponse((response) => response.url().includes('/rest/v1/user_interests') && response.request().method() === 'POST' && response.ok()),
-    page.getByRole('checkbox', { name: 'Art' }).check(),
+    page.getByRole('checkbox', { name: /Arts, Design & Crafts/ }).check(),
   ])
-  await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: /Arts, Design & Crafts/ })).toBeChecked()
   await page.reload({ waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('checkbox', { name: 'Art' })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: /Arts, Design & Crafts/ })).toBeChecked()
   await Promise.all([
     page.waitForResponse((response) => response.url().includes('/auth/v1/recover') && response.ok()),
     page.getByRole('button', { name: 'Send password reset email' }).click(),
@@ -259,11 +259,12 @@ test('new accounts complete a unique username without losing their discovery', a
 test('OAuth callback errors restore the viewer and interest without leaving callback parameters', async ({ page }) => {
   const viewerRoute = '#/viewer/20000000-0000-4000-8000-000000000115'
   await page.goto(`/${viewerRoute}`)
-  await page.getByRole('combobox', { name: 'Discovery interest' }).selectOption({ label: 'Art' })
+  await page.getByRole('button', { name: 'Discovery interest' }).click()
+  await page.getByRole('button', { name: /Arts, Design & Crafts Art, illustration/ }).click()
   await page.evaluate((route) => sessionStorage.setItem('flukewheel:auth-return', route), viewerRoute)
   await page.goto('/?error=access_denied')
   await expect(page.getByRole('heading', { name: 'Log in to flukewheel' })).toBeVisible()
   await expect(page.getByRole('alert')).toContainText('Authentication was cancelled or could not be completed.')
   await expect(page).toHaveURL(new RegExp(`${viewerRoute.slice(1)}$`))
-  await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toHaveValue('10000000-0000-4000-8000-000000000003')
+  await expect(page.getByRole('button', { name: 'Discovery interest' })).toContainText('Arts, Design & Crafts')
 })

@@ -20,10 +20,10 @@ type PublicWebsiteRow = Pick<
 const websiteColumns =
   'id, original_url, title, description, thumbnail_path, approved_at'
 const accents: Record<string, string> = {
-  educational: '#f5c66f',
-  funny: '#f0a6b8',
-  art: '#ff9800',
-  free: '#8fc7b5',
+  'education-learning': '#f5c66f',
+  'fun-stuff': '#f0a6b8',
+  'arts-design-crafts': '#ff9800',
+  other: '#8fc7b5',
 }
 const placeholderGradients = [
   'linear-gradient(135deg, #263a58, #7ab8d1)',
@@ -195,6 +195,7 @@ export const catalogueAdapter = {
     const { data, error } = await client
       .from('categories')
       .select('id, slug, display_name, description')
+      .eq('active', true)
       .order('display_order', { ascending: true })
       .order('id', { ascending: true })
     if (error) throw error

@@ -54,22 +54,50 @@ test('the primary toolbar follows a useful keyboard order', async ({ page }) => 
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Wheel' })).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Discovery interest' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeFocused()
 })
 
 test('the selected database interest survives a refresh', async ({ page }) => {
   await page.goto('/#/')
-  const interest = page.getByRole('combobox', { name: 'Discovery interest' })
-  await expect(interest.getByRole('option', { name: 'Art' })).toBeAttached()
-
-  await interest.selectOption({ label: 'Art' })
-  const selectedId = await interest.inputValue()
+  const interest = page.getByRole('button', { name: 'Discovery interest' })
+  await interest.click()
+  await expect(page.locator('.interest-selector__grid .interest-option')).toHaveCount(20)
+  await page.getByRole('button', { name: /Arts, Design & Crafts Art, illustration/ }).click()
+  const selectedId = page.url().split('/category/')[1]
   expect(selectedId).toMatch(/^[0-9a-f-]{36}$/i)
   await page.reload()
 
-  await expect(interest).toHaveValue(selectedId)
+  await expect(interest).toContainText('Arts, Design & Crafts')
+})
+
+test('interest picker shows icons, responds to hover and closes with Escape', async ({ page }, testInfo) => {
+  if (testInfo.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 720 })
+  await page.goto('/#/')
+  const trigger = page.getByRole('button', { name: 'Discovery interest' })
+  await trigger.click()
+  const grid = page.locator('.interest-selector__grid')
+  const panel = page.locator('.interest-selector__panel')
+  await expect(grid.locator('.interest-option')).toHaveCount(20)
+  await expect(grid.locator('.interest-option svg')).toHaveCount(20)
+  const bounds = await panel.boundingBox()
+  expect(bounds).not.toBeNull()
+  expect(bounds!.x).toBeGreaterThanOrEqual(0)
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width)
+  const columns = await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)
+  expect(columns).toBe(testInfo.project.name === 'mobile' ? 1 : 3)
+  const food = grid.getByRole('button', { name: /Food, Cooking Recipes, cuisines/ })
+  const before = await food.evaluate((element) => getComputedStyle(element).backgroundColor)
+  await food.hover()
+  await expect.poll(() => food.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(before)
+  await page.keyboard.press('Escape')
+  await expect(grid).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+  await trigger.click()
+  await grid.getByRole('button', { name: /Food, Cooking Recipes, cuisines/ }).click()
+  await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
+  await expect(trigger).toContainText('Food, Cooking')
 })
 
 test('an unknown website ID has a safe recovery state', async ({ page }) => {
@@ -83,10 +111,10 @@ test('an unknown website ID has a safe recovery state', async ({ page }) => {
 
 test('browser history preserves database category context around a viewer', async ({ page }) => {
   await page.goto('/#/')
-  await page.getByRole('link', { name: /educational/i }).click()
+  await page.getByRole('link', { name: /Education, Learning/ }).click()
 
   const categoryUrl = page.url()
-  const selectedId = await page.getByRole('combobox', { name: 'Discovery interest' }).inputValue()
+  const selectedId = categoryUrl.split('/category/')[1]
   expect(selectedId).toMatch(/^[0-9a-f-]{36}$/i)
   expect(categoryUrl).toContain(`#/category/${selectedId}`)
   await page.locator('.card-grid .card-link').first().click()
@@ -95,9 +123,7 @@ test('browser history preserves database category context around a viewer', asyn
 
   await page.goBack()
   await expect(page).toHaveURL(categoryUrl)
-  await expect(page.getByRole('combobox', { name: 'Discovery interest' })).toHaveValue(
-    selectedId,
-  )
+  await expect(page.getByRole('button', { name: 'Discovery interest' })).toContainText('Education, Learning')
 
   await page.goForward()
   await expect(page).toHaveURL(viewerUrl)

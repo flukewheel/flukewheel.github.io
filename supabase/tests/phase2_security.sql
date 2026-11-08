@@ -52,7 +52,7 @@ select set_config('flukewheel_test.all_websites',
 set local role anon;
 do $$
 begin
-  if (select count(*) from public.categories) <> 4 then
+  if (select count(*) from public.categories) <> 20 then
     raise exception 'guest category access failed';
   end if;
   if (select count(*) from public.websites) <> current_setting('flukewheel_test.visible_websites')::integer then
