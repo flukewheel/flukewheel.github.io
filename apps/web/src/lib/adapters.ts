@@ -251,6 +251,7 @@ export const discoveryAdapter = {
         ? await error.context.clone().json().catch(() => null) as { code?: string } | null
         : null
       if (body?.code === 'EMPTY_CATALOGUE') return null
+      if (body?.code === 'RATE_LIMITED') throw new Error('RATE_LIMITED')
       throw error
     }
     const selection = bumpResponseSchema.parse(data)

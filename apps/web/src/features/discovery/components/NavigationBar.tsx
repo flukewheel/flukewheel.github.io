@@ -19,7 +19,7 @@ interface NavigationBarProps {
 export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
   const [submissionOpen, setSubmissionOpen] = useState(false)
   const [bumping, setBumping] = useState(false)
-  const [bumpError, setBumpError] = useState<'empty' | 'failed' | null>(null)
+  const [bumpError, setBumpError] = useState<'empty' | 'rate' | 'failed' | null>(null)
   const [bumpNotice, setBumpNotice] = useState(false)
   const bumpInFlight = useRef(false)
   const pendingRequest = useRef<{ key: string; id: string } | null>(null)
@@ -72,8 +72,10 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
         resetCycle: next.resetCycle,
       })
       navigate(paths.viewer(next.website.id))
-    } catch {
-      if (currentRoute.current === routeKey && currentInterest.current === interestId) setBumpError('failed')
+    } catch (error) {
+      if (currentRoute.current === routeKey && currentInterest.current === interestId) {
+        setBumpError(error instanceof Error && error.message === 'RATE_LIMITED' ? 'rate' : 'failed')
+      }
     } finally {
       bumpInFlight.current = false
       setBumping(false)
@@ -115,6 +117,8 @@ export function NavigationBar({ onOpenAuth }: NavigationBarProps) {
         <p className="toolbar-error" role="alert">
           {bumpError === 'empty'
             ? 'No eligible sites in this interest yet. Choose another interest.'
+            : bumpError === 'rate'
+              ? 'Too many spins right now. Please try again in a minute.'
             : "We couldn't find a discovery. Please try the Wheel again."}
         </p>
       )}

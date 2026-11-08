@@ -67,6 +67,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
     queryKey: ['recommendations', user?.id, recommendationCategoryId ?? 'all'],
     enabled: Boolean(user && !authLoading && categoryQuery.isSuccess),
     queryFn: () => catalogueAdapter.listRecommendations(recommendationCategoryId),
+    retry: (failureCount, error) => !error.message.includes('RATE_LIMITED') && failureCount < 3,
   })
   const hasInterests = Boolean(interestQuery.data?.length)
   const recentCount = catalogue.data?.length ?? 0
@@ -146,7 +147,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
             {interestQuery.isError && <p role="alert">Your interests could not be loaded. <button className="text-button" onClick={() => void interestQuery.refetch()} type="button">Try again</button></p>}
             {categoryQuery.isError && <div className="inline-state" role="alert"><p>Your recommendations could not be loaded because the interests are unavailable.</p><button onClick={() => void categoryQuery.refetch()} type="button">Try again</button></div>}
             {(categoryQuery.isPending || categoryQuery.isSuccess && recommendations.isPending) && <CardSkeleton />}
-            {recommendations.isError && <div className="inline-state" role="alert"><p>Your recommendations could not be loaded.</p><button onClick={() => void recommendations.refetch()} type="button">Try again</button></div>}
+            {recommendations.isError && <div className="inline-state" role="alert"><p>{recommendations.error.message.includes('RATE_LIMITED') ? 'Recommendations are busy right now. Please try again in a minute.' : 'Your recommendations could not be loaded.'}</p><button onClick={() => void recommendations.refetch()} type="button">Try again</button></div>}
             {recommendations.isSuccess && recommendations.data.length === 0 && <EmptyState><p>There are no recommendations available right now.</p><Link className="text-link" to={paths.recent}>Browse recent websites</Link></EmptyState>}
             {recommendations.isSuccess && recommendations.data.length > 0 && <div className="card-grid">{recommendations.data.map((website) => <WebsiteCard key={website.id} website={website} />)}</div>}
           </>

@@ -16,6 +16,8 @@ const people = []
 const pendingId = crypto.randomUUID()
 const pendingUrl = `https://phase8-${pendingId}.example.test/`
 let pendingCreated = false
+const storageFixtures = []
+const onePixelPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64')
 
 async function createPerson(label) {
   const email = `phase8-${label}-${crypto.randomUUID()}@example.test`
@@ -45,10 +47,41 @@ async function rest(path, token, { method = 'GET', body, schema } = {}) {
   return { status: response.status, body: text ? JSON.parse(text) : null }
 }
 
+async function storageObject(bucket, path, token, method = 'GET') {
+  return fetch(`${api}/storage/v1/object/${bucket}/${path}`, {
+    method,
+    headers: {
+      apikey: publicKey,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(method === 'POST' ? { 'Content-Type': 'image/png' } : {}),
+    },
+    body: method === 'POST' ? onePixelPng : undefined,
+  })
+}
+
 try {
   const a = await createPerson('a')
   const b = await createPerson('b')
   const administrator = await createPerson('admin')
+  const avatarPath = `${a.id}/phase8-${crypto.randomUUID()}.png`
+  const thumbnailPath = `phase8-${crypto.randomUUID()}.png`
+  for (const [bucket, path] of [['avatars', avatarPath], ['thumbnails', thumbnailPath]]) {
+    const uploaded = await service.storage.from(bucket).upload(path, onePixelPng, { contentType: 'image/png' })
+    if (uploaded.error) throw uploaded.error
+    storageFixtures.push({ bucket, path })
+  }
+  assert.equal((await storageObject('avatars', avatarPath, a.token)).status, 200, 'Avatar owner could not read their private image.')
+  for (const token of [null, b.token, administrator.token]) {
+    assert.notEqual((await storageObject('avatars', avatarPath, token)).status, 200, 'Private avatar leaked through Storage.')
+  }
+  assert.equal((await storageObject('thumbnails', thumbnailPath, null)).status, 200, 'Public thumbnail was not readable.')
+  for (const [bucket, path] of [['avatars', `${a.id}/unauthorised-${crypto.randomUUID()}.png`], ['thumbnails', `unauthorised-${crypto.randomUUID()}.png`]]) {
+    for (const token of [null, a.token, administrator.token]) {
+      const attempted = await storageObject(bucket, path, token, 'POST')
+      if (attempted.ok) storageFixtures.push({ bucket, path })
+      assert(!attempted.ok, 'Browser role uploaded an image through Storage.')
+    }
+  }
   execSync(`npx supabase db query --local "insert into private.user_roles (user_id, role) values ('${administrator.id}', 'admin')"`, { stdio: ['ignore', 'pipe', 'pipe'] })
   const profiles = await service.from('profiles').upsert([{ id: a.id }, { id: b.id }, { id: administrator.id }])
   if (profiles.error) throw profiles.error
@@ -121,8 +154,9 @@ try {
     assert(recommendations.body.length > 0)
   }
 
-  console.log('Phase 8 direct REST/RPC guest, member A/B and administrator boundaries passed.')
+  console.log('Phase 8 direct REST/RPC/Storage guest, member A/B and administrator boundaries passed.')
 } finally {
+  for (const { bucket, path } of storageFixtures) await service.storage.from(bucket).remove([path])
   if (pendingCreated) await service.from('websites').delete().eq('id', pendingId)
   for (const id of people.reverse()) await service.auth.admin.deleteUser(id)
 }

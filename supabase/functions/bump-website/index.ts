@@ -27,8 +27,8 @@ function headers(request: Request): HeadersInit {
     : {}
 }
 
-function respond(request: Request, status: number, body: Record<string, unknown>) {
-  return Response.json(body, { status, headers: { ...headers(request), 'Cache-Control': 'no-store' } })
+function respond(request: Request, status: number, body: Record<string, unknown>, extraHeaders: HeadersInit = {}) {
+  return Response.json(body, { status, headers: { ...headers(request), 'Cache-Control': 'no-store', ...extraHeaders } })
 }
 
 async function boundedJson(request: Request) {
@@ -107,6 +107,9 @@ Deno.serve(async (request) => {
       p_seed: Math.random(),
     })
     if (error) {
+      if (error.message.includes('RATE_LIMITED')) {
+        return respond(request, 429, { code: 'RATE_LIMITED', request_id: input.request_id }, { 'Retry-After': '60' })
+      }
       const invalid = error.message.includes('INVALID_CATEGORY') || error.message.includes('INVALID_INPUT')
       return respond(request, invalid ? 400 : 503, { code: invalid ? 'INVALID_INPUT' : 'INTERNAL_ERROR', request_id: input.request_id })
     }
