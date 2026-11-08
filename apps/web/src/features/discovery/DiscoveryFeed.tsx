@@ -11,9 +11,12 @@ import { authAdapter } from '../../lib/adapters/auth'
 import { getSupabaseClient } from '../../lib/supabase'
 import { useAuth } from '../auth/AuthProvider'
 import { WebsiteCard } from './components/WebsiteCard'
+import { WheelButton } from './components/WheelButton'
 
 interface DiscoveryFeedProps {
   onOpenAuth: () => void
+  onSpin: () => void
+  spinBusy: boolean
 }
 
 const homeScrollKey = 'flukewheel:home-scroll'
@@ -40,7 +43,7 @@ function CardSkeleton({ count = 3 }: { count?: number }) {
   return <div aria-label="Loading website cards" className="card-grid">{Array.from({ length: count }, (_, index) => <div className="website-card website-card--loading" key={index} />)}</div>
 }
 
-export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
+export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedProps) {
   const { user, profile, loading: authLoading } = useAuth()
   const [googleError, setGoogleError] = useState<string | null>(null)
   const { state, dispatch } = useAppState()
@@ -121,6 +124,12 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
           <p>It never got smaller or less interesting, you just became held down by the commerce of things.</p>
         </div>
         <img alt="Animated retro internet collage with skaters over a globe" className="welcome-section__image" decoding="async" height="469" src={`${import.meta.env.BASE_URL}homepage.gif`} width="500" />
+      </section>
+
+      <section aria-labelledby="spin-heading" className="spin-section">
+        <h2 id="spin-heading">Spin the Wheel!</h2>
+        <ArrowRight aria-hidden="true" className="spin-section__arrow" />
+        <WheelButton busy={spinBusy} label="Spin the Wheel" onWheel={onSpin} />
       </section>
 
       <section aria-labelledby="recent-heading" className="feed-section" onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setCarouselPaused(false) }} onFocusCapture={() => setCarouselPaused(true)} onMouseEnter={() => setCarouselPaused(true)} onMouseLeave={() => setCarouselPaused(false)}>

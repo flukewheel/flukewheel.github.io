@@ -37,7 +37,7 @@ test('Wheel idles, pauses on hover, and briefly accelerates when pressed', async
     await route.fulfill({ status: 500, body: '{}' })
   })
   await page.goto('/#/')
-  const wheel = page.getByRole('button', { name: 'Wheel' })
+  const wheel = page.getByRole('button', { name: 'Wheel', exact: true })
   const icon = wheel.locator('img.wheel-button__icon')
   const angle = async () => Number((await icon.getAttribute('style'))?.match(/rotate\(([-\d.]+)deg\)/)?.[1])
   const box = await wheel.boundingBox()
@@ -80,7 +80,7 @@ test('a delayed Bump cannot replace a website opened while it was pending', asyn
   })
   await page.goto('/#/')
   const pending = page.waitForRequest('**/functions/v1/bump-website')
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await pending
   await page.locator('.card-carousel .card-link').first().click()
   const cardUrl = page.url()

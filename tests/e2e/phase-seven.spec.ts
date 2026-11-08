@@ -20,7 +20,7 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
   await page.getByRole('button', { name: 'Not now' }).click()
 
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await expect(page).toHaveURL(/#\/viewer\//)
   const viewerUrl = page.url()
   await showMobileMenu(page)
@@ -190,7 +190,7 @@ test('a reaction in flight stays attached to its original website after a Wheel 
   const love = page.getByRole('button', { name: 'Love this website' })
   await love.click()
   await expect(page.getByRole('group', { name: 'Website actions' })).toHaveAttribute('aria-busy', 'true')
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await expect(page).not.toHaveURL(new RegExp(`${originalId}$`))
   await expect(page.getByRole('group', { name: 'Website actions' })).toHaveAttribute('aria-busy', 'false')
   await expect(love).not.toHaveAttribute('aria-pressed', 'true')

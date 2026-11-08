@@ -15,11 +15,13 @@ const AdminPage = lazy(() => import('../features/admin/AdminPage').then((module)
 
 interface ShellContext {
   openAuth: () => void
+  spinWheel: () => void
+  spinBusy: boolean
 }
 
 function FeedRoute() {
-  const { openAuth } = useOutletContext<ShellContext>()
-  return <DiscoveryFeed onOpenAuth={openAuth} />
+  const { openAuth, spinWheel, spinBusy } = useOutletContext<ShellContext>()
+  return <DiscoveryFeed onOpenAuth={openAuth} onSpin={spinWheel} spinBusy={spinBusy} />
 }
 
 function SettingsRoute() {

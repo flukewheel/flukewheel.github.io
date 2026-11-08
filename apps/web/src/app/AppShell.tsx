@@ -5,6 +5,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { AuthModal } from '../components/AuthModal'
 import { LoadingWheel } from '../components/LoadingWheel'
 import { NavigationBar } from '../features/discovery/components/NavigationBar'
+import { useWheelSpin } from '../features/discovery/useWheelSpin'
 import { clearCallbackFlags, takeCallbackError, takeRecoveryMode } from '../features/auth/callback'
 import { useAuth } from '../features/auth/AuthProvider'
 import { CompleteProfile } from '../features/auth/CompleteProfile'
@@ -21,6 +22,7 @@ export function AppShell() {
   const userId = user?.id
   const queryClient = useQueryClient()
   const isViewer = useLocation().pathname.startsWith('/viewer/')
+  const wheel = useWheelSpin()
 
   useEffect(() => { clearCallbackFlags() }, [])
 
@@ -45,10 +47,10 @@ export function AppShell() {
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <NavigationBar onOpenAuth={() => setAuthOpen(true)} />
+      <NavigationBar onOpenAuth={() => setAuthOpen(true)} wheel={wheel} />
       {pendingError && <p className="toolbar-error" role="alert">{pendingError}</p>}
       <Suspense fallback={<LoadingWheel />}>
-        <Outlet context={{ openAuth: () => setAuthOpen(true) }} />
+        <Outlet context={{ openAuth: () => setAuthOpen(true), spinWheel: wheel.bump, spinBusy: wheel.bumping }} />
       </Suspense>
       {!isViewer && (
         <footer className="site-footer">

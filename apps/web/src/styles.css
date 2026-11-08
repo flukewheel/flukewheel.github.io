@@ -504,6 +504,32 @@ main:not(.viewer-shell) {
   line-height: 1.65;
 }
 
+.spin-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.6rem, 3vw, 2rem);
+  min-height: clamp(11rem, 23vw, 17rem);
+  margin: clamp(2rem, 5vw, 4rem) 0 0;
+  border-radius: 1.5rem;
+  background: var(--brand);
+  color: #14120f;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.spin-section h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 4.8vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.spin-section__arrow { width: clamp(1.8rem, 5vw, 3.5rem); height: auto; flex: none; stroke-width: 2.5; }
+.spin-section .wheel-button { width: clamp(4.5rem, 11vw, 7.5rem); height: clamp(4.5rem, 11vw, 7.5rem); flex-basis: clamp(4.5rem, 11vw, 7.5rem); border-color: #14120f; border-radius: 1.1rem; padding: clamp(0.45rem, 1vw, 0.8rem); box-shadow: 0 8px 22px rgb(20 18 15 / 0.3); }
+.spin-section .wheel-button:hover:not(:disabled) { background: #382617; box-shadow: 0 10px 28px rgb(20 18 15 / 0.4); }
+
 .feed-section--first {
   padding-top: clamp(3.5rem, 8vw, 7rem);
 }
@@ -1163,6 +1189,10 @@ main:not(.viewer-shell) {
 }
 
 @media (max-width: 620px) {
+  .spin-section { gap: 0.45rem; min-height: 8.5rem; border-radius: 1rem; padding: 0.75rem; }
+  .spin-section h2 { font-size: clamp(1.1rem, 5vw, 1.6rem); }
+  .spin-section__arrow { width: 1.7rem; }
+  .spin-section .wheel-button { width: 4.25rem; height: 4.25rem; flex-basis: 4.25rem; border-radius: 0.8rem; padding: 0.4rem; }
   .app-shell { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
 
   .icon-button[data-tooltip]::after,

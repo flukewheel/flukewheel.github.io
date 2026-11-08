@@ -142,7 +142,7 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await page.reload()
   await showMobileMenu(page)
   await expect(dislikeButton).not.toHaveAttribute('aria-pressed', 'true')
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await expect(page).not.toHaveURL(new RegExp(`${websiteId}$`))
   await expect(page.getByRole('button', { name: 'Bookmark this website' }).locator('svg.lucide-bookmark')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Love this website' }).locator('svg.lucide-heart')).toBeVisible()

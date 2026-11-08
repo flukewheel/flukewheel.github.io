@@ -1,6 +1,48 @@
 import { expect, test } from '@playwright/test'
 import { showMobileMenu } from './mobileMenu'
 
+test('home Spin the Wheel callout sits between welcome and recent and opens a discovery', async ({ page }) => {
+  await page.route('**/functions/v1/bump-website', async (route) => {
+    const requestId = route.request().postDataJSON().request_id as string
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+      request_id: requestId,
+      selection_id: '30000000-0000-4000-8000-000000000001',
+      website: {
+        id: '20000000-0000-4000-8000-000000000115',
+        title: 'Rain Mirage', description: 'An independent Neocities website.',
+        original_url: 'https://rainmirage.neocities.org/', thumbnail_url: null,
+        category_ids: [], delivery_mode: 'inline',
+      },
+      exclusions_relaxed: false,
+    }) })
+  })
+  await page.goto('/#/')
+  const welcome = page.getByRole('region', { name: 'internet as an art.' })
+  const spin = page.getByRole('region', { name: 'Spin the Wheel!' })
+  const recent = page.getByRole('region', { name: 'Recently added' })
+  await expect(spin).toBeVisible()
+  const positions = await Promise.all([welcome, spin, recent].map(async (section) => (await section.boundingBox())!.y))
+  expect(positions).toEqual([...positions].sort((a, b) => a - b))
+  const colors = await spin.evaluate((section) => ({
+    background: getComputedStyle(section).backgroundColor,
+    text: getComputedStyle(section).color,
+    heading: getComputedStyle(document.getElementById('welcome-heading')!).color,
+    page: getComputedStyle(document.documentElement).backgroundColor,
+  }))
+  expect(colors.background).toBe(colors.heading)
+  expect(colors.text).toBe(colors.page)
+  await expect(spin.locator('.spin-section__arrow')).toBeVisible()
+  const largeWheel = spin.getByRole('button', { name: 'Spin the Wheel' })
+  await expect(largeWheel.locator('img')).toHaveAttribute('src', /icon\.png$/)
+  expect((await largeWheel.boundingBox())!.width).toBeGreaterThan((await page.getByRole('button', { name: 'Wheel', exact: true }).boundingBox())!.width)
+  const icon = largeWheel.locator('img')
+  const before = await icon.getAttribute('style')
+  await page.waitForTimeout(250)
+  expect(await icon.getAttribute('style')).not.toBe(before)
+  await largeWheel.click()
+  await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
+})
+
 test('submission and authentication dialogs trap focus and restore it on Escape', async ({ page }) => {
   await page.goto('/#/')
 
@@ -43,9 +85,9 @@ test('a rate-limited Wheel shows a useful error and can retry', async ({ page })
     } else await route.continue()
   })
   await page.goto('/#/')
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Please try again in a minute.')
-  await page.getByRole('button', { name: 'Wheel' }).click()
+  await page.getByRole('button', { name: 'Wheel', exact: true }).click()
   await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
   expect(attempts).toBe(2)
 })
@@ -56,7 +98,7 @@ test('narrow layout and reduced motion keep controls usable', async ({ page }) =
   await page.goto('/#/')
   await page.getByRole('heading', { name: 'Recently added' }).waitFor()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
-  const wheel = page.getByRole('button', { name: 'Wheel' })
+  const wheel = page.getByRole('button', { name: 'Wheel', exact: true })
   const icon = wheel.locator('img')
   const before = await icon.evaluate((element) => getComputedStyle(element).transform)
   await page.waitForTimeout(120)
@@ -80,7 +122,7 @@ test('mobile navigation stays on one bottom row and the interest menu closes ove
   expect(Math.abs(navBounds!.y + navBounds!.height - 640)).toBeLessThan(2)
   await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeHidden()
   const controls = [
-    page.getByRole('button', { name: 'Wheel' }),
+    page.getByRole('button', { name: 'Wheel', exact: true }),
     page.getByRole('button', { name: 'Love this website' }),
     page.getByRole('button', { name: 'Bookmark this website' }),
     page.getByRole('button', { name: 'More options' }),

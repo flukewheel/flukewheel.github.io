@@ -6,7 +6,7 @@ test('homepage reads the public catalogue and keeps the viewer unmounted', async
 
   if (testInfo.project.name === 'mobile') await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeHidden()
   else await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Wheel' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Wheel', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'internet as an art.' })).toBeVisible()
   await expect(page.getByText('It never got smaller or less interesting, you just became held down by the commerce of things.')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Recently added' })).toBeVisible()
@@ -157,7 +157,7 @@ test('Bump remembers seen sites across a refresh', async ({ page }) => {
   const visited = new Set<string>()
   for (let index = 0; index < 20; index += 1) {
     const previousUrl = page.url()
-    await page.getByRole('button', { name: 'Wheel' }).click()
+    await page.getByRole('button', { name: 'Wheel', exact: true }).click()
     await expect(page).not.toHaveURL(previousUrl)
     await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
     const id = page.url().split('/').at(-1)!

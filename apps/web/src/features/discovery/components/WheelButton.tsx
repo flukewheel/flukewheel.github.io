@@ -3,13 +3,14 @@ import { useEffect, useRef } from 'react'
 interface WheelButtonProps {
   busy: boolean
   onWheel: () => void
+  label?: string
 }
 
 const idleRpm = 5
 const burstRpm = 135
 const burstDuration = 1500
 
-export function WheelButton({ busy, onWheel }: WheelButtonProps) {
+export function WheelButton({ busy, onWheel, label = 'Wheel' }: WheelButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const burstStart = useRef<number | null>(null)
@@ -45,12 +46,12 @@ export function WheelButton({ busy, onWheel }: WheelButtonProps) {
   return (
     <button
       aria-busy={busy}
-      aria-label="Wheel"
+      aria-label={label}
       className="wheel-button"
       disabled={busy}
       onClick={handleWheel}
       ref={buttonRef}
-      title="Wheel"
+      title={label}
       type="button"
     >
       <img alt="" className="wheel-button__icon" ref={imageRef} src={`${import.meta.env.BASE_URL}icon.png`} />
