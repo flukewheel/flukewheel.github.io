@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { useAppState } from '../../app/AppState'
 import { paths } from '../../app/paths'
 import { EmptyState } from '../../components/RouteState'
+import { GoogleSignInButton } from '../../components/GoogleSignInButton'
 import { catalogueAdapter } from '../../lib/adapters'
 import { authAdapter } from '../../lib/adapters/auth'
 import { getSupabaseClient } from '../../lib/supabase'
@@ -157,7 +158,7 @@ export function DiscoveryFeed({ onOpenAuth }: DiscoveryFeedProps) {
             <div><h3>Make every spin a little more yours.</h3><p>Choose interests, remember great finds and shape your future discoveries while keeping the surprises.</p></div>
             <div className="auth-invitation__actions">
               <button className="primary-button" onClick={onOpenAuth} type="button"><LogIn aria-hidden="true" /> Log in / Sign up</button>
-              <button className="secondary-button" onClick={() => { void authAdapter.signInWithGoogle().catch((cause) => setGoogleError(cause instanceof Error ? cause.message : 'Google sign-in could not start.')) }} type="button">Continue with Google</button>
+              <GoogleSignInButton onClick={() => { void authAdapter.signInWithGoogle().catch((cause) => setGoogleError(cause instanceof Error ? cause.message : 'Google sign-in could not start.')) }} />
               {googleError && <p role="alert">{googleError}</p>}
             </div>
           </div>

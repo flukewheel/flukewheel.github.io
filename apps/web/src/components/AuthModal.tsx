@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { authAdapter } from '../lib/adapters/auth'
+import { GoogleSignInButton } from './GoogleSignInButton'
 import { IconButton } from './IconButton'
 
 type Mode = 'login' | 'signup' | 'reset' | 'new-password'
@@ -129,7 +130,7 @@ export function AuthModal({ open, onClose, onAuthenticated, initialError, initia
         </form>
         {(mode === 'login' || mode === 'signup') && (
           <div className="auth-modal__alternatives">
-            <button className="secondary-button" disabled={busy} onClick={() => void google()} type="button">Continue with Google</button>
+            <GoogleSignInButton disabled={busy} onClick={() => void google()} />
             <button className="text-button" onClick={() => changeMode(mode === 'login' ? 'signup' : 'login')} type="button">
               {mode === 'login' ? 'Create an account' : 'Already have an account? Log in'}
             </button>

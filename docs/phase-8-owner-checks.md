@@ -1,14 +1,14 @@
 # Phase 8 owner checks
 
-The engineering and automated checks are recorded in [Phase 8 progress](phase-8-progress.md). These checks need the project owner's account or policy decisions.
+The engineering and automated checks are recorded in [Phase 8 progress](phase-8-progress.md). The project owner confirmed that published Google sign-in succeeds in a private browser, **For you** appears, and the guest prompt returns after sign-out. The reload/session-restoration check has not yet been reported. The privacy and cookie decisions below remain open.
 
 ## Published Google sign-in
 
-1. In a private browser window, open <https://flukewheel.github.io/> and choose **Log in → Continue with Google**.
-2. Complete sign-in with your own Google account. Confirm that you return to Flukewheel, the account menu appears, and **For you** shows recommendations.
-3. Reload once to confirm the session restores. Sign out and confirm the guest prompt returns. Report any error text or unexpected redirect. Do not send passwords, codes or session tokens.
+1. In a private browser window, open <https://flukewheel.github.io/> and choose **Log in → Sign in with Google**.
+2. Complete sign-in with your own Google account. Confirm that you return to Flukewheel, the account menu appears, and **For you** shows recommendations. The owner has confirmed sign-in and **For you**.
+3. Reload once to confirm the session restores. Sign out and confirm the guest prompt returns. The owner has confirmed sign-out. Report any error text or unexpected redirect. Do not send passwords, codes or session tokens.
 
-The automated check already verified that the published button reaches `accounts.google.com`; it did not complete an account sign-in.
+The automated check verified that the published button reaches `accounts.google.com`. The owner then completed a real account sign-in.
 
 ## Privacy and cookie decisions
 
