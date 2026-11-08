@@ -51,7 +51,6 @@ export function WheelButton({ busy, onWheel, label = 'Wheel' }: WheelButtonProps
       disabled={busy}
       onClick={handleWheel}
       ref={buttonRef}
-      title={label}
       type="button"
     >
       <img alt="" className="wheel-button__icon" ref={imageRef} src={`${import.meta.env.BASE_URL}icon.png`} />

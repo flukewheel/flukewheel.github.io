@@ -100,9 +100,13 @@ test('interest picker shows icons, responds to hover and closes with Escape', as
   await page.goto('/#/')
   const trigger = page.getByRole('button', { name: 'Discovery interest' })
   await showMobileMenu(page)
+  if (testInfo.project.name !== 'mobile') {
+    expect(await trigger.evaluate((element) => getComputedStyle(element).backgroundColor)).toBe('rgba(0, 0, 0, 0)')
+  }
   await trigger.click()
   const grid = page.locator('.interest-selector__grid')
   const panel = page.locator('.interest-selector__panel')
+  expect(await panel.evaluate((element) => getComputedStyle(element).backdropFilter)).toContain('blur(24px)')
   await expect(grid.locator('.interest-option')).toHaveCount(20)
   await expect(grid.locator('.interest-option svg')).toHaveCount(20)
   const bounds = await panel.boundingBox()

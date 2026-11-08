@@ -127,7 +127,10 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
       </section>
 
       <section aria-labelledby="spin-heading" className="spin-section">
-        <h2 id="spin-heading">Spin the Wheel!</h2>
+        <div className="spin-section__copy">
+          <h2 id="spin-heading">Spin the Wheel!</h2>
+          <p>Tap the wheel and be a frontiersman! Just do it you wuss!</p>
+        </div>
         <ArrowRight aria-hidden="true" className="spin-section__arrow" />
         <WheelButton busy={spinBusy} label="Spin the Wheel" onWheel={onSpin} />
       </section>
@@ -151,7 +154,7 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
         <div className="section-heading"><h2 id="for-you-heading">For you</h2></div>
         {authLoading ? <CardSkeleton /> : user ? (
           <>
-            <p className="feed-section__intro">{selectedCategory ? `Discoveries in ${selectedCategory.name}, with room for surprises.` : hasInterests ? 'Based on your interests, with room for surprises.' : 'A few places to start. Add interests in your profile to make these more yours.'}</p>
+            {(selectedCategory || !hasInterests) && <p className="feed-section__intro">{selectedCategory ? `Discoveries in ${selectedCategory.name}, with room for surprises.` : 'A few places to start. Add interests in your profile to make these more yours.'}</p>}
             {!hasInterests && <p className="feed-section__intro"><Link className="text-link" to={paths.settings}>Choose interests</Link> to shape future discoveries.</p>}
             {!profile?.username && <p className="feed-section__intro"><Link className="text-link" to={paths.settings}>Choose a username</Link> to finish setting up your profile.</p>}
             {interestQuery.isError && <p role="alert">Your interests could not be loaded. <button className="text-button" onClick={() => void interestQuery.refetch()} type="button">Try again</button></p>}

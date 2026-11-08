@@ -107,11 +107,11 @@ export default function WebsiteViewer() {
         <p className="viewer-help" role="status">Choose Broken website from the thumbs-down menu, or spin the Wheel again.</p>
       )}
       <iframe
+        aria-label={`${website.data.title} website`}
         onLoad={() => setFrameLoadedForId(websiteId)}
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-forms allow-scripts allow-same-origin"
         src={website.data.originalUrl}
-        title={`${website.data.title} website`}
       />
     </main>
   )

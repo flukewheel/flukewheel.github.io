@@ -21,6 +21,7 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   const spin = page.getByRole('region', { name: 'Spin the Wheel!' })
   const recent = page.getByRole('region', { name: 'Recently added' })
   await expect(spin).toBeVisible()
+  await expect(spin.getByText('Tap the wheel and be a frontiersman! Just do it you wuss!')).toBeVisible()
   const positions = await Promise.all([welcome, spin, recent].map(async (section) => (await section.boundingBox())!.y))
   expect(positions).toEqual([...positions].sort((a, b) => a - b))
   const colors = await spin.evaluate((section) => ({
@@ -33,6 +34,7 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   expect(colors.text).toBe(colors.page)
   await expect(spin.locator('.spin-section__arrow')).toBeVisible()
   const largeWheel = spin.getByRole('button', { name: 'Spin the Wheel' })
+  await expect(largeWheel).not.toHaveAttribute('title')
   const motion = await spin.evaluate((section) => ({
     arrow: getComputedStyle(section.querySelector('.spin-section__arrow')!).animationDuration,
     wheel: getComputedStyle(section.querySelector('.wheel-button')!).animationDuration,
@@ -41,12 +43,14 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   expect(motion).toEqual({ arrow: '4s', wheel: '4s', swoop: '4s' })
   await page.addStyleTag({ content: '.spin-section__arrow, .spin-section .wheel-button { animation: none !important; }' })
   const [sectionBox, textBox, arrowBox, wheelBox] = await Promise.all([
-    spin, spin.locator('h2'), spin.locator('.spin-section__arrow'), largeWheel,
+    spin, spin.locator('.spin-section__copy'), spin.locator('.spin-section__arrow'), largeWheel,
   ].map(async (element) => (await element.boundingBox())!))
   const left = textBox.x - sectionBox.x
   const right = sectionBox.x + sectionBox.width - wheelBox.x - wheelBox.width
   const top = wheelBox.y - sectionBox.y
   expect(Math.abs(left - right)).toBeLessThan(1)
+  expect(textBox.y).toBeGreaterThanOrEqual(sectionBox.y)
+  expect(textBox.y + textBox.height).toBeLessThanOrEqual(sectionBox.y + sectionBox.height)
   expect(Math.abs(right - top)).toBeLessThan(1)
   expect(Math.abs((arrowBox.x - textBox.x - textBox.width) - (wheelBox.x - arrowBox.x - arrowBox.width))).toBeLessThan(1)
   await expect(largeWheel.locator('img')).toHaveAttribute('src', /icon\.png$/)
@@ -57,6 +61,8 @@ test('home Spin the Wheel callout sits between welcome and recent and opens a di
   expect(await icon.getAttribute('style')).not.toBe(before)
   await largeWheel.click()
   await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
+  await expect(page.locator('.viewer-shell iframe')).toHaveAttribute('aria-label', 'Rain Mirage website')
+  await expect(page.locator('.viewer-shell iframe')).not.toHaveAttribute('title')
 })
 
 test('submission and authentication dialogs trap focus and restore it on Escape', async ({ page }) => {
