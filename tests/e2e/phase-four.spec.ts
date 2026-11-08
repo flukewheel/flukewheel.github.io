@@ -63,7 +63,11 @@ test('administrator can work through review, catalogue and maintenance screens',
   await page.getByLabel('Password', { exact: true }).fill('FlukewheelTestPassword42!')
   await page.getByRole('button', { name: 'Sign up', exact: true }).click()
   await page.getByRole('button', { name: 'Not now' }).click()
-  await page.goto('/#/admin')
+  await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
+  const accountMenu = page.getByRole('menu')
+  await expect(accountMenu.getByRole('menuitem')).toHaveCount(5)
+  await expect(accountMenu.locator('.interest-option__icon svg')).toHaveCount(5)
+  await accountMenu.getByRole('menuitem', { name: 'Administration' }).click()
   await expect(page.getByRole('heading', { name: 'Administration' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Approve and publish' }).click()

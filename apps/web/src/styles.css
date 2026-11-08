@@ -993,28 +993,28 @@ main:not(.viewer-shell) {
   top: calc(100% + 0.7rem);
   right: 0;
   display: grid;
-  width: 14rem;
-  border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  background: var(--surface);
-  padding: 0.4rem;
-  box-shadow: var(--shadow);
+  gap: 0.4rem;
+  width: min(19rem, calc(100vw - 1.5rem));
+  border: 1px solid #67513d;
+  border-radius: 1rem;
+  background: #211b17;
+  padding: 0.8rem;
+  box-shadow: 0 22px 55px rgb(0 0 0 / 0.45);
 }
 
-.profile-menu__panel a,
-.profile-menu__panel button {
-  border: 0;
-  border-radius: 0.5rem;
-  background: transparent;
-  color: var(--ink);
-  padding: 0.7rem 0.8rem;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
+.profile-menu__heading { display: grid; gap: 0.15rem; padding: 0.15rem 0.45rem 0.55rem; }
+.profile-menu__heading strong { font-size: 0.92rem; }
+.profile-menu__heading span { overflow: hidden; color: var(--muted); font-size: 0.76rem; text-overflow: ellipsis; white-space: nowrap; }
+.profile-menu__item { align-items: center; width: 100%; font: inherit; font-size: 0.84rem; font-weight: 700; text-decoration: none; }
+.profile-menu__item--sign-out { margin-top: 0.3rem; }
+.profile-menu__panel .interest-option:hover,
+.profile-menu__panel .interest-option:focus-visible {
+  border-color: #aa7040;
+  background: #423025;
+  color: #ffd399;
 }
-
-.profile-menu__panel a:hover,
-.profile-menu__panel button:hover { background: var(--surface-soft); }
+.profile-menu__panel .interest-option:hover .interest-option__icon,
+.profile-menu__panel .interest-option:focus-visible .interest-option__icon { background: #754725; color: #fff1d8; }
 
 .settings-page { padding: clamp(2rem, 5vw, 4rem) 1rem; }
 .settings-heading { margin-bottom: 2rem; }
