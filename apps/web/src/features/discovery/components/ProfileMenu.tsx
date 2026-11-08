@@ -3,6 +3,7 @@ import { Bookmark, History, LogIn, LogOut, ShieldCheck, UserRound } from 'lucide
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { paths } from '../../../app/paths'
+import { MenuDismissLayer } from '../../../components/MenuDismissLayer'
 import { useAuth } from '../../auth/AuthProvider'
 import { adminApi } from '../../admin/adminApi'
 
@@ -20,11 +21,11 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
 
   useEffect(() => {
     if (!open) return
-    const close = (event: MouseEvent) => {
+    const close = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
     }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
   }, [open])
 
   if (!user) {
@@ -43,6 +44,7 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
         <span className="profile-avatar" aria-hidden="true"><UserRound /></span>
         <span>{displayName}</span>
       </button>
+      {open && <MenuDismissLayer onDismiss={() => setOpen(false)} />}
       {open && (
         <div className="profile-menu__panel" role="menu">
           <div className="profile-menu__heading" role="presentation"><strong>Your account</strong><span>{displayName}</span></div>

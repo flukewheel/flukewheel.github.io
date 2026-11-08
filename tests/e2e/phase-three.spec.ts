@@ -260,7 +260,7 @@ test('OAuth callback errors restore the viewer and interest without leaving call
   const viewerRoute = '#/viewer/20000000-0000-4000-8000-000000000115'
   await page.goto(`/${viewerRoute}`)
   await page.getByRole('button', { name: 'Discovery interest' }).click()
-  await page.getByRole('button', { name: /Arts, Design & Crafts Art, illustration/ }).click()
+  await page.getByRole('button', { name: 'Arts, Design & Crafts' }).click()
   await page.evaluate((route) => sessionStorage.setItem('flukewheel:auth-return', route), viewerRoute)
   await page.goto('/?error=access_denied')
   await expect(page.getByRole('heading', { name: 'Log in to flukewheel' })).toBeVisible()

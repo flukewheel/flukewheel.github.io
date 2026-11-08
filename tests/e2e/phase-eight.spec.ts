@@ -65,3 +65,38 @@ test('narrow layout and reduced motion keep controls usable', async ({ page }) =
   expect(await email.evaluate((element) => getComputedStyle(element).outlineWidth)).toBe('3px')
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
 })
+
+test('mobile navigation stays on one bottom row and the interest menu closes over the viewer', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile')
+  await page.setViewportSize({ width: 320, height: 640 })
+  await page.goto('/#/')
+  const nav = page.locator('.topbar')
+  const navBounds = await nav.boundingBox()
+  expect(navBounds).not.toBeNull()
+  expect(Math.abs(navBounds!.y + navBounds!.height - 640)).toBeLessThan(2)
+  await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeHidden()
+  const controls = [
+    page.getByRole('button', { name: 'Add a website' }),
+    page.getByRole('button', { name: 'Wheel' }),
+    page.getByRole('button', { name: 'Discovery interest' }),
+    page.getByRole('button', { name: 'Log in', exact: true }),
+  ]
+  const positions = await Promise.all(controls.map(async (control) => {
+    await expect(control).toBeVisible()
+    return (await control.boundingBox())!.x
+  }))
+  expect(positions).toEqual([...positions].sort((a, b) => a - b))
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
+
+  await page.goto('/#/viewer/20000000-0000-4000-8000-000000000115')
+  await page.locator('.viewer-shell iframe').waitFor()
+  await controls[2].click()
+  const panel = page.locator('.interest-selector__panel')
+  await expect(panel.locator('.interest-selector__grid .interest-option')).toHaveCount(20)
+  const columns = await panel.locator('.interest-selector__grid').evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)
+  expect(columns).toBe(3)
+  const panelBounds = await panel.boundingBox()
+  expect(panelBounds!.y + panelBounds!.height).toBeLessThan(navBounds!.y)
+  await page.mouse.click(319, 100)
+  await expect(panel).toHaveCount(0)
+})

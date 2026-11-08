@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppState } from '../../../app/AppState'
 import { paths } from '../../../app/paths'
+import { MenuDismissLayer } from '../../../components/MenuDismissLayer'
 import { catalogueAdapter } from '../../../lib/adapters'
 import { CategoryIcon } from './CategoryIcon'
 
@@ -51,6 +52,9 @@ export function InterestSelector() {
         <span>{selected?.name ?? 'All interests'}</span>
         <ChevronDown aria-hidden="true" />
       </button>
+      {open && (
+        <MenuDismissLayer onDismiss={() => setOpen(false)} />
+      )}
       {open && (
         <div aria-label="Choose a discovery interest" className="interest-selector__panel" id={panelId}>
           <div className="interest-selector__heading">
