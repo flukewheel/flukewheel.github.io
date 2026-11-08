@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('guests browse bounded recent cards and paged categories without a viewer on home', async ({ page }) => {
   const externalFrameRequests: string[] = []
@@ -18,6 +19,7 @@ test('guests browse bounded recent cards and paged categories without a viewer o
   await page.getByRole('button', { name: 'Show more websites' }).click()
   await expect(page.locator('.browse-page .website-card')).toHaveCount(48)
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Discovery interest' }).click()
   await page.getByRole('button', { name: 'Arts, Design & Crafts' }).click()
   await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
@@ -26,6 +28,7 @@ test('guests browse bounded recent cards and paged categories without a viewer o
   expect(categories.every((text) => text.includes('Art'))).toBe(true)
   await page.getByRole('link', { name: 'Clear category' }).click()
   await expect(page).toHaveURL(/#\/recent$/)
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Discovery interest' })).toContainText('All interests')
 })
 
@@ -45,6 +48,7 @@ test('returning from a category restores the homepage position', async ({ page }
 test('members receive cold-start recommendations and guests see the prompt after logout', async ({ page }) => {
   const email = `phase5-${crypto.randomUUID()}@example.test`
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -55,6 +59,7 @@ test('members receive cold-start recommendations and guests see the prompt after
   await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
   await page.getByRole('button', { name: 'Not now' }).click()
   const accountTrigger = page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` })
+  await showMobileMenu(page)
   await accountTrigger.click()
   const accountMenu = page.getByRole('menu')
   await expect(accountMenu.getByRole('menuitem')).toHaveCount(4)
@@ -65,6 +70,7 @@ test('members receive cold-start recommendations and guests see the prompt after
   await expect(accountTrigger).toBeFocused()
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000115')
   await page.locator('.viewer-shell iframe').waitFor()
+  await showMobileMenu(page)
   await accountTrigger.click()
   await expect(accountMenu).toBeVisible()
   await page.mouse.click(10, 100)
@@ -84,6 +90,7 @@ test('members receive cold-start recommendations and guests see the prompt after
   expect((await refreshedRecommendations).status()).toBe(200)
   await expect(forYou.locator('.website-card')).toHaveCount(6)
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Discovery interest' }).click()
   await page.getByRole('button', { name: 'Arts, Design & Crafts' }).click()
   await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
@@ -95,6 +102,7 @@ test('members receive cold-start recommendations and guests see the prompt after
   const secondTab = await page.context().newPage()
   await secondTab.goto('/#/')
   await expect(secondTab.getByRole('region', { name: 'For you' }).locator('.website-card')).toHaveCount(6)
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
   await page.goto('/#/')
@@ -108,6 +116,7 @@ test('members can retry a recommendation failure without losing the home feed', 
   const email = `phase5-retry-${crypto.randomUUID()}@example.test`
   await page.route('**/rpc/recommend_website_ids', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: '{"message":"Temporary failure"}' }))
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)

@@ -14,12 +14,14 @@ interface DislikeDropdownProps {
   busy?: boolean
   disabled: boolean
   onReasonSelected?: (reason: string) => void
+  showLabel?: boolean
 }
 
 export function DislikeDropdown({
   busy = false,
   disabled,
   onReasonSelected,
+  showLabel = false,
 }: DislikeDropdownProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -43,6 +45,7 @@ export function DislikeDropdown({
         disabled={disabled}
         icon={<ChevronDown aria-hidden="true" />}
         label="Choose a dislike reason"
+        showLabel={showLabel}
         onClick={() => { if (!busy) setOpen((value) => !value) }}
       />
       {open && (

@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowUpRight, Bookmark, Check, Copy, Heart, LoaderCircle, ThumbsDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { IconButton } from '../../../components/IconButton'
 import { rememberPendingAction } from '../../auth/pendingAction'
 import { useAuth } from '../../auth/AuthProvider'
@@ -12,12 +13,14 @@ interface ReactionControlsProps {
   onOpenAuth: () => void
   originalUrl?: string
   websiteId?: string
+  mobile?: boolean
+  secondaryTarget?: HTMLElement | null
 }
 
 type ActionKind = 'love' | 'dislike' | 'bookmark'
 type InteractionState = Awaited<ReturnType<typeof interactionAdapter.getState>>
 
-export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId }: ReactionControlsProps) {
+export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId, mobile = false, secondaryTarget }: ReactionControlsProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [busyAction, setBusyAction] = useState<{ websiteId: string; kind: ActionKind } | null>(null)
@@ -103,17 +106,24 @@ export function ReactionControls({ disabled, onOpenAuth, originalUrl, websiteId 
     }
   }
 
+  const loveButton = <IconButton active={loved} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'love' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <Heart aria-hidden="true" className={loved ? 'reaction-icon--loved' : undefined} />} label="Love this website" onClick={() => void act('love')} />
+  const bookmarkButton = <IconButton active={bookmarked} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'bookmark' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : bookmarked ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
+  const copyAndOpenButtons = <>
+    <IconButton disabled={disabled} icon={copied ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Copy aria-hidden="true" />} label="Copy link" onClick={() => void copyLink()} showLabel={mobile} />
+    <span className="sr-only" role="status">{copied ? 'Link copied' : ''}</span>
+    <IconButton disabled={disabled || !originalUrl} icon={<ArrowUpRight aria-hidden="true" />} label="Open original website" onClick={openOriginal} showLabel={mobile} />
+  </>
+  const dislikeControls = <div className="split-control">
+    <IconButton active={disliked} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'dislike' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <ThumbsDown aria-hidden="true" className={disliked ? 'reaction-icon--disliked' : undefined} />} label="Dislike this website" onClick={() => void act('dislike')} showLabel={mobile} />
+    <DislikeDropdown busy={Boolean(currentBusy)} disabled={actionDisabled} onReasonSelected={(reason) => void act('dislike', reason)} showLabel={mobile} />
+  </div>
+
   return (
-    <div aria-busy={Boolean(currentBusy)} aria-label="Website actions" className="reaction-controls" role="group">
-      <IconButton active={loved} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'love' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <Heart aria-hidden="true" className={loved ? 'reaction-icon--loved' : undefined} />} label="Love this website" onClick={() => void act('love')} />
-      <IconButton disabled={disabled} icon={copied ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Copy aria-hidden="true" />} label="Copy link" onClick={() => void copyLink()} />
-      <span className="sr-only" role="status">{copied ? 'Link copied' : ''}</span>
-      <IconButton disabled={disabled || !originalUrl} icon={<ArrowUpRight aria-hidden="true" />} label="Open original website" onClick={openOriginal} />
-      <IconButton active={bookmarked} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'bookmark' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : bookmarked ? <Check aria-hidden="true" className="reaction-icon--saved" /> : <Bookmark aria-hidden="true" />} label="Bookmark this website" onClick={() => void act('bookmark')} />
-      <div className="split-control">
-        <IconButton active={disliked} aria-disabled={Boolean(currentBusy) || undefined} disabled={actionDisabled} icon={currentBusy === 'dislike' ? <LoaderCircle aria-hidden="true" className="reaction-icon--loading" /> : <ThumbsDown aria-hidden="true" className={disliked ? 'reaction-icon--disliked' : undefined} />} label="Dislike this website" onClick={() => void act('dislike')} />
-        <DislikeDropdown busy={Boolean(currentBusy)} disabled={actionDisabled} onReasonSelected={(reason) => void act('dislike', reason)} />
-      </div>
+    <div aria-busy={Boolean(currentBusy)} aria-label="Website actions" className={`reaction-controls${mobile ? ' reaction-controls--mobile' : ''}`} role="group">
+      {loveButton}
+      {mobile ? secondaryTarget && createPortal(<div className="reaction-controls__secondary">{copyAndOpenButtons}{dislikeControls}</div>, secondaryTarget) : copyAndOpenButtons}
+      {bookmarkButton}
+      {!mobile && dislikeControls}
       {user && state.isError && <span className="reaction-error" role="alert">Website actions could not be loaded. <button className="text-button" onClick={() => void state.refetch()} type="button">Try again</button></span>}
       {error && error.websiteId === websiteId && <span className="reaction-error" role="alert">{error.message}</span>}
     </div>

@@ -5,11 +5,12 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string
   icon: ReactNode
   active?: boolean
+  showLabel?: boolean
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(
-    { label, icon, active = false, className, ...props },
+    { label, icon, active = false, showLabel = false, className, ...props },
     ref,
   ) {
     return (
@@ -24,6 +25,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         {...props}
       >
         {icon}
+        {showLabel && <span className="icon-button__label">{label}</span>}
       </button>
     )
   },

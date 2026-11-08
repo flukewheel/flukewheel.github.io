@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('local account keeps a guest bookmark on the original website after sign-in', async ({ page }) => {
   await page.route('**/*', async (route) => {
@@ -11,6 +12,7 @@ test('local account keeps a guest bookmark on the original website after sign-in
   const websiteId = '20000000-0000-4000-8000-000000000115'
 
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -18,8 +20,10 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await page.getByRole('button', { name: 'Sign up', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
   await page.getByRole('button', { name: 'Not now' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` })).toBeVisible()
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Profile and interests' }).click()
   await expect(page.getByRole('heading', { name: 'Profile and interests' })).toBeVisible()
@@ -40,8 +44,10 @@ test('local account keeps a guest bookmark on the original website after sign-in
   ])
   await expect(page.getByText('If this address has an account, a password reset link is on its way.')).toBeVisible()
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: /Account menu for member_/ }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible()
 
   await page.goto(`/#/viewer/${websiteId}`, { waitUntil: 'domcontentloaded' })
@@ -56,6 +62,7 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await page.getByRole('button', { name: 'Log in', exact: true }).last().click()
   await expect(page.getByRole('button', { name: 'Bookmark this website' })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('button', { name: 'Love this website' })).not.toHaveAttribute('aria-pressed', 'true')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: /Account menu for member_/ }).click()
   await page.getByRole('menuitem', { name: 'Bookmarks' }).click()
   await expect(page.getByRole('heading', { name: 'Bookmarks' })).toBeVisible()
@@ -113,6 +120,7 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await loveButton.click()
   await expect(loveButton).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('group', { name: 'Website actions' })).toHaveAttribute('aria-busy', 'false')
+  await showMobileMenu(page)
   const dislikeButton = page.getByRole('button', { name: 'Dislike this website' })
   await dislikeButton.click()
   await expect(page.getByRole('group', { name: 'Website actions' })).toHaveAttribute('aria-busy', 'true')
@@ -132,11 +140,13 @@ test('local account keeps a guest bookmark on the original website after sign-in
   await expect(dislikeButton).not.toHaveAttribute('aria-pressed', 'true')
   await expect(dislikeButton.locator('svg.reaction-icon--disliked')).toHaveCount(0)
   await page.reload()
+  await showMobileMenu(page)
   await expect(dislikeButton).not.toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: 'Wheel' }).click()
   await expect(page).not.toHaveURL(new RegExp(`${websiteId}$`))
   await expect(page.getByRole('button', { name: 'Bookmark this website' }).locator('svg.lucide-bookmark')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Love this website' }).locator('svg.lucide-heart')).toBeVisible()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Dislike this website' }).locator('svg.lucide-thumbs-down')).toBeVisible()
 })
 
@@ -147,6 +157,7 @@ test('local password recovery returns to the static app entry', async ({ page, r
 
   const viewerRoute = '/#/viewer/20000000-0000-4000-8000-000000000115'
   await page.goto(viewerRoute)
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -154,9 +165,12 @@ test('local password recovery returns to the static app entry', async ({ page, r
   await page.getByRole('button', { name: 'Sign up', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Choose a username' })).toBeVisible()
   await page.getByRole('button', { name: 'Not now' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` })).toBeVisible()
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Forgot password?' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -191,6 +205,7 @@ test('email token callback restores the viewer across tabs and completes the pro
   const email = `confirmation-${Date.now()}-${Math.random().toString(36).slice(2)}@example.test`
   const websiteId = '20000000-0000-4000-8000-000000000115'
   await page.goto(`/#/viewer/${websiteId}`)
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -214,6 +229,7 @@ test('email token callback restores the viewer across tabs and completes the pro
   const username = `confirmed_${Date.now()}`
   await confirmationTab.getByRole('textbox', { name: 'Username' }).fill(username)
   await confirmationTab.getByRole('button', { name: 'Save username' }).click()
+  await showMobileMenu(confirmationTab)
   await expect(confirmationTab.getByRole('button', { name: `Account menu for ${username}` })).toBeVisible()
 })
 
@@ -227,6 +243,7 @@ test('new accounts complete a unique username without losing their discovery', a
   const viewerRoute = '/#/viewer/20000000-0000-4000-8000-000000000115'
 
   async function signUp(email: string) {
+    await showMobileMenu(page)
     await page.getByRole('button', { name: 'Log in', exact: true }).click()
     await page.getByRole('button', { name: 'Create an account' }).click()
     await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -239,8 +256,10 @@ test('new accounts complete a unique username without losing their discovery', a
   await signUp(firstEmail)
   await page.getByRole('textbox', { name: 'Username' }).fill(username)
   await page.getByRole('button', { name: 'Save username' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: `Account menu for ${username}` })).toBeVisible()
   await expect(page).toHaveURL(new RegExp(`${viewerRoute.slice(3)}$`))
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${username}` }).click()
   await page.getByRole('menuitem', { name: 'Log out' }).click()
 
@@ -250,8 +269,10 @@ test('new accounts complete a unique username without losing their discovery', a
   await expect(page.getByRole('alert')).toContainText('That username is already taken. Choose another.')
   await page.getByRole('textbox', { name: 'Username' }).fill(alternative)
   await page.getByRole('button', { name: 'Save username' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: `Account menu for ${alternative}` })).toBeVisible()
   await page.reload({ waitUntil: 'domcontentloaded' })
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: `Account menu for ${alternative}` })).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
 })
@@ -259,6 +280,7 @@ test('new accounts complete a unique username without losing their discovery', a
 test('OAuth callback errors restore the viewer and interest without leaving callback parameters', async ({ page }) => {
   const viewerRoute = '#/viewer/20000000-0000-4000-8000-000000000115'
   await page.goto(`/${viewerRoute}`)
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Discovery interest' }).click()
   await page.getByRole('button', { name: 'Arts, Design & Crafts' }).click()
   await page.evaluate((route) => sessionStorage.setItem('flukewheel:auth-return', route), viewerRoute)
@@ -266,5 +288,7 @@ test('OAuth callback errors restore the viewer and interest without leaving call
   await expect(page.getByRole('heading', { name: 'Log in to flukewheel' })).toBeVisible()
   await expect(page.getByRole('alert')).toContainText('Authentication was cancelled or could not be completed.')
   await expect(page).toHaveURL(new RegExp(`${viewerRoute.slice(1)}$`))
+  await page.getByRole('button', { name: 'Close authentication' }).click()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Discovery interest' })).toContainText('Arts, Design & Crafts')
 })

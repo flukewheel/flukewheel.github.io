@@ -8,7 +8,7 @@ import { MenuDismissLayer } from '../../../components/MenuDismissLayer'
 import { catalogueAdapter } from '../../../lib/adapters'
 import { CategoryIcon } from './CategoryIcon'
 
-export function InterestSelector() {
+export function InterestSelector({ onSelect }: { onSelect?: () => void } = {}) {
   const { state, dispatch } = useAppState()
   const location = useLocation()
   const navigate = useNavigate()
@@ -40,6 +40,7 @@ export function InterestSelector() {
   function choose(interestId: string) {
     dispatch({ type: 'interest-selected', interestId })
     setOpen(false)
+    onSelect?.()
     triggerRef.current?.focus()
     if (location.pathname === '/' || location.pathname === paths.recent || location.pathname.startsWith('/category/')) {
       navigate(interestId === 'all' ? location.pathname === '/' ? paths.home : paths.recent : paths.category(interestId))

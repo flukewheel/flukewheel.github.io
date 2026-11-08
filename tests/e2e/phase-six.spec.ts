@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('Copy Link copies the original website URL', async ({ page }) => {
   await page.addInitScript(() => {
@@ -11,6 +12,7 @@ test('Copy Link copies the original website URL', async ({ page }) => {
   })
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000362')
   const button = page.getByRole('button', { name: 'Copy link' })
+  await showMobileMenu(page)
   await expect(button).toBeEnabled()
   await button.click()
   await expect.poll(() => page.evaluate(() => (window as Window & { copiedWebsiteUrl?: string }).copiedWebsiteUrl))
@@ -23,6 +25,7 @@ test('Copy Link copies the original website URL', async ({ page }) => {
 test('Open original website launches the source URL in a new tab', async ({ page }) => {
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000362')
   const popupPromise = page.waitForEvent('popup')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Open original website' }).click()
   const popup = await popupPromise
   await expect(popup).toHaveURL('https://barefeetmusic.com/')

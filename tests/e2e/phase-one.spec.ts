@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('homepage reads the public catalogue and keeps the viewer unmounted', async ({ page }, testInfo) => {
   await page.goto('/#/')
@@ -27,6 +28,7 @@ test('a catalogue card opens the website inline without the footer', async ({ pa
 
   await expect(page).toHaveURL(/#\/viewer\/[0-9a-f-]{36}$/i)
   await expect(page.locator('iframe')).toHaveAttribute('src', /^https?:\/\//)
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Open original website' })).toBeEnabled()
   await expect(page.locator('footer')).toHaveCount(0)
   if (testInfo.project.name === 'mobile') await page.goBack()
@@ -40,11 +42,13 @@ test('a site that blocks embedding is still attempted in the viewer', async ({ p
 
   await expect(page.locator('iframe')).toHaveAttribute('src', 'https://www.foodnotbombs.net/a.%20Anarchist%20Cookbook%20interior%207-30-15-1.pdf')
   await expect(page.getByText('A discovery to open')).toHaveCount(0)
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Open original website' })).toBeEnabled()
 })
 
 test('the primary toolbar follows a useful keyboard order', async ({ page }, testInfo) => {
-  await page.goto('/#/')
+  await page.goto(testInfo.project.name === 'mobile' ? '/#/viewer/20000000-0000-4000-8000-000000000115' : '/#/')
+  if (testInfo.project.name === 'mobile') await expect(page.getByRole('button', { name: 'Love this website' })).toBeEnabled()
   if (testInfo.project.name === 'mobile') await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeHidden()
   else await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeVisible()
 
@@ -55,19 +59,23 @@ test('the primary toolbar follows a useful keyboard order', async ({ page }, tes
     await page.keyboard.press('Tab')
     await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeFocused()
   }
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Add a website' })).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Wheel' })).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Discovery interest' })).toBeFocused()
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeFocused()
+  if (testInfo.project.name === 'mobile') {
+    for (const name of ['Wheel', 'Love this website', 'Bookmark this website', 'More options']) {
+      await page.keyboard.press('Tab')
+      await expect(page.getByRole('button', { name })).toBeFocused()
+    }
+  } else {
+    for (const name of ['Add a website', 'Wheel', 'Discovery interest', 'Log in']) {
+      await page.keyboard.press('Tab')
+      await expect(page.getByRole('button', { name, exact: true })).toBeFocused()
+    }
+  }
 })
 
 test('the selected database interest survives a refresh', async ({ page }) => {
   await page.goto('/#/')
   const interest = page.getByRole('button', { name: 'Discovery interest' })
+  await showMobileMenu(page)
   await interest.click()
   await expect(page.locator('.interest-selector__grid .interest-option')).toHaveCount(20)
   await page.getByRole('button', { name: 'Arts, Design & Crafts' }).click()
@@ -75,6 +83,7 @@ test('the selected database interest survives a refresh', async ({ page }) => {
   expect(selectedId).toMatch(/^[0-9a-f-]{36}$/i)
   await page.reload()
 
+  await showMobileMenu(page)
   await expect(interest).toContainText('Arts, Design & Crafts')
 })
 
@@ -82,6 +91,7 @@ test('interest picker shows icons, responds to hover and closes with Escape', as
   if (testInfo.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 720 })
   await page.goto('/#/')
   const trigger = page.getByRole('button', { name: 'Discovery interest' })
+  await showMobileMenu(page)
   await trigger.click()
   const grid = page.locator('.interest-selector__grid')
   const panel = page.locator('.interest-selector__panel')
@@ -103,6 +113,7 @@ test('interest picker shows icons, responds to hover and closes with Escape', as
   await trigger.click()
   await grid.getByRole('button', { name: 'Food, Cooking' }).click()
   await expect(page).toHaveURL(/#\/category\/[0-9a-f-]{36}$/i)
+  await showMobileMenu(page)
   await expect(trigger).toContainText('Food, Cooking')
 })
 
@@ -129,6 +140,7 @@ test('browser history preserves database category context around a viewer', asyn
 
   await page.goBack()
   await expect(page).toHaveURL(categoryUrl)
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Discovery interest' })).toContainText('Education, Learning')
 
   await page.goForward()

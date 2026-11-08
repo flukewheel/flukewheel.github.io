@@ -9,9 +9,10 @@ import { adminApi } from '../../admin/adminApi'
 
 interface ProfileMenuProps {
   onOpenAuth: () => void
+  onMenuAction?: () => void
 }
 
-export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
+export function ProfileMenu({ onOpenAuth, onMenuAction }: ProfileMenuProps) {
   const { user, profile, signOut } = useAuth()
   const admin = useQuery({ queryKey: ['admin-status', user?.id], queryFn: adminApi.isAdmin, enabled: Boolean(user) })
   const [open, setOpen] = useState(false)
@@ -39,7 +40,7 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
 
   const displayName = profile?.username ?? user.email?.split('@')[0] ?? 'Account'
   return (
-    <div className="profile-menu" onKeyDown={(event) => { if (event.key === 'Escape' && open) { setOpen(false); triggerRef.current?.focus() } }} ref={rootRef}>
+    <div className="profile-menu" onKeyDown={(event) => { if (event.key === 'Escape' && open) { event.stopPropagation(); setOpen(false); triggerRef.current?.focus() } }} ref={rootRef}>
       <button aria-expanded={open} aria-haspopup="menu" aria-label={`Account menu for ${displayName}`} className="profile-button" onClick={() => setOpen((value) => !value)} ref={triggerRef} type="button">
         <span className="profile-avatar" aria-hidden="true"><UserRound /></span>
         <span>{displayName}</span>
@@ -48,10 +49,10 @@ export function ProfileMenu({ onOpenAuth }: ProfileMenuProps) {
       {open && (
         <div className="profile-menu__panel" role="menu">
           <div className="profile-menu__heading" role="presentation"><strong>Your account</strong><span>{displayName}</span></div>
-          <Link className="interest-option profile-menu__item" onClick={() => setOpen(false)} role="menuitem" to={paths.settings}><span aria-hidden="true" className="interest-option__icon"><UserRound /></span><span>Profile and interests</span></Link>
-          <Link className="interest-option profile-menu__item" onClick={() => setOpen(false)} role="menuitem" to={paths.bookmarks}><span aria-hidden="true" className="interest-option__icon"><Bookmark /></span><span>Bookmarks</span></Link>
-          <Link className="interest-option profile-menu__item" onClick={() => setOpen(false)} role="menuitem" to={paths.history}><span aria-hidden="true" className="interest-option__icon"><History /></span><span>Browsing history</span></Link>
-          {admin.data && <Link className="interest-option profile-menu__item" onClick={() => setOpen(false)} role="menuitem" to={paths.admin}><span aria-hidden="true" className="interest-option__icon"><ShieldCheck /></span><span>Administration</span></Link>}
+          <Link className="interest-option profile-menu__item" onClick={() => { setOpen(false); onMenuAction?.() }} role="menuitem" to={paths.settings}><span aria-hidden="true" className="interest-option__icon"><UserRound /></span><span>Profile and interests</span></Link>
+          <Link className="interest-option profile-menu__item" onClick={() => { setOpen(false); onMenuAction?.() }} role="menuitem" to={paths.bookmarks}><span aria-hidden="true" className="interest-option__icon"><Bookmark /></span><span>Bookmarks</span></Link>
+          <Link className="interest-option profile-menu__item" onClick={() => { setOpen(false); onMenuAction?.() }} role="menuitem" to={paths.history}><span aria-hidden="true" className="interest-option__icon"><History /></span><span>Browsing history</span></Link>
+          {admin.data && <Link className="interest-option profile-menu__item" onClick={() => { setOpen(false); onMenuAction?.() }} role="menuitem" to={paths.admin}><span aria-hidden="true" className="interest-option__icon"><ShieldCheck /></span><span>Administration</span></Link>}
           {error && <p role="alert">{error}</p>}
           <button className="interest-option profile-menu__item profile-menu__item--sign-out" onClick={() => { void signOut().then(() => setOpen(false)).catch((cause) => setError(cause instanceof Error ? cause.message : 'Could not sign out.')) }} role="menuitem" type="button"><span aria-hidden="true" className="interest-option__icon"><LogOut /></span><span>Log out</span></button>
         </div>

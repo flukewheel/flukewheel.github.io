@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('submission and authentication dialogs trap focus and restore it on Escape', async ({ page }) => {
   await page.goto('/#/')
 
   const add = page.getByRole('button', { name: 'Add a website' })
+  await showMobileMenu(page)
   await add.click()
   const submission = page.getByRole('dialog', { name: 'Suggest a website' })
   const closeSubmission = submission.getByRole('button', { name: 'Close website submission' })
@@ -15,6 +17,7 @@ test('submission and authentication dialogs trap focus and restore it on Escape'
   await expect(add).toBeFocused()
 
   const login = page.getByRole('button', { name: 'Log in', exact: true })
+  await showMobileMenu(page)
   await login.click()
   const auth = page.getByRole('dialog', { name: 'Log in to flukewheel' })
   const closeAuth = auth.getByRole('button', { name: 'Close authentication' })
@@ -59,6 +62,7 @@ test('narrow layout and reduced motion keep controls usable', async ({ page }) =
   await page.waitForTimeout(120)
   expect(await icon.evaluate((element) => getComputedStyle(element).transform)).toBe(before)
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   const email = page.getByRole('dialog', { name: 'Log in to flukewheel' }).getByRole('textbox', { name: 'Email address' })
   await email.focus()
@@ -76,21 +80,32 @@ test('mobile navigation stays on one bottom row and the interest menu closes ove
   expect(Math.abs(navBounds!.y + navBounds!.height - 640)).toBeLessThan(2)
   await expect(page.getByRole('link', { name: 'flukewheel home' })).toBeHidden()
   const controls = [
-    page.getByRole('button', { name: 'Add a website' }),
     page.getByRole('button', { name: 'Wheel' }),
-    page.getByRole('button', { name: 'Discovery interest' }),
-    page.getByRole('button', { name: 'Log in', exact: true }),
+    page.getByRole('button', { name: 'Love this website' }),
+    page.getByRole('button', { name: 'Bookmark this website' }),
+    page.getByRole('button', { name: 'More options' }),
   ]
   const positions = await Promise.all(controls.map(async (control) => {
     await expect(control).toBeVisible()
     return (await control.boundingBox())!.x
   }))
   expect(positions).toEqual([...positions].sort((a, b) => a - b))
+  for (const control of controls) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(48)
+  await expect(page.locator('.topbar button')).toHaveCount(4)
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
 
   await page.goto('/#/viewer/20000000-0000-4000-8000-000000000115')
   await page.locator('.viewer-shell iframe').waitFor()
-  await controls[2].click()
+  await controls[3].click()
+  await expect(page.getByRole('button', { name: 'Add a website' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Copy link' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open original website' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Dislike this website' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible()
+  await page.mouse.click(319, 100)
+  await expect(page.locator('.mobile-menu__panel')).toHaveCount(0)
+  await controls[3].click()
+  await page.getByRole('button', { name: 'Discovery interest' }).click()
   const panel = page.locator('.interest-selector__panel')
   await expect(panel.locator('.interest-selector__grid .interest-option')).toHaveCount(20)
   const columns = await panel.locator('.interest-selector__grid').evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length)
@@ -99,4 +114,5 @@ test('mobile navigation stays on one bottom row and the interest menu closes ove
   expect(panelBounds!.y + panelBounds!.height).toBeLessThan(navBounds!.y)
   await page.mouse.click(319, 100)
   await expect(panel).toHaveCount(0)
+  await expect(page.locator('.mobile-menu__panel')).toHaveCount(0)
 })

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { showMobileMenu } from './mobileMenu'
 
 test('member can revisit and clear Wheel history', async ({ page }) => {
   await page.route('**/*', async (route) => {
@@ -10,6 +11,7 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   const email = `phase7-${Date.now()}-${Math.random().toString(36).slice(2)}@example.test`
 
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -21,6 +23,7 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   await page.getByRole('button', { name: 'Wheel' }).click()
   await expect(page).toHaveURL(/#\/viewer\//)
   const viewerUrl = page.url()
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Browsing history' }).click()
   await expect(page.getByRole('heading', { name: 'Browsing history' })).toBeVisible()
@@ -29,6 +32,7 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   await page.getByRole('link', { name: 'Open in viewer' }).click()
   await expect(page).toHaveURL(viewerUrl)
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Browsing history' }).click()
   await expect(page.getByText('History revisit')).toBeVisible()
@@ -36,6 +40,7 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   await page.goto('/#/')
   await page.locator('.card-carousel .card-link').first().click()
   await expect(page).toHaveURL(/#\/viewer\//)
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Browsing history' }).click()
   await expect(page.getByText('Catalogue card')).toBeVisible()
@@ -43,9 +48,11 @@ test('member can revisit and clear Wheel history', async ({ page }) => {
   await page.getByRole('link', { name: 'Open in viewer' }).first().click()
   await page.getByRole('button', { name: 'Bookmark this website' }).click()
   await expect(page.getByRole('button', { name: 'Bookmark this website' })).toHaveAttribute('aria-pressed', 'true')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Bookmarks' }).click()
   await page.getByRole('link', { name: 'Open in viewer' }).click()
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   await page.getByRole('menuitem', { name: 'Browsing history' }).click()
   await expect(page.getByText('Bookmark', { exact: true })).toBeVisible()
@@ -75,6 +82,7 @@ test('member can export then permanently delete a test account', async ({ page }
   const email = `phase7-delete-${Date.now()}-${Math.random().toString(36).slice(2)}@example.test`
   const password = 'FlukewheelTestPassword42!'
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -95,14 +103,19 @@ test('member can export then permanently delete a test account', async ({ page }
   const deletion = page.waitForResponse((response) => response.url().includes('/functions/v1/delete-account'))
   await deleteButton.click()
   expect((await deletion).status()).toBe(200)
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible()
   await page.reload()
+  await showMobileMenu(page)
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
   await page.getByLabel('Password', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Log in', exact: true }).last().click()
-  await expect(page.getByRole('button', { name: 'Log in', exact: true }).first()).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('Invalid login credentials')
+  await page.getByRole('button', { name: 'Close authentication' }).click()
+  await showMobileMenu(page)
+  await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` })).toHaveCount(0)
 })
 
@@ -114,6 +127,7 @@ test('failed member writes restore the previous website state', async ({ page })
     else await route.continue()
   })
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
@@ -159,6 +173,7 @@ test('a reaction in flight stays attached to its original website after a Wheel 
     else await route.continue()
   })
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)

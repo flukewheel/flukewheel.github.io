@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
+import { showMobileMenu } from './mobileMenu'
 
 test('guest suggestions enter review and duplicate URLs are rejected', async ({ page }) => {
   const url = `https://example.org/flukewheel-suggestion-${crypto.randomUUID()}?utm_source=browser-test`
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Add a website' }).click()
   const dialog = page.getByRole('dialog', { name: 'Suggest a website' })
   await expect(dialog).toBeVisible()
@@ -13,6 +15,7 @@ test('guest suggestions enter review and duplicate URLs are rejected', async ({ 
   await expect(dialog.getByText('Thanks. Your suggestion is in the review queue.')).toBeVisible()
   await dialog.getByRole('button', { name: 'Done' }).click()
 
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Add a website' }).click()
   await dialog.getByRole('textbox', { name: 'Website URL' }).fill(url.replace('utm_source=browser-test', 'utm_campaign=repeat'))
   await dialog.getByRole('button', { name: 'Send suggestion' }).click()
@@ -57,12 +60,14 @@ test('administrator can work through review, catalogue and maintenance screens',
   })
 
   await page.goto('/#/')
+  await showMobileMenu(page)
   await page.getByRole('button', { name: 'Log in', exact: true }).click()
   await page.getByRole('button', { name: 'Create an account' }).click()
   await page.getByRole('textbox', { name: 'Email address' }).fill(email)
   await page.getByLabel('Password', { exact: true }).fill('FlukewheelTestPassword42!')
   await page.getByRole('button', { name: 'Sign up', exact: true }).click()
   await page.getByRole('button', { name: 'Not now' }).click()
+  await showMobileMenu(page)
   await page.getByRole('button', { name: `Account menu for ${email.split('@')[0]}` }).click()
   const accountMenu = page.getByRole('menu')
   await expect(accountMenu.getByRole('menuitem')).toHaveCount(5)
