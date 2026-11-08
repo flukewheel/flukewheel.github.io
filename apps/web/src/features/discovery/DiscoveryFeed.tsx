@@ -147,7 +147,7 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
         {catalogue.isPending && <CardSkeleton />}
         {catalogue.isError && <div className="inline-state" role="alert"><p>We couldn’t load the latest finds.</p><button onClick={() => void catalogue.refetch()} type="button">Try again</button></div>}
         {catalogue.isSuccess && catalogue.data.length === 0 && <EmptyState><p>No websites have been added yet.</p></EmptyState>}
-        {catalogue.isSuccess && catalogue.data.length > 0 && <div aria-label="Recently added websites" className="card-carousel" onScroll={(event) => { if (restoredRef.current) sessionStorage.setItem(recentScrollKey, String(event.currentTarget.scrollLeft)) }} ref={recentRef}>{catalogue.data.map((website) => <WebsiteCard key={website.id} recent website={website} />)}</div>}
+        {catalogue.isSuccess && catalogue.data.length > 0 && <div aria-label="Recently added websites" className="card-carousel" onScroll={(event) => { if (restoredRef.current) sessionStorage.setItem(recentScrollKey, String(event.currentTarget.scrollLeft)) }} ref={recentRef}>{catalogue.data.map((website) => <WebsiteCard imageOverlay key={website.id} website={website} />)}</div>}
       </section>
 
       <section aria-labelledby="for-you-heading" className="feed-section">
@@ -162,7 +162,7 @@ export function DiscoveryFeed({ onOpenAuth, onSpin, spinBusy }: DiscoveryFeedPro
             {(categoryQuery.isPending || categoryQuery.isSuccess && recommendations.isPending) && <CardSkeleton />}
             {recommendations.isError && <div className="inline-state" role="alert"><p>{recommendations.error.message.includes('RATE_LIMITED') ? 'Recommendations are busy right now. Please try again in a minute.' : 'Your recommendations could not be loaded.'}</p><button onClick={() => void recommendations.refetch()} type="button">Try again</button></div>}
             {recommendations.isSuccess && recommendations.data.length === 0 && <EmptyState><p>There are no recommendations available right now.</p><Link className="text-link" to={paths.recent}>Browse recent websites</Link></EmptyState>}
-            {recommendations.isSuccess && recommendations.data.length > 0 && <div className="card-grid">{recommendations.data.map((website) => <WebsiteCard key={website.id} website={website} />)}</div>}
+            {recommendations.isSuccess && recommendations.data.length > 0 && <div className="card-grid">{recommendations.data.map((website) => <WebsiteCard imageOverlay key={website.id} website={website} />)}</div>}
           </>
         ) : (
           <div className="auth-invitation">

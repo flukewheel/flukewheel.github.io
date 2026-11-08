@@ -6,10 +6,10 @@ import type { WebsiteSummary } from '../../../lib/types'
 
 interface WebsiteCardProps {
   website: WebsiteSummary
-  recent?: boolean
+  imageOverlay?: boolean
 }
 
-export function WebsiteCard({ website, recent = false }: WebsiteCardProps) {
+export function WebsiteCard({ website, imageOverlay = false }: WebsiteCardProps) {
   const navigate = useNavigate()
   const [imageFailed, setImageFailed] = useState(false)
   const hasThumbnail = Boolean(website.thumbnailUrl) && !imageFailed
@@ -17,7 +17,7 @@ export function WebsiteCard({ website, recent = false }: WebsiteCardProps) {
     navigate(paths.viewer(website.id), { state: { historySource: 'card', historyRequestId: crypto.randomUUID() } })
   }
   return (
-    <article className={`website-card${recent ? ' website-card--recent' : ''}`}>
+    <article className={`website-card${imageOverlay ? ' website-card--image-overlay' : ''}`}>
       <div
         aria-hidden="true"
         className="website-card__art"
@@ -38,13 +38,13 @@ export function WebsiteCard({ website, recent = false }: WebsiteCardProps) {
         )}
       </div>
       <div className="website-card__body">
-        {!recent && <div className="website-card__meta">
+        {!imageOverlay && <div className="website-card__meta">
           <span>{website.addedLabel}</span>
           <span>{website.categories.join(' · ')}</span>
         </div>}
-        <h3>{recent ? <span>{website.title}</span> : website.title}</h3>
-        <p>{recent ? <span>{website.description}</span> : website.description}</p>
-        {recent ? <button
+        <h3>{imageOverlay ? <span>{website.title}</span> : website.title}</h3>
+        <p>{imageOverlay ? <span>{website.description}</span> : website.description}</p>
+        {imageOverlay ? <button
           aria-label={`Take a look at ${website.title}`}
           className="card-link"
           onClick={openWebsite}
