@@ -34,6 +34,7 @@ The separate hosted development backend and its current Auth setup are recorded 
 Phase 3 authentication, profile setup and remaining hosted provider steps are recorded in [Phase 3 authentication](docs/phase-3-auth.md).
 Phase 5 homepage and catalogue browsing progress is recorded in [Phase 5 discovery progress](docs/phase-5-progress.md).
 Phase 7 engagement and collections completion is recorded in [Phase 7 completion](docs/phase-7-progress.md).
+Phase 8 testing and hardening is tracked in [Phase 8 progress](docs/phase-8-progress.md).
 
 ## Quality checks
 
