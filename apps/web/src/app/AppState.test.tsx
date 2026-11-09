@@ -31,4 +31,14 @@ describe('Wheel session progress', () => {
     expect(result.current.state.seenWebsiteIds).toEqual(['second', 'first'])
     expect(result.current.state.recentWebsiteIds).toEqual(['first', 'second', 'first'])
   })
+
+  it('does not record the same arrival twice when the Wheel and viewer both report it', () => {
+    const { result } = renderHook(() => useAppState(), { wrapper: AppStateProvider })
+    act(() => {
+      result.current.dispatch({ type: 'website-visited', websiteId: 'first' })
+      result.current.dispatch({ type: 'website-visited', websiteId: 'first' })
+    })
+    expect(result.current.state.seenWebsiteIds).toEqual(['first'])
+    expect(result.current.state.recentWebsiteIds).toEqual(['first'])
+  })
 })

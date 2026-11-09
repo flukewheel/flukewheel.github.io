@@ -67,7 +67,9 @@ function reducer(state: AppState, action: Action): AppState {
           : state.seenWebsiteIds.includes(action.websiteId)
             ? [...state.seenWebsiteIds.filter((id) => id !== action.websiteId), action.websiteId]
             : [...state.seenWebsiteIds, action.websiteId].slice(-maxSessionWebsites),
-        recentWebsiteIds: [...state.recentWebsiteIds, action.websiteId].slice(-20),
+        recentWebsiteIds: state.recentWebsiteIds.at(-1) === action.websiteId
+          ? state.recentWebsiteIds
+          : [...state.recentWebsiteIds, action.websiteId].slice(-20),
       }
   }
 }
