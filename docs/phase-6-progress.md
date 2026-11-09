@@ -25,3 +25,7 @@ Phase 6 is complete and published as of 5 November 2026. The database migrations
 The owner's 31 October viewer-only decision supersedes the plan's external-opening controls: active cards still attempt an inline iframe even when embedding is blocked. Bump selection remains limited to entries marked allowed. The 140 newest sites with unknown embedding status stay browsable but are excluded from automatic Bump and For you selection until checked.
 
 The local and published checks above satisfy the Phase 6 completion criteria. The existing mobile reaction test's one intermittent timeout remains tracked for Phase 7 work; it passed on an isolated rerun. Future catalogue compatibility review continues as an operating task, especially for entries currently marked unknown.
+
+## 9 November 2026: All interests session cycle
+
+The All interests Wheel now keeps the full set of Wheel results in tab-scoped session storage, while retaining a separate 20-site window for category selections. Its server selector filters seen sites before bounded sampling and starts a new cycle only when no eligible unseen site remains. A repeated site from a small category does not clear All interests progress. The browser displays a new-round notice at the cycle boundary. The request and SQL bounds allow up to 5,000 session IDs. Rollback-only SQL, local Edge Function, session persistence, typecheck, lint, unit tests and build verified the update.

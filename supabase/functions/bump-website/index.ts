@@ -9,7 +9,7 @@ const allowedOrigins = new Set([
 ])
 const requestSchema = z.strictObject({
   category_id: z.uuid().nullable(),
-  recent_ids: z.array(z.uuid()).max(20),
+  recent_ids: z.array(z.uuid()).max(5000),
   request_id: z.uuid(),
 })
 
@@ -40,7 +40,7 @@ async function boundedJson(request: Request) {
     const { done, value } = await reader.read()
     if (done) break
     length += value.length
-    if (length > 4096) { await reader.cancel(); throw new Error('The request is too large.') }
+    if (length > 210_000) { await reader.cancel(); throw new Error('The request is too large.') }
     chunks.push(value)
   }
   const bytes = new Uint8Array(length)

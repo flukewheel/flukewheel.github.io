@@ -28,7 +28,7 @@ export const publicWebsiteSchema = z.strictObject({
 
 export const bumpRequestSchema = z.strictObject({
   category_id: categoryIdSchema.nullable(),
-  recent_ids: z.array(catalogueIdSchema).max(20),
+  recent_ids: z.array(catalogueIdSchema).max(5000),
   request_id: requestIdSchema,
 })
 

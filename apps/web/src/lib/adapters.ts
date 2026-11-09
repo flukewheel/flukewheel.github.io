@@ -243,7 +243,7 @@ export const discoveryAdapter = {
     const { data, error } = await client.functions.invoke('bump-website', {
       body: {
         category_id: interestId === 'all' ? null : interestId,
-        recent_ids: seenIds.slice(-20),
+        recent_ids: seenIds,
         request_id: requestId,
       },
     })
@@ -258,7 +258,7 @@ export const discoveryAdapter = {
     const selection = bumpResponseSchema.parse(data)
     const website = await catalogueAdapter.getById(selection.website.id)
     if (!website) throw new Error('The selected website is no longer available.')
-    return { website, resetCycle: false, exclusionsRelaxed: selection.exclusions_relaxed }
+    return { website, resetCycle: interestId === 'all' && seenIds.includes(selection.website.id), exclusionsRelaxed: selection.exclusions_relaxed }
   },
 }
 

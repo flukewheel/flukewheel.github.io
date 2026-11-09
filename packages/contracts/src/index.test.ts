@@ -25,11 +25,12 @@ describe('request contracts', () => {
     expect(() =>
       bumpRequestSchema.parse({
         category_id: null,
-        recent_ids: Array.from({ length: 21 }, () => id),
+        recent_ids: Array.from({ length: 5001 }, () => id),
         request_id: requestId,
-        unexpected: true,
       }),
     ).toThrow()
+    expect(() => bumpRequestSchema.parse({ category_id: null, recent_ids: [], request_id: requestId, unexpected: true })).toThrow()
+    expect(bumpRequestSchema.parse({ category_id: null, recent_ids: Array.from({ length: 109 }, () => id), request_id: requestId }).recent_ids).toHaveLength(109)
   })
 
   it('rejects a dislike reason on a positive reaction', () => {

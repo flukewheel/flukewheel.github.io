@@ -126,7 +126,9 @@ export function NavigationBar({ onOpenAuth, wheel }: NavigationBarProps) {
             : "We couldn't find a discovery. Please try the Wheel again."}
         </p>
       )}
-      {wheel.bumpNotice && <p className="toolbar-error" role="status">A recent discovery may repeat because this interest has few options.</p>}
+      {wheel.bumpNotice && <p className="toolbar-error" role="status">{wheel.bumpNotice === 'cycle-reset'
+        ? 'You have seen every eligible website this session. The Wheel is starting a new round.'
+        : 'A recent discovery may repeat because this interest has few options.'}</p>}
       <SubmissionModal
         onClose={() => setSubmissionOpen(false)}
         open={submissionOpen}
