@@ -95,9 +95,8 @@ try {
     action: 'review', submission_id: submittedId, decision: 'approve',
     title: approvedTitle, description: 'Synthetic catalogue test fixture.',
     category_ids: ['10000000-0000-4000-8000-000000000003'],
-    note: 'Synthetic Phase 8 workflow fixture; no external site was inspected.',
   })
-  assert.equal(reviewed.status, 200, 'Administrator could not approve the suggestion.')
+  assert.equal(reviewed.status, 200, `Administrator could not approve the suggestion: ${JSON.stringify(reviewed.body)}`)
   assert.equal(reviewed.body.status, 'approved')
   approvedId = reviewed.body.website_id
   const publicApproved = await rest(`websites?select=id,title&id=eq.${approvedId}`, null)

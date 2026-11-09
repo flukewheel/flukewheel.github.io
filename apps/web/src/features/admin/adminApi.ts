@@ -127,6 +127,9 @@ export const adminApi = {
   async editWebsite(input: Omit<ManagedWebsite, 'id' | 'last_validated_at'> & { website_id: string; note: string }) {
     return invoke<{ website_id: string }>({ action: 'edit_website', ...input })
   },
+  async refreshPreview(websiteId: string) {
+    return invoke<{ found: boolean }>({ action: 'refresh_preview', website_id: websiteId })
+  },
   async deleteWebsite(websiteId: string, confirmTitle: string) {
     return invoke<{ website_id: string; bookmarks_deleted: number; history_deleted: number; reactions_deleted: number; submissions_deleted: number }>({
       action: 'delete_website', website_id: websiteId, confirm_title: confirmTitle,

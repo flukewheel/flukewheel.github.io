@@ -16,7 +16,7 @@
     "check:bundle-secrets": "node scripts/check-public-bundle.mjs",
     "lint": "npm run lint --workspace @flukewheel/web",
     "typecheck": "npm run typecheck --workspace @flukewheel/contracts && npm run typecheck --workspace @flukewheel/web",
-    "test": "npm run test:deno-imports && npm run test --workspace @flukewheel/contracts && npm run test --workspace @flukewheel/web",
+    "test": "npm run test:deno-imports && node --experimental-strip-types --test tests/link-preview.test.mjs && npm run test --workspace @flukewheel/contracts && npm run test --workspace @flukewheel/web",
     "test:deno-imports": "node scripts/verify-edge-imports.mjs",
     "test:e2e": "npm run test:e2e --workspace @flukewheel/web"
   },

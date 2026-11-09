@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { normaliseSubmissionUrl } from '../_shared/submission-url.ts'
+import { fetchLinkPreview } from '../_shared/link-preview.ts'
 
 const allowedOrigins = new Set([
   'https://flukewheel.github.io',
@@ -12,6 +13,7 @@ const requestSchema = z.discriminatedUnion('action', [
   z.strictObject({ action: z.literal('status') }),
   z.strictObject({ action: z.literal('queue') }),
   z.strictObject({ action: z.literal('categories') }),
+  z.strictObject({ action: z.literal('refresh_preview'), website_id: z.string().uuid() }),
   z.strictObject({ action: z.literal('reports') }),
   z.strictObject({ action: z.literal('rechecks') }),
   z.strictObject({ action: z.literal('review_reports'), website_id: z.string().uuid(), note: z.string().trim().min(1).max(1000) }),
@@ -80,6 +82,28 @@ function defaultKey(variable: string, legacy: string): string | undefined {
 
 class PayloadTooLarge extends Error {}
 
+async function addPreviewImage(admin: ReturnType<typeof createClient>, websiteId: string): Promise<boolean> {
+  const { data: website, error } = await admin.from('websites')
+    .select('id, original_url, thumbnail_path').eq('id', websiteId).single()
+  if (error || !website || website.thumbnail_path) return false
+  try {
+    const preview = await fetchLinkPreview(website.original_url)
+    if (!preview) return false
+    const path = `link-previews/${website.id}.${preview.extension}`
+    const { error: uploadError } = await admin.storage.from('thumbnails').upload(path, preview.bytes, {
+      contentType: preview.mime, upsert: true, cacheControl: '86400',
+    })
+    if (uploadError) throw uploadError
+    const { data, error: updateError } = await admin.from('websites')
+      .update({ thumbnail_path: path }).eq('id', website.id).is('thumbnail_path', null).select('id')
+    if (updateError) throw updateError
+    return Boolean(data?.length)
+  } catch (cause) {
+    console.warn('Link preview unavailable:', cause instanceof Error ? cause.message : String(cause))
+    return false
+  }
+}
+
 async function boundedJson(request: Request): Promise<unknown> {
   if (!request.body) throw new Error('Missing body')
   const reader = request.body.getReader()
@@ -144,6 +168,10 @@ Deno.serve(async (request) => {
     if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Categories could not be loaded.')
     return Response.json({ categories: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
+  if (parsed.action === 'refresh_preview') {
+    const found = await addPreviewImage(admin, parsed.website_id)
+    return Response.json({ found }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
+  }
   if (parsed.action === 'reports') {
     const { data, error } = await admin.rpc('admin_report_queue', { p_actor_id: user.id })
     if (error) return reply(request, 500, 'INTERNAL_ERROR', 'Reports could not be loaded.')
@@ -190,6 +218,7 @@ Deno.serve(async (request) => {
       const status = error.code === '23505' ? 409 : error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : 500
       return reply(request, status, status === 409 ? 'CONFLICT' : 'INVALID_INPUT', status === 409 ? 'That web address is already in the catalogue.' : 'The catalogue change could not be saved.')
     }
+    if (!parsed.thumbnail_path) await addPreviewImage(admin, parsed.website_id)
     return Response.json({ website_id: data }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
   }
   if (parsed.action === 'delete_website') {
@@ -228,6 +257,9 @@ Deno.serve(async (request) => {
     const status = error.code === '22023' ? 400 : error.code === 'P0002' ? 404 : error.code === '23505' ? 409 : 500
     const code = status === 400 ? 'INVALID_INPUT' : status === 404 ? 'NOT_FOUND' : status === 409 ? 'CONFLICT' : 'INTERNAL_ERROR'
     return reply(request, status, code, status === 400 ? error.message : 'The review could not be saved. Please refresh and try again.')
+  }
+  if (parsed.decision === 'approve' && data?.[0]?.review_status === 'approved' && data[0].website_id) {
+    await addPreviewImage(admin, data[0].website_id)
   }
   return Response.json({ status: data?.[0]?.review_status, website_id: data?.[0]?.website_id ?? null }, { headers: { ...headersFor(request), 'Cache-Control': 'no-store' } })
 })

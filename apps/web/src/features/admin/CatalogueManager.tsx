@@ -20,6 +20,7 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [confirmationTitle, setConfirmationTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [previewMessage, setPreviewMessage] = useState<string | null>(null)
   const changed = title.trim() !== website.title || description.trim() !== website.description
     || originalUrl.trim() !== website.original_url || (thumbnailPath.trim() || null) !== website.thumbnail_path
     || active !== website.active || embeddingStatus !== website.embedding_status
@@ -32,13 +33,24 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
         website_id: website.id,
         original_url: originalUrl.trim(),
         title: title.trim(), description: description.trim(),
-        thumbnail_path: thumbnailPath.trim() || null, category_ids: categoryIds,
+        thumbnail_path: originalUrl.trim() !== website.original_url && thumbnailPath.startsWith('link-previews/')
+          ? null : thumbnailPath.trim() || null, category_ids: categoryIds,
         active, embedding_status: embeddingStatus, note: note.trim(),
       })
       setNote('')
       setEditingUrl(false)
       await onSaved()
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'The catalogue change could not be saved.') }
+    finally { setBusy(false) }
+  }
+
+  async function findPreview() {
+    setBusy(true); setError(null); setPreviewMessage(null)
+    try {
+      const result = await adminApi.refreshPreview(website.id)
+      setPreviewMessage(result.found ? 'Link preview image added.' : 'This site has no accessible link preview image.')
+      if (result.found) await onSaved()
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'The link preview could not be checked.') }
     finally { setBusy(false) }
   }
 
@@ -70,6 +82,8 @@ function WebsiteEditor({ website, onSaved, onDeleted }: { website: ManagedWebsit
         <label>Title<input maxLength={160} onChange={(event) => setTitle(event.target.value)} value={title} /></label>
         <label>Description<textarea maxLength={1000} onChange={(event) => setDescription(event.target.value)} rows={3} value={description} /></label>
         <label>Thumbnail storage path (optional)<input maxLength={512} onChange={(event) => setThumbnailPath(event.target.value)} value={thumbnailPath} /></label>
+        {!website.thumbnail_path && <button className="secondary-button" disabled={busy} onClick={() => void findPreview()} type="button">Find link preview image</button>}
+        {previewMessage && <p role="status">{previewMessage}</p>}
         <fieldset className="submission-categories">
           <legend>Categories</legend>
           {categories.data?.filter((category) => category.active || categoryIds.includes(category.id)).map((category) => (
@@ -161,7 +175,7 @@ export function CatalogueManager() {
               </button>
             ))}
           </nav>
-          {selected && <WebsiteEditor key={selected.id} onDeleted={deleted} onSaved={saved} website={selected} />}
+          {selected && <WebsiteEditor key={[selected.id, selected.title, selected.description, selected.original_url, selected.thumbnail_path, selected.active, selected.embedding_status, ...selected.category_ids].join(':')} onDeleted={deleted} onSaved={saved} website={selected} />}
         </div>
       )}
     </section>
