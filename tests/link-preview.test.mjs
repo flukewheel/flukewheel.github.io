@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { previewImageFromHtml, publicAddress } from '../supabase/functions/_shared/link-preview.ts'
+import { imageType, previewImageFromHtml, publicAddress } from '../supabase/functions/_shared/link-preview.ts'
 
 test('prefers secure Open Graph image and resolves a relative URL', () => {
   const html = `<head><meta content="/ordinary.jpg" property="og:image"><meta property='og:image:secure_url' content='/images/cover.webp?x=1&amp;y=2'></head>`
@@ -17,4 +17,8 @@ test('rejects private and reserved addresses', () => {
     assert.equal(publicAddress(address), false, address)
   }
   for (const address of ['8.8.8.8', '2606:4700:4700::1111']) assert.equal(publicAddress(address), true, address)
+})
+
+test('recognises a GIF advertised as a standard link preview', () => {
+  assert.deepEqual(imageType(new TextEncoder().encode('GIF89a')), { mime: 'image/gif', extension: 'gif' })
 })

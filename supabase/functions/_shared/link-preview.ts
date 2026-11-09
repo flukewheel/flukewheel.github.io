@@ -2,6 +2,7 @@ import { normaliseSubmissionUrl } from './submission-url.ts'
 
 const maxHtmlBytes = 1_048_576
 const maxImageBytes = 2_097_152
+type ResolveDns = (hostname: string, recordType: 'A' | 'AAAA') => Promise<string[]>
 
 export function publicAddress(address: string): boolean {
   if (address.includes(':')) {
@@ -21,25 +22,25 @@ export function publicAddress(address: string): boolean {
     && !(a === 203 && b === 0 && c === 113)
   }
 
-async function safeUrl(raw: string): Promise<URL> {
+async function safeUrl(raw: string, resolveDns: ResolveDns): Promise<URL> {
   const url = new URL(normaliseSubmissionUrl(raw))
   // DNS is checked before every request, including redirects and image hosts.
   // Fetch is never permitted to follow redirects itself.
   const results = await Promise.allSettled([
-    Deno.resolveDns(url.hostname, 'A'), Deno.resolveDns(url.hostname, 'AAAA'),
+    resolveDns(url.hostname, 'A'), resolveDns(url.hostname, 'AAAA'),
   ])
   const addresses = results.flatMap((result) => result.status === 'fulfilled' ? result.value : [])
   if (!addresses.length || addresses.some((address) => !publicAddress(address))) throw new Error('Non-public preview destination')
   return url
 }
 
-async function safeFetch(raw: string, signal: AbortSignal): Promise<{ response: Response; url: URL }> {
+async function safeFetch(raw: string, signal: AbortSignal, resolveDns: ResolveDns): Promise<{ response: Response; url: URL }> {
   let next = raw
   for (let redirects = 0; redirects <= 3; redirects++) {
-    const url = await safeUrl(next)
+    const url = await safeUrl(next, resolveDns)
     const response = await fetch(url, {
       redirect: 'manual', signal,
-      headers: { Accept: 'text/html,image/avif,image/webp,image/png,image/jpeg,*/*;q=0.8', 'User-Agent': 'FlukewheelLinkPreview/1.0' },
+      headers: { Accept: 'text/html,image/gif,image/webp,image/png,image/jpeg,*/*;q=0.8', 'User-Agent': 'FlukewheelLinkPreview/1.0' },
     })
     if (![301, 302, 303, 307, 308].includes(response.status)) return { response, url }
     const location = response.headers.get('location')
@@ -112,21 +113,26 @@ export function previewImageFromHtml(html: string, pageUrl: string): string | nu
   try { return new URL(candidate, pageUrl).href } catch { return null }
 }
 
-function imageType(bytes: Uint8Array): { mime: string; extension: string } | null {
+export function imageType(bytes: Uint8Array): { mime: string; extension: string } | null {
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return { mime: 'image/jpeg', extension: 'jpg' }
   if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return { mime: 'image/png', extension: 'png' }
   if (new TextDecoder().decode(bytes.slice(0, 4)) === 'RIFF' && new TextDecoder().decode(bytes.slice(8, 12)) === 'WEBP') return { mime: 'image/webp', extension: 'webp' }
+  const gifHeader = new TextDecoder().decode(bytes.slice(0, 6))
+  if (gifHeader === 'GIF87a' || gifHeader === 'GIF89a') return { mime: 'image/gif', extension: 'gif' }
   return null
 }
 
-export async function fetchLinkPreview(rawUrl: string): Promise<{ bytes: Uint8Array; mime: string; extension: string } | null> {
+export async function fetchLinkPreview(
+  rawUrl: string,
+  resolveDns: ResolveDns = (hostname, recordType) => Deno.resolveDns(hostname, recordType),
+): Promise<{ bytes: Uint8Array; mime: string; extension: string } | null> {
   const signal = AbortSignal.timeout(12_000)
-  const { response: page, url: pageUrl } = await safeFetch(rawUrl, signal)
+  const { response: page, url: pageUrl } = await safeFetch(rawUrl, signal, resolveDns)
   if (!page.ok || !page.headers.get('content-type')?.toLowerCase().includes('text/html')) return null
   const html = await htmlHead(page)
   const imageUrl = previewImageFromHtml(html, pageUrl.href)
   if (!imageUrl) return null
-  const { response: image } = await safeFetch(imageUrl, signal)
+  const { response: image } = await safeFetch(imageUrl, signal, resolveDns)
   if (!image.ok) return null
   const bytes = await boundedBody(image, maxImageBytes)
   const type = imageType(bytes)

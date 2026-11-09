@@ -10,7 +10,9 @@ const publicClient = createClient(status.API_URL, status.PUBLISHABLE_KEY, { auth
 const id = crypto.randomUUID()
 const email = `preview-${id}@example.test`
 const password = `Preview-${crypto.randomUUID()}!`
-const originalUrl = `https://github.com/?flukewheel-preview-test=${id}`
+const originalUrl = process.argv.includes('--gif')
+  ? `https://benjiweber.co.uk/blog/2022/01/12/cost-of-attrition/?flukewheel-preview-test=${id}`
+  : `https://github.com/?flukewheel-preview-test=${id}`
 let userId = null
 let websiteId = null
 let path = null
@@ -40,7 +42,9 @@ try {
   const saved = await service.from('websites').select('thumbnail_path').eq('id', websiteId).single()
   if (saved.error || !saved.data) throw saved.error ?? new Error('Could not read preview path.')
   path = saved.data.thumbnail_path
-  assert.match(path, /^link-previews\/[0-9a-f-]+\.(?:jpg|png|webp)$/)
+  assert.match(path, process.argv.includes('--gif')
+    ? /^link-previews\/[0-9a-f-]+\.gif$/
+    : /^link-previews\/[0-9a-f-]+\.(?:jpg|png|webp)$/)
   const image = await service.storage.from('thumbnails').download(path)
   if (image.error || !image.data) throw image.error ?? new Error('Could not download stored preview.')
   assert(image.data.size > 100, 'Stored preview image should contain image bytes.')
